@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -48,6 +49,107 @@ func (s *UnitTestSuite) Test_WorkflowWithMockActivities() {
 	err := s.env.GetWorkflowResult(&workflowResult)
 	s.NoError(err)
 	s.Equal("COMPLETED", workflowResult)
+}
+
+func (s *UnitTestSuite) Test_TimeoutWithMockActivities() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.SetWorkflowTimeout(time.Microsecond * 500)
+	s.env.SetTestTimeout(time.Minute * 10)
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	var workflowResult string
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.Equal("TimeoutType: SCHEDULE_TO_CLOSE", err.Error())
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_WorkflowStatusRejected() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.OnActivity(waitForDecisionActivity, mock.Anything, mock.Anything).Return("REJECTED", nil).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.NoError(s.env.GetWorkflowError())
+	var workflowResult string
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.NoError(err)
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_WorkflowStatusCancelled() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.OnActivity(waitForDecisionActivity, mock.Anything, mock.Anything).Return("CANCELLED", nil).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.NoError(s.env.GetWorkflowError())
+	var workflowResult string
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.NoError(err)
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_WorkflowStatusApprovedWithPaymentError() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.OnActivity(waitForDecisionActivity, mock.Anything, mock.Anything).Return("APPROVED", nil).Once()
+	s.env.OnActivity(paymentActivity, mock.Anything, mock.Anything).Return(errors.New("payment error")).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowError())
+	var workflowResult string
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.Equal("payment error", err.Error())
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_CreateActivityFailed() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(errors.New("expense id is empty")).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowError())
+	var workflowResult string
+
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.Equal("expense id is empty", err.Error())
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_WaitForDecisionActivityFailed() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.OnActivity(waitForDecisionActivity, mock.Anything, mock.Anything).Return("", errors.New("failed to get decision")).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowError())
+	var workflowResult string
+
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.Equal("failed to get decision", err.Error())
+	s.Empty(workflowResult)
+}
+
+func (s *UnitTestSuite) Test_PaymentActivityFailed() {
+	s.env.OnActivity(createExpenseActivity, mock.Anything, mock.Anything).Return(nil).Once()
+	s.env.OnActivity(waitForDecisionActivity, mock.Anything, mock.Anything).Return("APPROVED", nil).Once()
+	s.env.OnActivity(paymentActivity, mock.Anything, mock.Anything).Return(errors.New("payment failed")).Once()
+
+	s.env.ExecuteWorkflow(sampleExpenseWorkflow, "test-expense-id")
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowError())
+	var workflowResult string
+
+	err := s.env.GetWorkflowResult(&workflowResult)
+	s.Equal("payment failed", err.Error())
+	s.Empty(workflowResult)
 }
 
 func (s *UnitTestSuite) Test_WorkflowWithMockServer() {

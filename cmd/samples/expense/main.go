@@ -26,8 +26,8 @@ func startWorkflow(h *common.SampleHelper, expenseID string) {
 	workflowOptions := client.StartWorkflowOptions{
 		ID:                              "expense_" + uuid.New(),
 		TaskList:                        ApplicationName,
-		ExecutionStartToCloseTimeout:    time.Minute,
-		DecisionTaskStartToCloseTimeout: time.Minute,
+		ExecutionStartToCloseTimeout:    time.Minute * 12,
+		DecisionTaskStartToCloseTimeout: time.Minute * 12,
 	}
 	h.StartWorkflow(workflowOptions, sampleExpenseWorkflow, expenseID)
 }

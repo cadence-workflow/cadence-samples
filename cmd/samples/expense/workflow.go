@@ -33,11 +33,11 @@ func sampleExpenseWorkflow(ctx workflow.Context, expenseID string) (result strin
 
 	// step 2, wait for the expense report to be approved (or rejected)
 	ao = workflow.ActivityOptions{
-		ScheduleToStartTimeout: 10 * time.Minute,
-		StartToCloseTimeout:    10 * time.Minute,
+		ScheduleToStartTimeout: time.Minute,
+		StartToCloseTimeout:    4 * time.Minute,
 	}
 	ctx2 := workflow.WithActivityOptions(ctx, ao)
-	// Notice that we set the timeout to be 10 minutes for this sample demo. If the expected time for the activity to
+	// Notice that we set the timeout to be 4 minutes for this sample demo. If the expected time for the activity to
 	// complete (waiting for human to approve the request) is longer, you should set the timeout accordingly so the
 	// cadence system will wait accordingly. Otherwise, cadence system could mark the activity as failure by timeout.
 	var status string
