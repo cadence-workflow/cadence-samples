@@ -18,7 +18,7 @@ import (
 
 const (
 	HostPort = "127.0.0.1:7833"
-	Domain   = "cadence-samples"
+	Domain   = "default"
 	// TaskListName identifies set of client workflows, activities, and workers.
 	// It could be your group or client or application name.
 	TaskListName   = "cadence-samples-worker"

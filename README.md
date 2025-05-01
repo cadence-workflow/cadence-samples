@@ -1,16 +1,16 @@
 # Cadence Samples ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/uber-common/cadence-samples/build.yml)
 
 These are some samples to demostrate various capabilities of Cadence client and server.  You can learn more about cadence at:
-* Cadence: https://github.com/uber/cadence
-* Cadence Client: https://github.com/uber-go/cadence-client
+* Cadence Server: https://github.com/cadence-workflow/cadence
+* Cadence Client: https://github.com/cadence-workflow/cadence-go-client
 
-## Prerequisite
-Run Cadence Server
+## Prerequisite for running samples
 
-See instructions for running the Cadence Server: https://github.com/uber/cadence/blob/master/README.md
-
-See instructions for using CLI to register a domain(name as "samples-domain"): https://cadenceworkflow.io/docs/cli/#quick-start
- or https://github.com/uber/cadence/blob/master/tools/cli/README.md
+Run Cadence server:
+```
+curl -LO https://raw.githubusercontent.com/cadence-workflow/cadence/refs/heads/master/docker/docker-compose.yml
+docker-compose up
+```
 
 
 ## Steps to run samples
@@ -20,10 +20,12 @@ make
 ```
 
 ### Run HelloWorld Sample
+
 * Start workers for helloworld workflow and activities
 ```
 ./bin/helloworld -m worker
 ```
+
 * Start workflow execution for helloworld workflow
 ```
 ./bin/helloworld -m trigger

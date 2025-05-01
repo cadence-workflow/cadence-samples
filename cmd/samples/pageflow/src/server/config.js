@@ -5,7 +5,7 @@ const config = {
     port: '4000',
   },
   cadence: {
-    domain: 'samples-domain',
+    domain: 'default',
     executionStartToCloseTimeoutSeconds: 10 * 60, // workflow open for 10 minutes
     retryDelay: 100,
     retryMax: 5,

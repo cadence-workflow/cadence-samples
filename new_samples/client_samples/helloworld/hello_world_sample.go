@@ -13,8 +13,8 @@ func main() {
 	cadenceClient := worker.BuildCadenceClient()
 	logger := worker.BuildLogger()
 
-	domain := "cadence-samples"
-	tasklist := "cadence-samples-worker"
+	domain := "default"
+	tasklist := "default-tasklist"
 	workflowID := uuid.New().String()
 	requestID := uuid.New().String()
 	executionTimeout := int32(60)

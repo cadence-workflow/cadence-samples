@@ -7,7 +7,7 @@ User interactions are implemented through workflow signals, and the latest workf
 You should be able to inspect workflow run through Cadence UI (http://localhost:8088/ if you use the standard Cadence docker image).
 
 # Steps to run locally
-Make sure you start cadence server first and create the "samples-domain" domain.
+Make sure you start cadence server first.
 
 ### `npm install`
 Make sure you are running at least node v14 (`nvm use 14`) and install dependencies. May take a while for the first time installing these packages.

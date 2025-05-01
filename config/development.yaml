@@ -1,7 +1,7 @@
 # config for sample
-domain: "samples-domain"
+domain: "default"
 service: "cadence-frontend"
-host: "127.0.0.1:7833"
+host: "localhost:7833"
 # config for emitting metrics
 #prometheus:
 #  listenAddress: "127.0.0.1:9098"
