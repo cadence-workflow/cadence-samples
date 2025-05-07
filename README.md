@@ -160,3 +160,7 @@ See more details in https://github.com/uber-common/cadence-samples/blob/master/c
 
 #### recovery
 See more details in https://github.com/uber-common/cadence-samples/blob/master/cmd/samples/recovery/README.md
+
+## License
+
+Apache 2.0 License, please see [LICENSE](https://github.com/cadence-workflow/cadence-samples/blob/master/LICENSE) for details.
