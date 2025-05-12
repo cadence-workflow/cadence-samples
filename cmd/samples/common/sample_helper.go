@@ -159,7 +159,7 @@ func (h *SampleHelper) SetupServiceConfig() {
 	domainClient, _ := h.Builder.BuildCadenceDomainClient()
 	_, err = domainClient.Describe(context.Background(), h.Config.DomainName)
 	if err != nil {
-		logger.Info("Domain doesn't exist", zap.String("Domain", h.Config.DomainName), zap.Error(err))
+		logger.Fatal("Error occurred while calling Describe API", zap.String("Domain", h.Config.DomainName), zap.Error(err))
 	} else {
 		logger.Info("Domain successfully registered.", zap.String("Domain", h.Config.DomainName))
 	}
