@@ -49,6 +49,7 @@ func BatchWorkflow(ctx workflow.Context, input BatchWorkflowInput) error {
 		})
 		futures.Send(ctx, workflow.ExecuteActivity(aCtx, BatchActivity, taskID))
 	}
+	// close the channel to signal the task result collector that no more tasks are coming
 	futures.Close()
 
 	wg.Wait(ctx)
