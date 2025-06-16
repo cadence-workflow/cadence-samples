@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cadence-samples
+  namespace: cadence # Replace with your cadence namespace
+  labels:
+    app: cadence-samples
+spec:
+  containers:
+  - name: cadence-samples
+    image: cadence-samples:latest  # Replace with your built image
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/bash"]
+    args: ["-c", "sleep infinity"]
+    workingDir: /home/cadence
+    env:
+    - name: HOME
+      value: "/home/cadence"
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1"
+  restartPolicy: Always
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
