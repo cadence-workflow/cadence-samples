@@ -1,5 +1,5 @@
 # Multi-stage build for optimization
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache make gcc musl-dev
@@ -14,7 +14,7 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build all samples
+# Build all samples using existing Makefile
 RUN make
 
 # Final stage - minimal runtime image
@@ -38,6 +38,12 @@ COPY --from=builder /app/bin/ ./bin/
 
 # Copy configuration files
 COPY --from=builder /app/config/ ./config/
+
+# Copy cmd directory
+COPY --from=builder /app/cmd/ ./cmd/
+
+# Copy new_samples directory
+COPY --from=builder /app/new_samples/ ./new_samples/
 
 # Update config file with the provided Cadence host
 RUN sed -i "s/host: \"localhost:7833\"/host: \"${CADENCE_HOST}\"/" config/development.yaml
