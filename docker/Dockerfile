@@ -1,5 +1,5 @@
-# Multi-stage build for optimization
-FROM golang:1.21-alpine AS builder
+# Multi-stage build for optimization (Image version from go.sum)
+FROM golang:1.18-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache make gcc musl-dev
