@@ -1,4 +1,4 @@
-# Multi-stage build for optimization (Image version from go.sum)
+# Multi-stage build for optimization (Image version from go.mod)
 FROM golang:1.18-alpine AS builder
 
 # Install build dependencies
