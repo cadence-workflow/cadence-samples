@@ -245,7 +245,7 @@ func (h *SampleHelper) RegisterActivityWithAlias(activity interface{}, alias str
 }
 
 // StartWorkers starts workflow worker and activity worker based on configured options.
-func (h *SampleHelper) StartWorkers(domainName string, groupName string, options worker.Options) {
+func (h *SampleHelper) StartWorkers(domainName string, groupName string, options worker.Options) worker.Worker {
 	worker := worker.New(h.Service, domainName, groupName, options)
 	h.registerWorkflowAndActivity(worker)
 
@@ -254,6 +254,8 @@ func (h *SampleHelper) StartWorkers(domainName string, groupName string, options
 		h.Logger.Error("Failed to start workers.", zap.Error(err))
 		panic("Failed to start workers")
 	}
+
+	return worker
 }
 
 func (h *SampleHelper) QueryWorkflow(workflowID, runID, queryType string, args ...interface{}) {

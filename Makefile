@@ -7,6 +7,7 @@ export PATH := $(GOPATH)/bin:$(PATH)
 default: test
 
 PROGS = helloworld \
+	versioning \
 	delaystart \
 	branch \
 	childworkflow \
@@ -172,7 +173,11 @@ crossdomain-run: crossdomain
 sideeffect:
 	go build -o bin/sideeffect cmd/samples/recipes/sideeffect/*.go
 
+versioning:
+	go build -o bin/versioning cmd/samples/recipes/versioning/*.go
+
 bins: helloworld \
+	versioning \
 	delaystart \
 	branch \
 	crossdomain \
