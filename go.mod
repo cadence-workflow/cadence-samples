@@ -15,7 +15,6 @@ require (
 	github.com/uber/cadence-idl v0.0.0-20250616185004-cc6f52f87bc6
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	go.uber.org/cadence v1.2.10-rc.16
-	go.uber.org/multierr v1.6.0
 	go.uber.org/yarpc v1.60.0
 	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -55,6 +54,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/fx v1.13.1 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/net/metrics v1.3.0 // indirect
 	go.uber.org/thriftrw v1.29.2 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220218215828-6cf2b201936e // indirect
