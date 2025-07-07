@@ -47,6 +47,22 @@ This example demonstrates a safe deployment strategy that allows you to:
 3. **Rollback safely** if issues are discovered
 4. **Gradually migrate** workflows to new versions
 
+
+## Important Notes
+
+- **Single Workflow Limitation**: This sample allows only one workflow at a time to simplify the signal handling mechanism. In production, you would typically handle multiple workflows.
+- **Signal Method**: The workflow uses a simple signal method to stop gracefully, keeping the implementation straightforward.
+- **Breaking Changes**: V4 demonstrates what happens when you introduce a breaking change - workflows started by V1 cannot be executed.
+
+## Version Compatibility Matrix
+
+| Started By | V1 Worker | V2 Worker | V3 Worker | V4 Worker |
+|------------|-----------|-----------|-----------|-----------|
+| V1         | ✅        | ✅        | ✅        | ❌        |
+| V2         | ❌        | ✅        | ✅        | ✅        |
+| V3         | ❌        | ✅        | ✅        | ✅        |
+| V4         | ❌        | ✅        | ✅        | ✅        |
+
 ## Running the Example
 
 ### Prerequisites
@@ -65,83 +81,82 @@ go build -o bin/versioning cmd/samples/recipes/versioning/*.go
 ./bin/versioning -m worker -v 1
 ```
 
-#### 2. Trigger a Workflow (Executed by Worker V1)
+#### 2. Trigger a Workflow
 ```bash
 ./bin/versioning -m trigger
 ```
 
-**Deployment started** - You now have a workflow running on V1.
+Wait for logs in the V1 worker to ensure that a workflow has been executed by worker V1.
 
-#### 3. Deploy Worker V2 (Safe Deployment)
+#### 3. Deploy Worker V2
+Let's simulate a deployment from V1 to V2 and run a V2 worker alongside the V1 worker:
+
 ```bash
 ./bin/versioning -m worker -v 2
 ```
 
+The workflow should still be executed by worker V1.
+
 #### 4. Test V2 Compatibility
+Let's simulate that worker V1 is shut down and the workflow will be rescheduled to the V2 worker:
 * Kill the process of worker V1 (Ctrl+C), then wait 5 seconds to see workflow rescheduling to worker V2 without errors.
-* Verify logs of V2, V2 should handle workflows started by V1.
+
+Verify logs of the V2 worker - it should handle the workflow started by V1.
 
 #### 5. Upgrade to Version V3
+Let's continue the deployment and upgrade to V3, running a V3 worker alongside the V2 worker:
+
 ```bash
 ./bin/versioning -m worker -v 3
 ```
 
+The workflow should still be executed by worker V2.
+
 #### 6. Test V3 Compatibility
+Let's simulate that worker V2 is shut down and the workflow will be rescheduled to the V3 worker:
+
 * Kill the process of worker V2, then wait 5 seconds to see workflow rescheduling to worker V3 without errors.
-* Verify logs of V3 worker, V3 worker should handle workflows started by V1.
 
-#### 7. Test Breaking Change with V4
-```bash
-./bin/versioning -m worker -v 4
-```
+Verify logs of the V3 worker - it should handle the workflow started by V2.
 
-Kill the process of worker V3. You'll notice that workflows initiated by V1 cannot be executed by version V4 - this simulates a breaking change.
+#### 7. Gracefully Stop the Workflow
+Before upgrading to V4, we should ensure that the workflow has been stopped, otherwise it will fail. For this, we need to send a signal to stop it gracefully:
 
-#### 8. Gracefully Stop the Workflow
 ```bash
 ./bin/versioning -m stop
 ```
 
-#### 9. Start a New Workflow (Will Use V4 Logic)
+You should see that the workflow has been stopped.
+
+#### 8. Start a New Workflow
+Let's start a new workflow:
+
 ```bash
 ./bin/versioning -m trigger
 ```
 
-The workflow will use version 1 of the change ID (V4's default).
+The workflow will use version 1 of the change ID (V3's and V4's default).
 
-#### 10. Rollback to Worker V2
+#### 9. Rollback to Worker V2
+Let's imagine that V3 has an issue and we need to rollback to V2. Let's start a worker V2:
+
 ```bash
 ./bin/versioning -m worker -v 2
 ```
 
-* Kill the process of worker V4, then wait for workflow rescheduling.
-* Verify logs of V2 worker, V2 worker should handle workflows started by V4.
+* Kill the process of worker V3, then wait for workflow rescheduling.
+* Verify logs of V2 worker - V2 worker should handle workflows started by V3.
 
-#### 11. Aggressive Upgrade: V2 to V4 (Breaking Change)
-Since V3 worked fine, we decide to combine getting rid of support for V1 and make an upgrade straightforward to V4:
+#### 10. Aggressive Upgrade: V2 to V4 (Breaking Change)
+We decide to combine getting rid of support for V1 and make an upgrade straightforward to V4:
 
 ```bash
 ./bin/versioning -m worker -v 4
 ```
 
 * Kill the process of worker V2, then wait for workflow rescheduling.
-* Verify logs of V4 worker, V4 worker should handle workflows started by V4.
+* Verify logs of V4 worker - V4 worker should handle workflows started by V4.
 
-## Important Notes
-
-- **Single Workflow Limitation**: This sample allows only one workflow at a time to simplify the signal handling mechanism. In production, you would typically handle multiple workflows.
-- **Signal Method**: The workflow uses a simple signal method to stop gracefully, keeping the implementation straightforward.
-- **Version Compatibility**: Each version is designed to handle workflows started by compatible previous versions.
-- **Breaking Changes**: V4 demonstrates what happens when you introduce a breaking change - workflows started by V1 cannot be executed.
-
-## Version Compatibility Matrix
-
-| Started By | V1 Worker | V2 Worker | V3 Worker | V4 Worker |
-|------------|-----------|-----------|-----------|-----------|
-| V1         | ✅        | ✅        | ✅        | ❌        |
-| V2         | ❌        | ✅        | ✅        | ✅        |
-| V3         | ❌        | ✅        | ✅        | ✅        |
-| V4         | ❌        | ✅        | ✅        | ✅        |
 
 ## Command Reference
 
