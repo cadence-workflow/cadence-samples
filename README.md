@@ -25,7 +25,7 @@ Learn more about Cadence at:
 git clone https://github.com/uber-common/cadence-samples.git && cd cadence-samples
 ```
 
-2. Start Cadence Server*
+2. **Start Cadence Server**
 ```bash
 curl -LO https://raw.githubusercontent.com/cadence-workflow/cadence/refs/heads/master/docker/docker-compose.yml && docker-compose up --wait
 ```
@@ -38,6 +38,44 @@ make
 ```
 
 ## 📚 Sample Categories
+
+### Table of Contents
+- [🎯 Basic Examples](#-basic-examples)
+  - [Hello World](#hello-world-cmdsamplesrecipeshelloworld)
+  - [Greetings](#greetings-cmdsamplesrecipesgreetings)
+  - [Cron](#cron-cmdsamplescron)
+  - [Timer](#timer-cmdsamplesrecipestimer)
+  - [Delay Start](#delay-start-cmdsamplesrecipesdelaystart)
+  - [Branch](#branch-cmdsamplesrecipesbranch)
+  - [Split-Merge](#split-merge-cmdsamplesrecipessplitmerge)
+  - [Pick First](#pick-first-cmdsamplesrecipespickfirst)
+
+- [🔧 Advanced Examples](#-advanced-examples)
+  - [Choice](#choice-cmdsamplesrecipeschoice)
+  - [Retry Activity](#retry-activity-cmdsamplesrecipesretryactivity)
+  - [Cancel Activity](#cancel-activity-cmdsamplesrecipescancelactivity)
+  - [Mutex](#mutex-cmdsamplesrecipesmutex)
+  - [Query](#query-cmdsamplesrecipesquery)
+  - [Consistent Query](#consistent-query-cmdsamplesrecipesconsistentquery)
+  - [Child Workflow](#child-workflow-cmdsamplesrecipeschildworkflow)
+  - [Dynamic](#dynamic-cmdsamplesrecipesdynamic)
+  - [Local Activity](#local-activity-cmdsamplesrecipeslocalactivity)
+  - [Versioning](#versioning-cmdsamplesrecipesversioning)
+  - [Search Attributes](#search-attributes-cmdsamplesrecipessearchattributes)
+  - [Context Propagation](#context-propagation-cmdsamplesrecipesctxpropagation)
+  - [Tracing](#tracing-cmdsamplesrecipestracing)
+  - [Side Effect](#side-effect-cmdsamplesrecipessideeffect)
+  - [Batch](#batch-cmdsamplesbatch)
+  - [Recovery](#recovery-cmdsamplesrecovery)
+
+- [🏢 Business Application Examples](#-business-application-examples)
+  - [Expense](#expense-cmdsamplesexpense)
+  - [File Processing](#file-processing-cmdsamplesfileprocessing)
+  - [DSL](#dsl-cmdsamplesdsl)
+  - [Page Flow](#page-flow-cmdsamplespageflow)
+  - [PSO (Particle Swarm Optimization)](#pso-particle-swarm-optimization-cmdsamplespso)
+
+---
 
 ### 🎯 **Basic Examples**
 
@@ -184,7 +222,7 @@ Start Workflow:
 ./bin/pickfirst -m trigger
 ```
 
-### 🔍 **Advanced Examples**
+### 🔧 **Advanced Examples**
 
 #### [Choice](cmd/samples/recipes/choice/)
 * **Shows**: Conditional execution and decision-based activity routing.
@@ -406,15 +444,6 @@ Start Workflow:
 ./bin/batch -m trigger
 ```
 
-#### [PSO (Particle Swarm Optimization)](cmd/samples/pso/)
-* **Shows**: Complex mathematical workflows and long-running optimization workflows.
-* **What it does**: Implements particle swarm optimization with child workflows and ContinueAsNew.
-* **Real-world use case**: Mathematical optimization, machine learning training, complex calculations.
-* **Key concepts**: Long-running workflows, ContinueAsNew, child workflows, custom data converters.
-
-##### How to run
-* Check **[Detailed Guide](cmd/samples/pso/README.md)** to run the sample
-
 #### [Recovery](cmd/samples/recovery/)
 * **Shows**: Workflow recovery and failure handling.
 * **What it does**: Shows how to restart failed workflows and replay signals.
@@ -469,6 +498,16 @@ Start Workflow:
 
 ##### How to run
 * Check **[Detailed Guide](cmd/samples/pageflow/README.md)** to run the sample
+
+
+#### [PSO (Particle Swarm Optimization)](cmd/samples/pso/)
+* **Shows**: Complex mathematical workflows and long-running optimization workflows.
+* **What it does**: Implements particle swarm optimization with child workflows and ContinueAsNew.
+* **Real-world use case**: Mathematical optimization, machine learning training, complex calculations.
+* **Key concepts**: Long-running workflows, ContinueAsNew, child workflows, custom data converters.
+
+##### How to run
+* Check **[Detailed Guide](cmd/samples/pso/README.md)** to run the sample
 
 ## 🛠 **Development & Testing**
 
