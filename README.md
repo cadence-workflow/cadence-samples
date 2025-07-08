@@ -25,7 +25,7 @@ Learn more about Cadence at:
 git clone https://github.com/uber-common/cadence-samples.git && cd cadence-samples
 ```
 
-2. **Start Cadence Server**:
+2. Start Cadence Server*
 ```bash
 curl -LO https://raw.githubusercontent.com/cadence-workflow/cadence/refs/heads/master/docker/docker-compose.yml && docker-compose up --wait
 ```
@@ -39,7 +39,7 @@ make
 
 ## 📚 Sample Categories
 
-### 🎯 **Getting Started Examples**
+### 🎯 **Basic Examples**
 
 #### [Hello World](cmd/samples/recipes/helloworld/)
 * **Shows**: Basic Cadence workflow concepts and activity execution.
@@ -47,9 +47,15 @@ make
 * **Real-world use case**: Foundation for understanding workflow structure, activity execution, and basic error handling.
 * **Key concepts**: Workflow definition, activity execution, error handling, worker setup.
 
+##### How to run
+Start Worker:
 ```bash
-./bin/helloworld -m worker    # Start worker
-./bin/helloworld -m trigger   # Execute workflow
+./bin/helloworld -m worker
+```
+
+Start Workflow:
+```bash
+./bin/helloworld -m trigger
 ```
 
 #### [Greetings](cmd/samples/recipes/greetings/)
@@ -58,12 +64,16 @@ make
 * **Real-world use case**: Multi-step processes like user registration, order processing, or data transformation pipelines.
 * **Key concepts**: Sequential execution, activity chaining, result passing between activities.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/greetings -m worker
-./bin/greetings -m trigger
 ```
 
-### ⏰ **Scheduling & Timing Examples**
+Start Workflow:
+```bash
+./bin/greetings -m trigger
+```
 
 #### [Cron](cmd/samples/cron/)
 * **Shows**: Automated recurring tasks and cron scheduling.
@@ -71,8 +81,14 @@ make
 * **Real-world use case**: Data backups, report generation, system maintenance, periodic data synchronization.
 * **Key concepts**: Cron scheduling, workflow persistence, time-based execution.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/cron -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/cron -m trigger -cron "* * * * *"  # Run every minute
 ```
 
@@ -82,8 +98,14 @@ make
 * **Real-world use case**: Order processing with SLA monitoring, payment processing with timeout alerts, API calls with fallback mechanisms.
 * **Key concepts**: Timer creation, timeout handling, parallel execution with cancellation.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/timer -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/timer -m trigger
 ```
 
@@ -93,8 +115,14 @@ make
 * **Real-world use case**: Scheduled maintenance windows, delayed notifications, batch processing at specific times.
 * **Key concepts**: Delayed execution, time-based workflow scheduling.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/delaystart -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/delaystart -m trigger
 ```
 
@@ -106,10 +134,20 @@ make
 * **Real-world use case**: Processing multiple orders simultaneously, calling multiple APIs in parallel, batch data processing.
 * **Key concepts**: Parallel execution, Future handling, concurrent activity management.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/branch -m worker
-./bin/branch -m trigger -c branch      # Single branch workflow
-./bin/branch -m trigger -c parallel    # Parallel branch workflow
+```
+
+Start Single Branch Workflow:
+```bash
+./bin/branch -m trigger -c branch
+```
+
+Start Parallel Branch Workflow:
+```bash
+./bin/branch -m trigger -c parallel
 ```
 
 #### [Split-Merge](cmd/samples/recipes/splitmerge/)
@@ -118,8 +156,14 @@ make
 * **Real-world use case**: Large file processing, batch data analysis, image/video processing, ETL pipelines.
 * **Key concepts**: Work splitting, parallel processing, result aggregation, worker coordination.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/splitmerge -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/splitmerge -m trigger
 ```
 
@@ -129,12 +173,18 @@ make
 * **Real-world use case**: Multi-provider API calls, redundant service calls, failover mechanisms, load balancing.
 * **Key concepts**: Parallel execution, cancellation, race condition handling.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/pickfirst -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/pickfirst -m trigger
 ```
 
-### 🎲 **Decision Making Examples**
+### 🔍 **Advanced Examples**
 
 #### [Choice](cmd/samples/recipes/choice/)
 * **Shows**: Conditional execution and decision-based activity routing.
@@ -142,13 +192,21 @@ make
 * **Real-world use case**: Order routing based on type, user authentication flows, approval workflows, conditional processing.
 * **Key concepts**: Conditional logic, decision trees, workflow branching.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/choice -m worker
-./bin/choice -m trigger -c single    # Single choice workflow
-./bin/choice -m trigger -c multi     # Multi-choice workflow
 ```
 
-### 🔄 **Error Handling & Recovery Examples**
+Start Single Choice Workflow:
+```bash
+./bin/choice -m trigger -c single
+```
+
+Start Multi-Choice Workflow:
+```bash
+./bin/choice -m trigger -c multi
+```
 
 #### [Retry Activity](cmd/samples/recipes/retryactivity/)
 * **Shows**: Resilient processing with retry policies and heartbeat tracking.
@@ -156,8 +214,14 @@ make
 * **Real-world use case**: API calls with intermittent failures, database operations, external service integration.
 * **Key concepts**: Retry policies, heartbeat mechanisms, progress tracking, failure recovery.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/retryactivity -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/retryactivity -m trigger
 ```
 
@@ -167,13 +231,21 @@ make
 * **Real-world use case**: User-initiated cancellations, timeout handling, resource cleanup, emergency stops.
 * **Key concepts**: Cancellation handling, cleanup operations, graceful shutdown.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/cancelactivity -m worker
-./bin/cancelactivity -m trigger
-# To cancel: ./bin/cancelactivity -m cancel -w <WorkflowID>
 ```
 
-### 🔐 **Resource Management Examples**
+Start Workflow:
+```bash
+./bin/cancelactivity -m trigger
+```
+
+**Cancel Workflow:**
+```bash
+./bin/cancelactivity -m cancel -w <WorkflowID>
+```
 
 #### [Mutex](cmd/samples/recipes/mutex/)
 * **Shows**: Resource locking and distributed locking patterns.
@@ -181,12 +253,16 @@ make
 * **Real-world use case**: Database migrations, configuration updates, resource allocation, critical section protection.
 * **Key concepts**: Distributed locking, resource coordination, mutual exclusion.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/mutex -m worker
-./bin/mutex -m trigger
 ```
 
-### 🔍 **Querying & Monitoring Examples**
+Start Workflow:
+```bash
+./bin/mutex -m trigger
+```
 
 #### [Query](cmd/samples/recipes/query/)
 * **Shows**: Workflow state inspection and custom query handlers.
@@ -194,13 +270,8 @@ make
 * **Real-world use case**: Progress monitoring, status dashboards, debugging running workflows, user interfaces.
 * **Key concepts**: Query handlers, state inspection, workflow monitoring.
 
-**📖 [Detailed Guide](cmd/samples/recipes/query/README.md)**
-
-```bash
-./bin/query -m worker
-./bin/query -m trigger
-./bin/query -m query -w <workflow_id> -r <run_id> -t state
-```
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recipes/query/README.md)** to run the sample
 
 #### [Consistent Query](cmd/samples/recipes/consistentquery/)
 * **Shows**: Consistent state queries and signal handling.
@@ -208,14 +279,8 @@ make
 * **Real-world use case**: Real-time dashboards, progress tracking, state synchronization.
 * **Key concepts**: Consistent queries, signal handling, state management.
 
-**📖 [Detailed Guide](cmd/samples/recipes/consistentquery/README.md)**
-
-```bash
-./bin/query -m worker
-./bin/query -m trigger
-```
-
-### 🔄 **Advanced Workflow Patterns**
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recipes/consistentquery/README.md)** to run the sample
 
 #### [Child Workflow](cmd/samples/recipes/childworkflow/)
 * **Shows**: Workflow composition and parent-child workflow relationships.
@@ -223,8 +288,14 @@ make
 * **Real-world use case**: Complex business processes, workflow decomposition, modular workflow design.
 * **Key concepts**: Child workflows, ContinueAsNew, workflow composition.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/childworkflow -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/childworkflow -m trigger
 ```
 
@@ -234,8 +305,14 @@ make
 * **Real-world use case**: Plugin systems, dynamic workflow composition, configuration-driven workflows.
 * **Key concepts**: Dynamic activity invocation, string-based execution, flexible workflow design.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/dynamic -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/dynamic -m trigger
 ```
 
@@ -245,15 +322,8 @@ make
 * **Real-world use case**: Data validation, simple calculations, condition checking, fast decision making.
 * **Key concepts**: Local activities, performance optimization, lightweight operations.
 
-**📖 [Detailed Guide](cmd/samples/recipes/localactivity/README.md)**
-
-```bash
-./bin/localactivity -m worker
-./bin/localactivity -m trigger
-./bin/localactivity -m signal -s "_1_" -w <workflow_id>
-```
-
-### 🔄 **Versioning & Evolution Examples**
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recipes/localactivity/README.md)** to run the sample
 
 #### [Versioning](cmd/samples/recipes/versioning/)
 * **Shows**: Safe workflow evolution and backward compatibility.
@@ -261,21 +331,8 @@ make
 * **Real-world use case**: Production deployments, feature rollouts, backward compatibility, safe migrations.
 * **Key concepts**: Workflow versioning, backward compatibility, safe deployments.
 
-**📖 [Detailed Guide](cmd/samples/recipes/versioning/README.md)**
-
-```bash
-# Start with version 1
-./bin/versioning -m worker -v 1
-./bin/versioning -m trigger
-
-# Upgrade to version 2
-./bin/versioning -m worker -v 2
-# Kill version 1 worker to see migration
-
-# Continue with versions 3 and 4...
-```
-
-### 🔍 **Advanced Features Examples**
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recipes/versioning/README.md)** to run the sample
 
 #### [Search Attributes](cmd/samples/recipes/searchattributes/)
 * **Shows**: Workflow indexing and search for workflow discovery.
@@ -283,14 +340,8 @@ make
 * **Real-world use case**: Workflow discovery, filtering, reporting, operational dashboards.
 * **Key concepts**: Search attributes, workflow indexing, ElasticSearch integration.
 
-**📖 [Detailed Guide](cmd/samples/recipes/searchattributes/README.md)**
-
-```bash
-# Requires ElasticSearch
-docker-compose -f docker-compose-es.yml up
-./bin/searchattributes -m worker
-./bin/searchattributes -m trigger
-```
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recipes/searchattributes/README.md)** to run the sample
 
 #### [Context Propagation](cmd/samples/recipes/ctxpropagation/)
 * **Shows**: Cross-workflow context and context propagation.
@@ -298,8 +349,14 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: Distributed tracing, user context propagation, audit trails, debugging.
 * **Key concepts**: Context propagation, distributed tracing, cross-service context.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/ctxpropagation -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/ctxpropagation -m trigger
 ```
 
@@ -309,8 +366,14 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: Performance monitoring, debugging, observability, APM integration.
 * **Key concepts**: Distributed tracing, Jaeger integration, observability.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/tracing -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/tracing -m trigger
 ```
 
@@ -320,69 +383,11 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: ID generation, random number generation, external state queries.
 * **Key concepts**: Side effects, non-deterministic operations, replay safety.
 
+##### How to run
+Start Workflow:
 ```bash
 ./bin/sideeffect
 ```
-
-### 🏢 **Business Application Examples**
-
-#### [Expense](cmd/samples/expense/)
-* **Shows**: Human-in-the-loop workflows and approval workflows.
-* **What it does**: Creates an expense report, waits for approval, then processes payment.
-* **Real-world use case**: Expense approval, purchase orders, document review, approval workflows.
-* **Key concepts**: Human-in-the-loop, async completion, approval workflows.
-
-**📖 [Detailed Guide](cmd/samples/expense/README.md)**
-
-```bash
-# Start dummy server
-./bin/expense_dummy
-
-# Start worker
-./bin/expense -m worker
-
-# Start workflow
-./bin/expense -m trigger
-
-# Approve at http://localhost:8099/list
-```
-
-#### [File Processing](cmd/samples/fileprocessing/)
-* **Shows**: Distributed file processing across multiple hosts.
-* **What it does**: Downloads, processes, and uploads files with host-specific execution.
-* **Real-world use case**: Large file processing, ETL pipelines, media processing, data transformation.
-* **Key concepts**: File processing, host-specific execution, session management, retry policies.
-
-```bash
-./bin/fileprocessing -m worker
-./bin/fileprocessing -m trigger
-```
-
-#### [DSL](cmd/samples/dsl/)
-* **Shows**: Domain-specific language and custom workflow language creation.
-* **What it does**: Implements a simple DSL for defining workflows using YAML configuration.
-* **Real-world use case**: Business user workflow definition, configuration-driven workflows, workflow templates.
-* **Key concepts**: DSL implementation, YAML parsing, dynamic workflow creation.
-
-**📖 [Detailed Guide](cmd/samples/dsl/README.md)**
-
-```bash
-./bin/dsl -m worker
-./bin/dsl -m trigger -dslConfig cmd/samples/dsl/workflow1.yaml
-./bin/dsl -m trigger -dslConfig cmd/samples/dsl/workflow2.yaml
-```
-
-#### [Page Flow](cmd/samples/pageflow/)
-* **Shows**: UI-driven workflows and web application integration.
-* **What it does**: Shows a React frontend that interacts with Cadence workflows through signals and queries.
-* **Real-world use case**: Multi-step forms, wizard interfaces, approval workflows, user onboarding.
-* **Key concepts**: UI integration, signal handling, state management, frontend-backend coordination.
-
-**📖 [Detailed Guide](cmd/samples/pageflow/README.md)**
-
-```
-
-### 🔬 **Advanced Technical Examples**
 
 #### [Batch](cmd/samples/batch/)
 * **Shows**: Batch processing and concurrency control.
@@ -390,8 +395,14 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: Batch data processing, bulk operations, ETL jobs, report generation.
 * **Key concepts**: Batch processing, concurrency control, task distribution.
 
+##### How to run
+Start Worker:
 ```bash
 ./bin/batch -m worker
+```
+
+Start Workflow:
+```bash
 ./bin/batch -m trigger
 ```
 
@@ -401,13 +412,8 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: Mathematical optimization, machine learning training, complex calculations.
 * **Key concepts**: Long-running workflows, ContinueAsNew, child workflows, custom data converters.
 
-**📖 [Detailed Guide](cmd/samples/pso/README.md)**
-
-```bash
-./bin/pso -m worker
-./bin/pso -m trigger
-./bin/pso -m query -w <workflow_id> -r <run_id> -t state
-```
+##### How to run
+* Check **[Detailed Guide](cmd/samples/pso/README.md)** to run the sample
 
 #### [Recovery](cmd/samples/recovery/)
 * **Shows**: Workflow recovery and failure handling.
@@ -415,14 +421,54 @@ docker-compose -f docker-compose-es.yml up
 * **Real-world use case**: Disaster recovery, workflow repair, system restoration.
 * **Key concepts**: Workflow recovery, signal replay, failure handling.
 
-**📖 [Detailed Guide](cmd/samples/recovery/README.md)**
+##### How to run
+* Check **[Detailed Guide](cmd/samples/recovery/README.md)** to run the sample
 
+### 🏢 **Business Application Examples**
+
+#### [Expense](cmd/samples/expense/)
+* **Shows**: Human-in-the-loop workflows and approval workflows.
+* **What it does**: Creates an expense report, waits for approval, then processes payment.
+* **Real-world use case**: Expense approval, purchase orders, document review, approval workflows.
+* **Key concepts**: Human-in-the-loop, async completion, approval workflows.
+
+##### How to run
+* Check **[Detailed Guide](cmd/samples/expense/README.md)** to run the sample
+
+#### [File Processing](cmd/samples/fileprocessing/)
+* **Shows**: Distributed file processing across multiple hosts.
+* **What it does**: Downloads, processes, and uploads files with host-specific execution.
+* **Real-world use case**: Large file processing, ETL pipelines, media processing, data transformation.
+* **Key concepts**: File processing, host-specific execution, session management, retry policies.
+
+##### How to run:
+Start Worker:
 ```bash
-./bin/recovery -m worker
-./bin/recovery -m trigger -w UserA -wt main.TripWorkflow
-./bin/recovery -m signal -w UserA -s '{"ID": "Trip1", "Total": 10}'
-./bin/recovery -m trigger -w UserB -wt recoveryworkflow -i '{"Type": "TripWorkflow", "Concurrency": 2}'
+./bin/fileprocessing -m worker
 ```
+
+Start Workflow:
+```bash
+./bin/fileprocessing -m trigger
+```
+
+#### [DSL](cmd/samples/dsl/)
+* **Shows**: Domain-specific language and custom workflow language creation.
+* **What it does**: Implements a simple DSL for defining workflows using YAML configuration.
+* **Real-world use case**: Business user workflow definition, configuration-driven workflows, workflow templates.
+* **Key concepts**: DSL implementation, YAML parsing, dynamic workflow creation.
+
+##### How to run
+* Check **[Detailed Guide](cmd/samples/dsl/README.md)** to run the sample
+
+#### [Page Flow](cmd/samples/pageflow/)
+* **Shows**: UI-driven workflows and web application integration.
+* **What it does**: Shows a React frontend that interacts with Cadence workflows through signals and queries.
+* **Real-world use case**: Multi-step forms, wizard interfaces, approval workflows, user onboarding.
+* **Key concepts**: UI integration, signal handling, state management, frontend-backend coordination.
+
+##### How to run
+* Check **[Detailed Guide](cmd/samples/pageflow/README.md)** to run the sample
 
 ## 🛠 **Development & Testing**
 
