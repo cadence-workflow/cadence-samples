@@ -1,0 +1,14 @@
+# Based on: https://github.com/cadence-workflow/cadence/blob/master/docker/prometheus/prometheus.yml
+global:
+  scrape_interval: 5s
+  external_labels:
+    monitor: 'cadence-monitor'
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: # addresses to scrape
+          - 'cadence:9090'
+          - 'cadence:8000'
+          - 'cadence:8001'
+          - 'cadence:8002'
+          - 'cadence:8003'
