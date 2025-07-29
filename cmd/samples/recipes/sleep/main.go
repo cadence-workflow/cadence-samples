@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	ApplicationName   = "sleepWorkflowTaskList"
+	ApplicationName   = "sleepTaskList"
 	SleepWorkflowName = "sleepWorkflow"
 )
 
@@ -30,7 +30,7 @@ func startWorkers(h *common.SampleHelper) {
 func startWorkflow(h *common.SampleHelper) {
 	sleepDuration := 30 * time.Second
 	workflowOptions := client.StartWorkflowOptions{
-		ID:                              "sleepworkflow_" + uuid.New(),
+		ID:                              "sleep_" + uuid.New(),
 		TaskList:                        ApplicationName,
 		ExecutionStartToCloseTimeout:    time.Minute,
 		DecisionTaskStartToCloseTimeout: time.Minute,

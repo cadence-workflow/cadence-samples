@@ -10,7 +10,7 @@ import (
 	"go.uber.org/cadence/testsuite"
 )
 
-func Test_SleepWorkflow(t *testing.T) {
+func Test_Sleep(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 
 	env := testSuite.NewTestWorkflowEnvironment()
