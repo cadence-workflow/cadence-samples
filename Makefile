@@ -35,6 +35,7 @@ PROGS = helloworld \
 	pageflow \
 	signalcounter \
 	sideeffect \
+	dataconverter \
 
 TEST_ARG ?= -race -v -timeout 5m
 BUILD := ./build
@@ -68,6 +69,7 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/recipes/searchattributes \
 	./cmd/samples/recipes/sideeffect \
 	./cmd/samples/recipes/signalcounter \
+	./cmd/samples/recipes/dataconverter \
 	./cmd/samples/recovery \
 	./cmd/samples/pso \
 
@@ -176,6 +178,9 @@ sideeffect:
 versioning:
 	go build -o bin/versioning cmd/samples/recipes/versioning/*.go
 
+dataconverter:
+	go build -o bin/dataconverter cmd/samples/recipes/dataconverter/*.go
+
 bins: helloworld \
 	versioning \
 	delaystart \
@@ -207,6 +212,7 @@ bins: helloworld \
 	pageflow \
 	signalcounter \
 	sideeffect \
+	dataconverter \
 
 test: bins
 	@rm -f test
