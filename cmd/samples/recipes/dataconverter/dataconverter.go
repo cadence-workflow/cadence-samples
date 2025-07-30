@@ -69,15 +69,3 @@ func (dc *compressedJSONDataConverter) FromData(input []byte, valuePtr ...interf
 	}
 	return nil
 }
-
-// GetCompressionRatio returns the compression ratio for demonstration purposes
-func (dc *compressedJSONDataConverter) GetCompressionRatio(originalData []byte) (float64, error) {
-	// Simulate the compression process to calculate ratio
-	compressedData, err := dc.ToData(string(originalData))
-	if err != nil {
-		return 0, err
-	}
-
-	ratio := float64(len(compressedData)) / float64(len(originalData))
-	return ratio, nil
-}
