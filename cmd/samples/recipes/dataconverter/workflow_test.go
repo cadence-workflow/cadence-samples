@@ -16,7 +16,7 @@ func Test_DataConverterWorkflow(t *testing.T) {
 	env.RegisterWorkflow(dataConverterWorkflow)
 	env.RegisterActivity(dataConverterActivity)
 
-	dataConverter := NewJSONDataConverter()
+	dataConverter := NewCompressedJSONDataConverter()
 	workerOptions := worker.Options{
 		DataConverter: dataConverter,
 	}
@@ -35,4 +35,31 @@ func Test_DataConverterWorkflow(t *testing.T) {
 	require.NoError(t, env.GetWorkflowError())
 	require.Equal(t, "test processed", activityResult.Msg)
 	require.Equal(t, 43, activityResult.Count)
+}
+
+func Test_LargeDataConverterWorkflow(t *testing.T) {
+	testSuite := &testsuite.WorkflowTestSuite{}
+	env := testSuite.NewTestWorkflowEnvironment()
+	env.RegisterWorkflow(largeDataConverterWorkflow)
+	env.RegisterActivity(largeDataConverterActivity)
+
+	dataConverter := NewCompressedJSONDataConverter()
+	workerOptions := worker.Options{
+		DataConverter: dataConverter,
+	}
+	env.SetWorkerOptions(workerOptions)
+
+	input := CreateLargePayload()
+
+	var activityResult LargePayload
+	env.SetOnActivityCompletedListener(func(activityInfo *activity.Info, result encoded.Value, err error) {
+		result.Get(&activityResult)
+	})
+
+	env.ExecuteWorkflow(largeDataConverterWorkflow, input)
+
+	require.True(t, env.IsWorkflowCompleted())
+	require.NoError(t, env.GetWorkflowError())
+	require.Equal(t, "Comprehensive Product Catalog (Processed)", activityResult.Name)
+	require.Equal(t, 100, activityResult.Stats.TotalItems)
 }
