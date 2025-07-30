@@ -14,30 +14,6 @@ type MyPayload struct {
 	Count int
 }
 
-const DataConverterWorkflowName = "dataConverterWorkflow"
-
-func dataConverterWorkflow(ctx workflow.Context, input MyPayload) (MyPayload, error) {
-	logger := workflow.GetLogger(ctx)
-	logger.Info("Workflow started", zap.Any("input", input))
-
-	activityOptions := workflow.ActivityOptions{
-		ScheduleToStartTimeout: time.Minute,
-		StartToCloseTimeout:    time.Minute,
-	}
-	ctx = workflow.WithActivityOptions(ctx, activityOptions)
-
-	var result MyPayload
-	err := workflow.ExecuteActivity(ctx, dataConverterActivity, input).Get(ctx, &result)
-	if err != nil {
-		logger.Error("Activity failed", zap.Error(err))
-		return MyPayload{}, err
-	}
-
-	logger.Info("Workflow completed", zap.Any("result", result))
-	logger.Info("Note: All data was automatically compressed/decompressed using gzip compression")
-	return result, nil
-}
-
 // LargeDataConverterWorkflowName is the workflow name for large payload processing
 const LargeDataConverterWorkflowName = "largeDataConverterWorkflow"
 
@@ -74,14 +50,5 @@ func largeDataConverterActivity(ctx context.Context, input LargePayload) (LargeP
 	input.Stats.TotalItems = len(input.Items)
 
 	logger.Info("Large payload activity completed", zap.String("result_id", input.ID))
-	return input, nil
-}
-
-func dataConverterActivity(ctx context.Context, input MyPayload) (MyPayload, error) {
-	logger := activity.GetLogger(ctx)
-	logger.Info("Activity received input", zap.Any("input", input))
-	input.Msg = input.Msg + " processed"
-	input.Count++
-	logger.Info("Activity returning", zap.Any("output", input))
 	return input, nil
 }
