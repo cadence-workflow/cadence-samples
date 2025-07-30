@@ -56,8 +56,6 @@ func startWorkflow(h *common.SampleHelper) {
 }
 
 func registerWorkflowAndActivity(h *common.SampleHelper) {
-	h.RegisterWorkflowWithAlias(dataConverterWorkflow, DataConverterWorkflowName)
-	h.RegisterActivity(dataConverterActivity)
 	h.RegisterWorkflowWithAlias(largeDataConverterWorkflow, LargeDataConverterWorkflowName)
 	h.RegisterActivity(largeDataConverterActivity)
 }
