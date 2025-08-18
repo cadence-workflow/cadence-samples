@@ -37,6 +37,7 @@ PROGS = helloworld \
 	sideeffect \
 	sleep \
 	dataconverter \
+	autoscaling-monitoring \
 
 TEST_ARG ?= -race -v -timeout 5m
 BUILD := ./build
@@ -186,6 +187,9 @@ versioning:
 dataconverter:
 	go build -o bin/dataconverter cmd/samples/recipes/dataconverter/*.go
 
+autoscaling-monitoring:
+	go build -o bin/autoscaling-monitoring cmd/samples/advanced/autoscaling-monitoring/*.go
+
 bins: helloworld \
 	versioning \
 	delaystart \
@@ -219,6 +223,7 @@ bins: helloworld \
 	sideeffect \
 	sleep \
 	dataconverter \
+	autoscaling-monitoring \
 
 test: bins
 	@rm -f test
