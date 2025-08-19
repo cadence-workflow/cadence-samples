@@ -11,7 +11,7 @@ import (
 )
 
 // startWorkersWithAutoscaling starts workers with autoscaling configuration
-func startWorkersWithAutoscaling(h *common.SampleHelper) worker.Worker {
+func startWorkersWithAutoscaling(h *common.SampleHelper, config *AutoscalingConfiguration) {
 	// Configure worker options with autoscaling-friendly settings from config
 	workerOptions := worker.Options{
 		MetricsScope: h.WorkerMetricScope,
@@ -40,19 +40,17 @@ func startWorkersWithAutoscaling(h *common.SampleHelper) worker.Worker {
 	}
 
 	// Register workflows and activities
-	registerWorkflowAndActivityForAutoscaling(h, w)
+	registerWorkflowAndActivityForAutoscaling(w)
 
 	// Start the worker
-	err = w.Start()
+	err = w.Run()
 	if err != nil {
-		h.Logger.Fatal("Failed to start worker", zap.Error(err))
+		h.Logger.Fatal("Failed to run worker", zap.Error(err))
 	}
-
-	return w
 }
 
 // registerWorkflowAndActivityForAutoscaling registers the workflow and activities
-func registerWorkflowAndActivityForAutoscaling(h *common.SampleHelper, w worker.Worker) {
+func registerWorkflowAndActivityForAutoscaling(w worker.Worker) {
 	w.RegisterWorkflowWithOptions(AutoscalingWorkflow, workflow.RegisterOptions{Name: autoscalingWorkflowName})
 	w.RegisterActivityWithOptions(LoadGenerationActivity, activity.RegisterOptions{Name: loadGenerationActivityName})
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,14 +13,13 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/uber-common/cadence-samples/cmd/samples/common"
+	"github.com/uber-go/tally"
+	"go.uber.org/zap"
 )
 
 const (
 	ApplicationName = "autoscaling-monitoring"
 )
-
-// Global configuration
-var config AutoscalingConfiguration
 
 func main() {
 	var mode string
@@ -31,22 +29,39 @@ func main() {
 	flag.Parse()
 
 	// Load configuration
-	loadConfiguration(configFile)
+	config := loadConfiguration(configFile)
 
 	// Setup common helper with our configuration
 	var h common.SampleHelper
 	h.Config = config.Configuration
-	h.SetupServiceConfig()
+
+	// Set up logging
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to setup logger: %v", err))
+	}
+	h.Logger = logger
+
+	// Set up service client using our config
+	h.Builder = common.NewBuilder(logger).
+		SetHostPort(config.HostNameAndPort).
+		SetDomain(config.DomainName)
+
+	service, err := h.Builder.BuildServiceClient()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to build service client: %v", err))
+	}
+	h.Service = service
+
+	// Set up metrics scope (noop for now, Prometheus will be set up separately)
+	h.WorkerMetricScope = tally.NoopScope
+	h.ServiceMetricScope = tally.NoopScope
 
 	switch mode {
 	case "worker":
-		startWorkers(&h)
-
-		// The workers are supposed to be long running process that should not exit.
-		// Use select{} to block indefinitely for samples, you can quit by CMD+C.
-		select {}
+		startWorkers(&h, &config)
 	case "trigger":
-		startWorkflow(&h)
+		startWorkflow(&h, &config)
 	case "server":
 		startPrometheusServer(&h)
 	default:
@@ -56,30 +71,41 @@ func main() {
 }
 
 // loadConfiguration loads the autoscaling configuration from file
-func loadConfiguration(configFile string) {
+func loadConfiguration(configFile string) AutoscalingConfiguration {
 	// Read config file
-	configData, err := ioutil.ReadFile(configFile)
+	configData, err := os.ReadFile(configFile)
 	if err != nil {
 		fmt.Printf("Failed to read config file: %v, using defaults\n", err)
-		config = DefaultAutoscalingConfiguration()
-		return
+		return DefaultAutoscalingConfiguration()
 	}
 
 	// Parse config
+	var config AutoscalingConfiguration
 	if err := yaml.Unmarshal(configData, &config); err != nil {
 		fmt.Printf("Error parsing configuration: %v, using defaults\n", err)
-		config = DefaultAutoscalingConfiguration()
-		return
+		return DefaultAutoscalingConfiguration()
+	}
+
+	// Ensure base Configuration fields are populated
+	if config.DomainName == "" {
+		config.DomainName = "default"
+	}
+	if config.ServiceName == "" {
+		config.ServiceName = "cadence-frontend"
+	}
+	if config.HostNameAndPort == "" {
+		config.HostNameAndPort = "localhost:7833"
 	}
 
 	fmt.Printf("Loaded configuration from %s\n", configFile)
+	return config
 }
 
-func startWorkers(h *common.SampleHelper) {
-	startWorkersWithAutoscaling(h)
+func startWorkers(h *common.SampleHelper, config *AutoscalingConfiguration) {
+	startWorkersWithAutoscaling(h, config)
 }
 
-func startWorkflow(h *common.SampleHelper) {
+func startWorkflow(h *common.SampleHelper, config *AutoscalingConfiguration) {
 	workflowOptions := client.StartWorkflowOptions{
 		ID:                              "autoscaling_" + uuid.New(),
 		TaskList:                        ApplicationName,
@@ -87,9 +113,12 @@ func startWorkflow(h *common.SampleHelper) {
 		DecisionTaskStartToCloseTimeout: time.Minute,
 	}
 
-	// Use iterations from configuration
+	// Use configuration values
 	iterations := config.Autoscaling.LoadGeneration.Iterations
-	h.StartWorkflow(workflowOptions, autoscalingWorkflowName, iterations)
+	batchDelay := config.Autoscaling.LoadGeneration.BatchDelay
+	minProcessingTime := config.Autoscaling.LoadGeneration.MinProcessingTime
+	maxProcessingTime := config.Autoscaling.LoadGeneration.MaxProcessingTime
+	h.StartWorkflow(workflowOptions, autoscalingWorkflowName, iterations, batchDelay, minProcessingTime, maxProcessingTime)
 
 	fmt.Printf("Started autoscaling workflow with %d iterations\n", iterations)
 	fmt.Println("Monitor the worker performance and autoscaling behavior in Grafana:")
