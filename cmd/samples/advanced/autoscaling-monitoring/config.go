@@ -2,12 +2,14 @@ package main
 
 import (
 	"github.com/uber-common/cadence-samples/cmd/samples/common"
+	"github.com/uber-go/tally/prometheus"
 )
 
 // AutoscalingConfiguration extends the base Configuration with autoscaling-specific settings
 type AutoscalingConfiguration struct {
 	common.Configuration
-	Autoscaling AutoscalingSettings `yaml:"autoscaling"`
+	Autoscaling AutoscalingSettings       `yaml:"autoscaling"`
+	Prometheus  *prometheus.Configuration `yaml:"prometheus"`
 }
 
 // AutoscalingSettings contains the autoscaling configuration
@@ -36,6 +38,9 @@ func DefaultAutoscalingConfiguration() AutoscalingConfiguration {
 			DomainName:      "default",
 			ServiceName:     "cadence-frontend",
 			HostNameAndPort: "localhost:7833",
+		},
+		Prometheus: &prometheus.Configuration{
+			ListenAddress: "127.0.0.1:8004",
 		},
 		Autoscaling: AutoscalingSettings{
 			PollerMinCount:  2,
