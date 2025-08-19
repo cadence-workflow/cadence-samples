@@ -18,11 +18,10 @@ The worker uses `worker.NewV2` with `AutoScalerOptions` to enable true autoscali
 The worker automatically adjusts the number of poller goroutines between the min and max values based on the current workload.
 
 ### Prometheus Metrics
-The sample exposes comprehensive metrics about worker performance, activity execution, and autoscaling behavior:
-- `autoscaling_workflows_started_total` - Counter of workflows started
-- `autoscaling_activities_completed_total` - Counter of activities completed
-- `autoscaling_activity_duration_seconds` - Histogram of activity execution times
-- `autoscaling_worker_load` - Gauge showing current worker load
+The sample exposes standard Cadence metrics via Prometheus, including comprehensive autoscaling behavior metrics:
+- Standard worker performance metrics (poller counts, task processing rates)
+- Autoscaling-specific metrics (`cadence_concurrency_auto_scaler_*`)
+- All metrics automatically emitted by the Cadence Go client
 
 ### Monitoring Dashboards
 When running the Cadence server locally with Grafana, you can access the client dashboards at:
@@ -31,9 +30,9 @@ When running the Cadence server locally with Grafana, you can access the client 
 
 ## Prerequisites
 
-1. **Cadence Server**: Running locally with Docker Compose
-2. **Prometheus**: Configured to scrape metrics from the sample
-3. **Grafana**: With Cadence dashboards (included with default Cadence server setup)
+1. **Cadence Server**: Running locally with Docker Compose.
+2. **Prometheus**: Configured to scrape metrics from the sample.
+3. **Grafana**: With Cadence dashboards (included with default Cadence server setup). Dashboards in the latest version of the server.
 
 ## Quick Start
 
@@ -112,6 +111,8 @@ If no configuration file is provided or if the file cannot be read, the sample u
 domain: "default"
 service: "cadence-frontend"
 host: "localhost:7833"
+prometheus:
+  listenAddress: "127.0.0.1:8004"
 autoscaling:
   pollerMinCount: 2
   pollerMaxCount: 8
@@ -126,30 +127,23 @@ autoscaling:
 ## Monitoring
 
 ### Metrics Endpoints
-- **Prometheus Metrics**: http://localhost:8004/metrics
-- **Health Check**: http://localhost:8004/health
-- **Status Page**: http://localhost:8004/
+- **Prometheus Metrics**: http://127.0.0.1:8004/metrics
 
 ### Grafana Dashboard
 Access the Cadence client dashboard at: http://localhost:3000/d/dehkspwgabvuoc/cadence-client
 
 ### Key Metrics to Monitor
 
-1. **Worker Performance**:
-   - Activity execution rate
-   - Decision task processing rate
-   - Worker load levels
+1. **Worker Performance Metrics**:
+   - `cadence_worker_decision_poll_success_count` - Successful decision task polls
+   - `cadence_worker_activity_poll_success_count` - Successful activity task polls
+   - `cadence_worker_decision_poll_count` - Total decision task poll attempts
+   - `cadence_worker_activity_poll_count` - Total activity task poll attempts
 
-2. **Autoscaling Behavior**:
-   - Concurrent activity execution count
-   - Task queue depth
-   - Poller utilization
-   - Number of active poller goroutines
-
-3. **Custom Metrics**:
-   - `autoscaling_workflows_started_total`
-   - `autoscaling_activities_completed_total`
-   - `autoscaling_activity_duration_seconds`
+2. **Autoscaling Behavior Metrics**:
+   - `cadence_worker_poller_count` - Number of active poller goroutines (key autoscaling indicator)
+   - `cadence_concurrency_auto_scaler_poller_quota` - Current poller quota for autoscaling
+   - `cadence_concurrency_auto_scaler_poller_wait_time` - Time pollers wait for tasks
 
 ## How It Works
 
@@ -167,11 +161,11 @@ The worker uses `worker.NewV2` with `AutoScalerOptions` to:
 - Automatically adjust based on task queue depth and processing time
 
 ### Metrics Collection
-The sample collects and exposes:
-- Workflow start/complete events
-- Activity execution times and counts
-- Worker load simulation metrics
-- Standard Cadence metrics via Tally
+The sample exposes standard Cadence metrics via Prometheus:
+- Worker poller count and utilization
+- Decision and activity task processing rates
+- Task queue depth and processing times
+- All standard Cadence worker metrics via Tally
 
 ## Production Considerations
 
@@ -181,7 +175,7 @@ The sample collects and exposes:
 - Use multiple worker instances for high availability
 
 ### Monitoring
-- Configure Prometheus to scrape metrics regularly
+- Configure Prometheus to scrape metrics regularly (latest version of Cadence server is configured to do this)
 - Set up alerts for worker performance issues
 - Use Grafana dashboards to visualize autoscaling behavior
 - Monitor poller count changes to verify autoscaling is working
@@ -221,9 +215,3 @@ The sample collects and exposes:
    - Verify Grafana is running
    - Check dashboard URL is correct
    - Ensure Prometheus data source is configured
-
-### Debug Mode
-Enable debug logging by setting the log level in your environment:
-```bash
-export CADENCE_LOG_LEVEL=debug
-```
