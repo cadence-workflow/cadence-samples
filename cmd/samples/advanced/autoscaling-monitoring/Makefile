@@ -4,11 +4,11 @@
 
 # Build the autoscaling monitoring sample
 build:
-	go build -o ../../../bin/autoscaling-monitoring *.go
+	go build -o ../../../../bin/autoscaling-monitoring *.go
 
 # Clean build artifacts
 clean:
-	rm -f ../../../bin/autoscaling-monitoring
+	rm -f ../../../../bin/autoscaling-monitoring
 
 # Run tests
 test:
@@ -20,10 +20,10 @@ deps:
 
 # Run the sample in different modes
 run-worker: build
-	../../../bin/autoscaling-monitoring -m worker
+	../../../../bin/autoscaling-monitoring -m worker
 
 run-server: build
-	../../../bin/autoscaling-monitoring -m server
+	../../../../bin/autoscaling-monitoring -m server
 
 run-trigger: build
-	../../../bin/autoscaling-monitoring -m trigger
+	../../../../bin/autoscaling-monitoring -m trigger
