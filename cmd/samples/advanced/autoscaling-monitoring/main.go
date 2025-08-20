@@ -107,18 +107,6 @@ func main() {
 		startWorkers(&h, &config)
 	case "trigger":
 		startWorkflow(&h, &config)
-	case "server":
-		// Server mode - just block until interrupted
-		// Metrics are automatically exposed when running worker mode
-		fmt.Println("Server mode - metrics are automatically exposed when running worker mode")
-		fmt.Println("Access metrics at: http://127.0.0.1:8004/metrics")
-		fmt.Println("Press Ctrl+C to stop...")
-
-		// Block until interrupted
-		done := make(chan os.Signal, 1)
-		signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
-		<-done
-		fmt.Println("Shutting down server...")
 	default:
 		fmt.Printf("Unknown mode: %s\n", mode)
 		os.Exit(1)

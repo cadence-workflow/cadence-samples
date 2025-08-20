@@ -44,13 +44,7 @@ When running the Cadence server locally with Grafana, you can access the client 
 
 The worker automatically exposes metrics at: http://127.0.0.1:8004/metrics
 
-### 2. Access Metrics (Optional)
-For dedicated metrics server:
-```bash
-./bin/autoscaling-monitoring -m server
-```
-
-### 3. Generate Load
+### 2. Generate Load
 ```bash
 ./bin/autoscaling-monitoring -m trigger
 ```

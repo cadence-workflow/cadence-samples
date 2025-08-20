@@ -22,8 +22,5 @@ deps:
 run-worker: build
 	../../../../bin/autoscaling-monitoring -m worker
 
-run-server: build
-	../../../../bin/autoscaling-monitoring -m server
-
 run-trigger: build
 	../../../../bin/autoscaling-monitoring -m trigger
