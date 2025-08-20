@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/uber-common/cadence-samples/cmd/samples/common"
 	"github.com/uber-go/tally"
+	"github.com/uber-go/tally/prometheus"
 	"go.uber.org/zap"
 )
 
@@ -53,9 +55,52 @@ func main() {
 	}
 	h.Service = service
 
-	// Set up metrics scope (noop for now, Prometheus will be set up separately)
-	h.WorkerMetricScope = tally.NoopScope
-	h.ServiceMetricScope = tally.NoopScope
+	// Set up metrics scope with Tally Prometheus reporter
+	var (
+		safeCharacters  = []rune{'_'}
+		sanitizeOptions = tally.SanitizeOptions{
+			NameCharacters: tally.ValidCharacters{
+				Ranges:     tally.AlphanumericRange,
+				Characters: safeCharacters,
+			},
+			KeyCharacters: tally.ValidCharacters{
+				Ranges:     tally.AlphanumericRange,
+				Characters: safeCharacters,
+			},
+			ValueCharacters: tally.ValidCharacters{
+				Ranges:     tally.AlphanumericRange,
+				Characters: safeCharacters,
+			},
+			ReplacementCharacter: tally.DefaultReplacementCharacter,
+		}
+	)
+
+	// Create Prometheus reporter
+	reporter := prometheus.NewReporter(prometheus.Options{})
+
+	// Create root scope with proper options
+	scope, closer := tally.NewRootScope(tally.ScopeOptions{
+		Tags:            map[string]string{"service": "autoscaling-monitoring"},
+		SanitizeOptions: &sanitizeOptions,
+		CachedReporter:  reporter,
+	}, 10)
+	defer closer.Close()
+
+	// Set up HTTP handler for metrics endpoint
+	if config.Prometheus != nil {
+		go func() {
+			http.Handle("/metrics", reporter.HTTPHandler())
+			logger.Info("Starting Prometheus metrics server",
+				zap.String("port", config.Prometheus.ListenAddress))
+			if err := http.ListenAndServe(config.Prometheus.ListenAddress, nil); err != nil {
+				logger.Error("Failed to start metrics server", zap.Error(err))
+			}
+		}()
+	}
+
+	// Set up metrics scope for helper
+	h.WorkerMetricScope = scope
+	h.ServiceMetricScope = scope
 
 	switch mode {
 	case "worker":
@@ -63,7 +108,17 @@ func main() {
 	case "trigger":
 		startWorkflow(&h, &config)
 	case "server":
-		startPrometheusServer(&h)
+		// Server mode - just block until interrupted
+		// Metrics are automatically exposed when running worker mode
+		fmt.Println("Server mode - metrics are automatically exposed when running worker mode")
+		fmt.Println("Access metrics at: http://127.0.0.1:8004/metrics")
+		fmt.Println("Press Ctrl+C to stop...")
+
+		// Block until interrupted
+		done := make(chan os.Signal, 1)
+		signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+		<-done
+		fmt.Println("Shutting down server...")
 	default:
 		fmt.Printf("Unknown mode: %s\n", mode)
 		os.Exit(1)
@@ -123,15 +178,4 @@ func startWorkflow(h *common.SampleHelper, config *AutoscalingConfiguration) {
 	fmt.Printf("Started autoscaling workflow with %d iterations\n", iterations)
 	fmt.Println("Monitor the worker performance and autoscaling behavior in Grafana:")
 	fmt.Println("http://localhost:3000/d/dehkspwgabvuoc/cadence-client")
-}
-
-func startPrometheusServer(h *common.SampleHelper) {
-	startPrometheusHTTPServer(h)
-
-	// Block until interrupted
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
-	fmt.Println("Prometheus server started. Press Ctrl+C to stop...")
-	<-done
-	fmt.Println("Shutting down Prometheus server...")
 }
