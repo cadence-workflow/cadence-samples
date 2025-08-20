@@ -17,11 +17,13 @@ autoscaling:
   
   # Worker load simulation settings
   loadGeneration:
-    # Number of iterations in the autoscaling workflow
-    iterations: 50
+    # Workflow-level settings
+    workflows: 3              # Number of workflows to start
+    workflowDelay: 2          # Delay between starting workflows (seconds)
     
-    # Delay between activity batches (seconds)
-    batchDelay: 2
+    # Activity-level settings (per workflow)
+    activitiesPerWorkflow: 40 # Number of activities per workflow
+    batchDelay: 2             # Delay between activity batches within workflow (seconds)
     
     # Activity processing time range (milliseconds)
     minProcessingTime: 1000

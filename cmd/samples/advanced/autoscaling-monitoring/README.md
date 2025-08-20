@@ -78,10 +78,17 @@ autoscaling:
   
   # Load generation settings
   loadGeneration:
-    iterations: 50          # Number of activities to execute
-    batchDelay: 2           # Delay between batches (seconds)
-    minProcessingTime: 1000 # Min activity time (ms)
-    maxProcessingTime: 6000 # Max activity time (ms)
+    # Workflow-level settings
+    workflows: 3              # Number of workflows to start
+    workflowDelay: 2          # Delay between starting workflows (seconds)
+    
+    # Activity-level settings (per workflow)
+    activitiesPerWorkflow: 40 # Number of activities per workflow
+    batchDelay: 2             # Delay between activity batches within workflow (seconds)
+    
+    # Activity processing time range (milliseconds)
+    minProcessingTime: 1000
+    maxProcessingTime: 6000
 ```
 
 ### Configuration Usage
@@ -92,8 +99,8 @@ The configuration values are used throughout the sample:
    - `pollerMinCount`, `pollerMaxCount`, `pollerInitCount` → `AutoScalerOptions`
 
 2. **Workflow Configuration** (`workflow.go`):
-   - `iterations` → Number of activities to execute
-   - `batchDelay` → Delay between activity batches
+   - `activitiesPerWorkflow` → Number of activities to execute per workflow
+   - `batchDelay` → Delay between activity batches within workflow
 
 3. **Activity Configuration** (`activities.go`):
    - `minProcessingTime`, `maxProcessingTime` → Activity processing time range
@@ -116,19 +123,62 @@ autoscaling:
   pollerMaxCount: 8
   pollerInitCount: 4
   loadGeneration:
-    iterations: 50
+    workflows: 3
+    workflowDelay: 2
+    activitiesPerWorkflow: 40
     batchDelay: 2
     minProcessingTime: 1000
     maxProcessingTime: 6000
 ```
 
+### Load Pattern Examples
+
+The sample supports various load patterns for testing autoscaling behavior:
+
+#### **1. Gradual Ramp-up (Default)**
+```yaml
+loadGeneration:
+  workflows: 3
+  workflowDelay: 2
+  activitiesPerWorkflow: 40
+```
+**Result**: 3 workflows starting 2 seconds apart, each with 40 activities (120 total activities)
+
+#### **2. Burst Load**
+```yaml
+loadGeneration:
+  workflows: 10
+  workflowDelay: 0
+  activitiesPerWorkflow: 20
+```
+**Result**: 10 workflows all starting immediately (200 total activities)
+
+#### **3. Sustained Load**
+```yaml
+loadGeneration:
+  workflows: 5
+  workflowDelay: 5
+  activitiesPerWorkflow: 100
+```
+**Result**: 5 long-running workflows with 5-second delays between starts (500 total activities)
+
+#### **4. Light Load**
+```yaml
+loadGeneration:
+  workflows: 1
+  workflowDelay: 0
+  activitiesPerWorkflow: 20
+```
+**Result**: Single workflow with 20 activities for minimal load testing
+
 ## Monitoring
 
 ### Metrics Endpoints
 - **Prometheus Metrics**: http://127.0.0.1:8004/metrics
-  - Exposed automatically when running worker or server mode
+  - Exposed automatically when running worker mode only
   - Real-time autoscaling and worker performance metrics
   - Prometheus-compatible format with sanitized names
+  - **Note**: Metrics server is not started in trigger mode
 
 ### Grafana Dashboard
 Access the Cadence client dashboard at: http://localhost:3000/d/dehkspwgabvuoc/cadence-client
@@ -151,10 +201,12 @@ Access the Cadence client dashboard at: http://localhost:3000/d/dehkspwgabvuoc/c
 ## How It Works
 
 ### Load Generation
-The sample creates a workflow that executes activities in parallel, with each activity:
-- Taking 1-6 seconds to complete (configurable via `minProcessingTime`/`maxProcessingTime`)
+The sample creates multiple workflows that execute activities in parallel, with each workflow:
+- Starting with configurable delays (`workflowDelay`) to create sustained load patterns
+- Executing a configurable number of activities (`activitiesPerWorkflow`) per workflow
+- Each activity taking 1-6 seconds to complete (configurable via `minProcessingTime`/`maxProcessingTime`)
 - Recording metrics about execution time
-- Creating varying load patterns with configurable batch delays
+- Creating varying load patterns with configurable batch delays within each workflow
 
 ### Autoscaling Demonstration
 The worker uses `worker.NewV2` with `AutoScalerOptions` to:
@@ -187,6 +239,37 @@ The sample uses Tally with Prometheus reporter for comprehensive metrics:
 - Secure the Prometheus endpoint in production
 - Use authentication for metrics access
 - Consider using HTTPS for metrics endpoints
+
+## Testing
+
+The sample includes comprehensive unit tests for the configuration loading functionality:
+
+### Running Tests
+```bash
+# Run all tests
+go test -v
+
+# Run specific test
+go test -v -run TestLoadConfiguration_SuccessfulLoading
+
+# Run tests with coverage
+go test -v -cover
+```
+
+### Test Coverage
+The tests cover:
+- **Successful configuration loading** - Complete YAML files with all fields
+- **Missing file fallback** - Graceful handling when config file doesn't exist
+- **Partial configuration** - YAML files with only some fields specified
+- **Malformed YAML handling** - Invalid YAML syntax and field types
+- **Default value application** - Ensuring all fields have sensible defaults
+
+### Configuration Testing
+The tests validate that the improved configuration system:
+- Handles embedded struct issues properly
+- Applies defaults correctly for missing fields
+- Provides clear error messages for configuration problems
+- Maintains backward compatibility
 
 ## Troubleshooting
 

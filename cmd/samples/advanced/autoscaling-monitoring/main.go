@@ -9,7 +9,6 @@ import (
 
 	"github.com/pborman/uuid"
 	"go.uber.org/cadence/client"
-	"gopkg.in/yaml.v2"
 
 	"github.com/uber-common/cadence-samples/cmd/samples/common"
 	"github.com/uber-go/tally"
@@ -22,18 +21,18 @@ const (
 )
 
 func main() {
+	// Parse command line arguments
 	var mode string
-	var configFile string
-	flag.StringVar(&mode, "m", "trigger", "Mode is worker, trigger, or server.")
-	flag.StringVar(&configFile, "config", "config/autoscaling.yaml", "Configuration file path.")
+	flag.StringVar(&mode, "m", "worker", "Mode: worker or trigger")
 	flag.Parse()
 
 	// Load configuration
+	configFile := "config/autoscaling.yaml"
 	config := loadConfiguration(configFile)
 
 	// Setup common helper with our configuration
 	var h common.SampleHelper
-	h.Config = config.Configuration
+	h.Config = config.ToCommonConfiguration()
 
 	// Set up logging
 	logger, err := zap.NewDevelopment()
@@ -84,24 +83,23 @@ func main() {
 	}, 10)
 	defer closer.Close()
 
-	// Set up HTTP handler for metrics endpoint
-	if config.Prometheus != nil {
-		go func() {
-			http.Handle("/metrics", reporter.HTTPHandler())
-			logger.Info("Starting Prometheus metrics server",
-				zap.String("port", config.Prometheus.ListenAddress))
-			if err := http.ListenAndServe(config.Prometheus.ListenAddress, nil); err != nil {
-				logger.Error("Failed to start metrics server", zap.Error(err))
-			}
-		}()
-	}
-
 	// Set up metrics scope for helper
 	h.WorkerMetricScope = scope
 	h.ServiceMetricScope = scope
 
 	switch mode {
 	case "worker":
+		// Start metrics server only in worker mode
+		if config.Prometheus != nil {
+			go func() {
+				http.Handle("/metrics", reporter.HTTPHandler())
+				logger.Info("Starting Prometheus metrics server",
+					zap.String("port", config.Prometheus.ListenAddress))
+				if err := http.ListenAndServe(config.Prometheus.ListenAddress, nil); err != nil {
+					logger.Error("Failed to start metrics server", zap.Error(err))
+				}
+			}()
+		}
 		startWorkers(&h, &config)
 	case "trigger":
 		startWorkflow(&h, &config)
@@ -111,57 +109,38 @@ func main() {
 	}
 }
 
-// loadConfiguration loads the autoscaling configuration from file
-func loadConfiguration(configFile string) AutoscalingConfiguration {
-	// Read config file
-	configData, err := os.ReadFile(configFile)
-	if err != nil {
-		fmt.Printf("Failed to read config file: %v, using defaults\n", err)
-		return DefaultAutoscalingConfiguration()
-	}
-
-	// Parse config
-	var config AutoscalingConfiguration
-	if err := yaml.Unmarshal(configData, &config); err != nil {
-		fmt.Printf("Error parsing configuration: %v, using defaults\n", err)
-		return DefaultAutoscalingConfiguration()
-	}
-
-	// Ensure base Configuration fields are populated
-	if config.DomainName == "" {
-		config.DomainName = "default"
-	}
-	if config.ServiceName == "" {
-		config.ServiceName = "cadence-frontend"
-	}
-	if config.HostNameAndPort == "" {
-		config.HostNameAndPort = "localhost:7833"
-	}
-
-	fmt.Printf("Loaded configuration from %s\n", configFile)
-	return config
-}
-
 func startWorkers(h *common.SampleHelper, config *AutoscalingConfiguration) {
 	startWorkersWithAutoscaling(h, config)
 }
 
 func startWorkflow(h *common.SampleHelper, config *AutoscalingConfiguration) {
 	workflowOptions := client.StartWorkflowOptions{
-		ID:                              "autoscaling_" + uuid.New(),
+		ID:                              fmt.Sprintf("autoscaling_%s", uuid.New()),
 		TaskList:                        ApplicationName,
 		ExecutionStartToCloseTimeout:    time.Minute * 10,
 		DecisionTaskStartToCloseTimeout: time.Minute,
 	}
 
 	// Use configuration values
-	iterations := config.Autoscaling.LoadGeneration.Iterations
+	workflows := config.Autoscaling.LoadGeneration.Workflows
+	workflowDelay := config.Autoscaling.LoadGeneration.WorkflowDelay
+	activitiesPerWorkflow := config.Autoscaling.LoadGeneration.ActivitiesPerWorkflow
 	batchDelay := config.Autoscaling.LoadGeneration.BatchDelay
 	minProcessingTime := config.Autoscaling.LoadGeneration.MinProcessingTime
 	maxProcessingTime := config.Autoscaling.LoadGeneration.MaxProcessingTime
-	h.StartWorkflow(workflowOptions, autoscalingWorkflowName, iterations, batchDelay, minProcessingTime, maxProcessingTime)
 
-	fmt.Printf("Started autoscaling workflow with %d iterations\n", iterations)
+	// Start multiple workflows with delays
+	for i := 0; i < workflows; i++ {
+		workflowOptions.ID = fmt.Sprintf("autoscaling_%d_%s", i, uuid.New())
+		h.StartWorkflow(workflowOptions, autoscalingWorkflowName, activitiesPerWorkflow, batchDelay, minProcessingTime, maxProcessingTime)
+
+		// Add delay between workflows (except for the last one)
+		if i < workflows-1 {
+			time.Sleep(time.Duration(workflowDelay) * time.Second)
+		}
+	}
+
+	fmt.Printf("Started %d autoscaling workflows with %d activities each\n", workflows, activitiesPerWorkflow)
 	fmt.Println("Monitor the worker performance and autoscaling behavior in Grafana:")
 	fmt.Println("http://localhost:3000/d/dehkspwgabvuoc/cadence-client")
 }

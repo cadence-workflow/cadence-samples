@@ -13,9 +13,9 @@ const (
 
 // AutoscalingWorkflow demonstrates a workflow that can generate load
 // to test worker poller autoscaling
-func AutoscalingWorkflow(ctx workflow.Context, iterations int, batchDelay int, minProcessingTime, maxProcessingTime int) error {
+func AutoscalingWorkflow(ctx workflow.Context, activitiesPerWorkflow int, batchDelay int, minProcessingTime, maxProcessingTime int) error {
 	logger := workflow.GetLogger(ctx)
-	logger.Info("Autoscaling workflow started", zap.Int("iterations", iterations))
+	logger.Info("Autoscaling workflow started", zap.Int("activitiesPerWorkflow", activitiesPerWorkflow))
 
 	ao := workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Minute,
@@ -28,7 +28,7 @@ func AutoscalingWorkflow(ctx workflow.Context, iterations int, batchDelay int, m
 	var futures []workflow.Future
 
 	// Execute activities in batches to create varying load
-	for i := 0; i < iterations; i++ {
+	for i := 0; i < activitiesPerWorkflow; i++ {
 		future := workflow.ExecuteActivity(ctx, LoadGenerationActivity, i, minProcessingTime, maxProcessingTime)
 		futures = append(futures, future)
 
