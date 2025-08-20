@@ -3,8 +3,8 @@
 This sample demonstrates three advanced Cadence worker features:
 
 1. **Worker Poller Autoscaling** - Dynamic adjustment of worker poller goroutines based on workload
-2. **Prometheus Tally Reporter** - Metrics collection using Tally and Prometheus
-3. **HTTP Endpoint for Prometheus Scraping** - Exposing metrics for monitoring
+2. **Integrated Prometheus Metrics** - Real-time metrics collection using Tally with Prometheus reporter
+3. **Autoscaling Metrics** - Comprehensive autoscaling behavior metrics exposed via HTTP endpoint
 
 ## Features
 
@@ -18,10 +18,11 @@ The worker uses `worker.NewV2` with `AutoScalerOptions` to enable true autoscali
 The worker automatically adjusts the number of poller goroutines between the min and max values based on the current workload.
 
 ### Prometheus Metrics
-The sample exposes standard Cadence metrics via Prometheus, including comprehensive autoscaling behavior metrics:
-- Standard worker performance metrics (poller counts, task processing rates)
-- Autoscaling-specific metrics (`cadence_concurrency_auto_scaler_*`)
-- All metrics automatically emitted by the Cadence Go client
+The sample uses Tally with Prometheus reporter to expose comprehensive metrics:
+- **Real-time autoscaling metrics** - Poller count changes, quota adjustments, wait times
+- **Worker performance metrics** - Task processing rates, poller utilization, queue depths
+- **Standard Cadence metrics** - All metrics automatically emitted by the Cadence Go client
+- **Sanitized metric names** - Prometheus-compatible metric names and labels
 
 ### Monitoring Dashboards
 When running the Cadence server locally with Grafana, you can access the client dashboards at:
@@ -41,7 +42,10 @@ When running the Cadence server locally with Grafana, you can access the client 
 ./bin/autoscaling-monitoring -m worker
 ```
 
-### 2. Start the Prometheus Server (Optional)
+The worker automatically exposes metrics at: http://127.0.0.1:8004/metrics
+
+### 2. Access Metrics (Optional)
+For dedicated metrics server:
 ```bash
 ./bin/autoscaling-monitoring -m server
 ```
@@ -100,8 +104,8 @@ The configuration values are used throughout the sample:
 3. **Activity Configuration** (`activities.go`):
    - `minProcessingTime`, `maxProcessingTime` → Activity processing time range
 
-4. **Prometheus Configuration** (`prometheus_server.go`):
-   - `listenAddress` → HTTP server port
+4. **Prometheus Configuration** (integrated):
+   - `listenAddress` → Metrics endpoint port (default: 127.0.0.1:8004)
 
 ### Default Configuration
 
@@ -128,6 +132,9 @@ autoscaling:
 
 ### Metrics Endpoints
 - **Prometheus Metrics**: http://127.0.0.1:8004/metrics
+  - Exposed automatically when running worker or server mode
+  - Real-time autoscaling and worker performance metrics
+  - Prometheus-compatible format with sanitized names
 
 ### Grafana Dashboard
 Access the Cadence client dashboard at: http://localhost:3000/d/dehkspwgabvuoc/cadence-client
@@ -144,6 +151,8 @@ Access the Cadence client dashboard at: http://localhost:3000/d/dehkspwgabvuoc/c
    - `cadence_worker_poller_count` - Number of active poller goroutines (key autoscaling indicator)
    - `cadence_concurrency_auto_scaler_poller_quota` - Current poller quota for autoscaling
    - `cadence_concurrency_auto_scaler_poller_wait_time` - Time pollers wait for tasks
+   - `cadence_concurrency_auto_scaler_scale_up_count` - Number of scale-up events
+   - `cadence_concurrency_auto_scaler_scale_down_count` - Number of scale-down events
 
 ## How It Works
 
@@ -161,11 +170,11 @@ The worker uses `worker.NewV2` with `AutoScalerOptions` to:
 - Automatically adjust based on task queue depth and processing time
 
 ### Metrics Collection
-The sample exposes standard Cadence metrics via Prometheus:
-- Worker poller count and utilization
-- Decision and activity task processing rates
-- Task queue depth and processing times
-- All standard Cadence worker metrics via Tally
+The sample uses Tally with Prometheus reporter for comprehensive metrics:
+- **Real-time autoscaling metrics** - Poller count changes, quota adjustments, scale events
+- **Worker performance metrics** - Task processing rates, poller utilization, queue depths
+- **Standard Cadence metrics** - All metrics automatically emitted by the Cadence Go client
+- **Sanitized metric names** - Prometheus-compatible format with proper character replacement
 
 ## Production Considerations
 
@@ -207,9 +216,10 @@ The sample exposes standard Cadence metrics via Prometheus:
    - Review default values if config file is not found
 
 4. **Metrics Not Appearing**:
-   - Verify Prometheus server is running
-   - Check metrics endpoint is accessible
+   - Verify worker is running (metrics are exposed automatically)
+   - Check metrics endpoint is accessible: http://127.0.0.1:8004/metrics
    - Ensure Prometheus is configured to scrape the endpoint
+   - Check for metric name sanitization issues
 
 5. **Dashboard Not Loading**:
    - Verify Grafana is running
