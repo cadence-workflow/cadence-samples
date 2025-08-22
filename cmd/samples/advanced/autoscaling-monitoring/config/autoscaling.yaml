@@ -1,0 +1,30 @@
+# Configuration for autoscaling monitoring sample
+domain: "default"
+service: "cadence-frontend"
+host: "localhost:7833"
+
+# Prometheus configuration for metrics collection
+prometheus:
+  listenAddress: "127.0.0.1:8004"
+
+# Autoscaling configuration
+# These settings control the worker's concurrency and autoscaling behavior
+autoscaling:
+  # Worker autoscaling settings
+  pollerMinCount: 2
+  pollerMaxCount: 8
+  pollerInitCount: 4
+  
+  # Worker load simulation settings
+  loadGeneration:
+    # Workflow-level settings
+    workflows: 3              # Number of workflows to start
+    workflowDelay: 400       # Delay between starting workflows (milliseconds)
+    
+    # Activity-level settings (per workflow)
+    activitiesPerWorkflow: 40 # Number of activities per workflow
+    batchDelay: 750         # Delay between activity batches within workflow (milliseconds)
+    
+    # Activity processing time range (milliseconds)
+    minProcessingTime: 1000
+    maxProcessingTime: 6000
