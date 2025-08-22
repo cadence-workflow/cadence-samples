@@ -80,11 +80,11 @@ autoscaling:
   loadGeneration:
     # Workflow-level settings
     workflows: 3              # Number of workflows to start
-    workflowDelay: 2          # Delay between starting workflows (seconds)
+    workflowDelay: 1000       # Delay between starting workflows (milliseconds)
     
     # Activity-level settings (per workflow)
     activitiesPerWorkflow: 40 # Number of activities per workflow
-    batchDelay: 2             # Delay between activity batches within workflow (seconds)
+    batchDelay: 2000          # Delay between activity batches within workflow (milliseconds)
     
     # Activity processing time range (milliseconds)
     minProcessingTime: 1000
@@ -124,9 +124,9 @@ autoscaling:
   pollerInitCount: 4
   loadGeneration:
     workflows: 3
-    workflowDelay: 2
+    workflowDelay: 1000
     activitiesPerWorkflow: 40
-    batchDelay: 2
+    batchDelay: 2000
     minProcessingTime: 1000
     maxProcessingTime: 6000
 ```
@@ -139,10 +139,10 @@ The sample supports various load patterns for testing autoscaling behavior:
 ```yaml
 loadGeneration:
   workflows: 3
-  workflowDelay: 2
+  workflowDelay: 1000
   activitiesPerWorkflow: 40
 ```
-**Result**: 3 workflows starting 2 seconds apart, each with 40 activities (120 total activities)
+**Result**: 3 workflows starting 1 second apart, each with 40 activities (120 total activities)
 
 #### **2. Burst Load**
 ```yaml
@@ -157,7 +157,7 @@ loadGeneration:
 ```yaml
 loadGeneration:
   workflows: 5
-  workflowDelay: 5
+  workflowDelay: 5000
   activitiesPerWorkflow: 100
 ```
 **Result**: 5 long-running workflows with 5-second delays between starts (500 total activities)

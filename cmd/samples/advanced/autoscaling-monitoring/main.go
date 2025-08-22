@@ -136,7 +136,7 @@ func startWorkflow(h *common.SampleHelper, config *AutoscalingConfiguration) {
 
 		// Add delay between workflows (except for the last one)
 		if i < workflows-1 {
-			time.Sleep(time.Duration(workflowDelay) * time.Second)
+			time.Sleep(time.Duration(workflowDelay) * time.Millisecond)
 		}
 	}
 

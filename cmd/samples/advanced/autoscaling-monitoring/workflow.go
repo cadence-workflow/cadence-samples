@@ -34,8 +34,8 @@ func AutoscalingWorkflow(ctx workflow.Context, activitiesPerWorkflow int, batchD
 
 		// Add some delay between batches to simulate real-world patterns
 		// Use batch delay from configuration
-		if i > 0 && i%10 == 0 {
-			workflow.Sleep(ctx, time.Duration(batchDelay)*time.Second)
+		if i > 0 && i % 10 == 0 {
+			workflow.Sleep(ctx, time.Duration(batchDelay)*time.Millisecond)
 		}
 	}
 
