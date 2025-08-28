@@ -21,7 +21,7 @@ func LoadGenerationActivity(ctx context.Context, taskID int, minProcessingTime, 
 	logger.Info("Load generation activity started", zap.Int("taskID", taskID))
 
 	// Simulate variable processing time using configuration values
-	processingTime := time.Duration(rand.Intn(maxProcessingTime-minProcessingTime)+minProcessingTime) * time.Millisecond
+	processingTime := time.Duration(rand.Intn(maxProcessingTime - minProcessingTime) + minProcessingTime) * time.Millisecond
 	time.Sleep(processingTime)
 
 	duration := time.Since(startTime)
