@@ -18,8 +18,8 @@ func AutoscalingWorkflow(ctx workflow.Context, activitiesPerWorkflow int, batchD
 	logger.Info("Autoscaling workflow started", zap.Int("activitiesPerWorkflow", activitiesPerWorkflow))
 
 	ao := workflow.ActivityOptions{
-		ScheduleToStartTimeout: time.Minute,
-		StartToCloseTimeout:    time.Minute,
+		ScheduleToStartTimeout: time.Minute * 20,
+		StartToCloseTimeout:    time.Minute * 20,
 		HeartbeatTimeout:       time.Second * 20,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
