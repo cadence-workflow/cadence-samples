@@ -29,6 +29,9 @@ When running the Cadence server locally with Grafana, you can access the client 
 
 **Client Dashboards**: http://localhost:3000/d/dehkspwgabvuoc/cadence-client
 
+> **Note**: Make sure to select a Domain in Grafana for the dashboards to display data. The dashboards will be empty until a domain is selected from the dropdown.
+
+
 ## Prerequisites
 
 1. **Cadence Server**: Running locally with Docker Compose.
@@ -242,7 +245,7 @@ The sample uses Tally with Prometheus reporter for comprehensive metrics:
 
 ## Testing
 
-The sample includes comprehensive unit tests for the configuration loading functionality:
+The sample includes unit tests for the configuration loading functionality. Run these tests if you make any changes to the config:
 
 ### Running Tests
 ```bash
@@ -260,8 +263,6 @@ go test -v -cover
 The tests cover:
 - **Successful configuration loading** - Complete YAML files with all fields
 - **Missing file fallback** - Graceful handling when config file doesn't exist
-- **Partial configuration** - YAML files with only some fields specified
-- **Malformed YAML handling** - Invalid YAML syntax and field types
 - **Default value application** - Ensuring all fields have sensible defaults
 
 ### Configuration Testing
