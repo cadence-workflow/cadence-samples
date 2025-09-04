@@ -150,20 +150,20 @@ loadGeneration:
 #### **2. Burst Load**
 ```yaml
 loadGeneration:
-  workflows: 10
+  workflows: 25
   workflowDelay: 0
-  activitiesPerWorkflow: 20
+  activitiesPerWorkflow: 60
 ```
-**Result**: 10 workflows all starting immediately (200 total activities)
+**Result**: 25 workflows all starting immediately (1500 total activities)
 
 #### **3. Sustained Load**
 ```yaml
 loadGeneration:
-  workflows: 5
-  workflowDelay: 5000
+  workflows: 50
+  workflowDelay: 2000
   activitiesPerWorkflow: 100
 ```
-**Result**: 5 long-running workflows with 5-second delays between starts (500 total activities)
+**Result**: 5 long-running workflows with 2-second delays between starts (5000 total activities)
 
 #### **4. Light Load**
 ```yaml
