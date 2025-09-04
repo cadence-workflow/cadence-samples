@@ -47,11 +47,15 @@ func findConfigFile() string {
 func main() {
 	// Parse command line arguments
 	var mode string
+	var configFile string
 	flag.StringVar(&mode, "m", "worker", "Mode: worker or trigger")
+	flag.StringVar(&configFile, "config", "", "Path to configuration file")
 	flag.Parse()
 
 	// Load configuration
-	configFile := findConfigFile()
+	if configFile == "" {
+		configFile = findConfigFile()
+	}
 	config := loadConfiguration(configFile)
 
 	// Setup common helper with our configuration
