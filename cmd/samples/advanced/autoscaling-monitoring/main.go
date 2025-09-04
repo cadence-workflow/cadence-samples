@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/pborman/uuid"
@@ -20,6 +21,29 @@ const (
 	ApplicationName = "autoscaling-monitoring"
 )
 
+// findConfigFile finds the config file relative to the executable location
+func findConfigFile() string {
+	// Get the directory where the executable is located
+	execPath, err := os.Executable()
+	if err != nil {
+		// Fallback to current working directory if we can't determine executable path
+		return "config/autoscaling.yaml"
+	}
+	execDir := filepath.Dir(execPath)
+
+	// Try to find the config file relative to the executable
+	// The executable is in bin/, so we need to go up to the repo root and then to the config
+	configPath := filepath.Join(execDir, "..", "cmd", "samples", "advanced", "autoscaling-monitoring", "config", "autoscaling.yaml")
+
+	// Check if the config file exists at this path
+	if _, err := os.Stat(configPath); err == nil {
+		return configPath
+	}
+
+	// Fallback to the original relative path (for development when running with go run)
+	return "config/autoscaling.yaml"
+}
+
 func main() {
 	// Parse command line arguments
 	var mode string
@@ -27,7 +51,7 @@ func main() {
 	flag.Parse()
 
 	// Load configuration
-	configFile := "config/autoscaling.yaml"
+	configFile := findConfigFile()
 	config := loadConfiguration(configFile)
 
 	// Setup common helper with our configuration
