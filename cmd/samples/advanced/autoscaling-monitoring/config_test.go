@@ -22,9 +22,9 @@ autoscaling:
   pollerMaxCount: 10
   pollerInitCount: 5
   loadGeneration:
-    workflows: 5
-    workflowDelay: 3
-    activitiesPerWorkflow: 100
+    workflows: 10
+    workflowDelay: 1000
+    activitiesPerWorkflow: 30
     batchDelay: 5
     minProcessingTime: 2000
     maxProcessingTime: 8000
@@ -51,9 +51,9 @@ autoscaling:
 	assert.Equal(t, 3, config.Autoscaling.PollerMinCount)
 	assert.Equal(t, 10, config.Autoscaling.PollerMaxCount)
 	assert.Equal(t, 5, config.Autoscaling.PollerInitCount)
-	assert.Equal(t, 5, config.Autoscaling.LoadGeneration.Workflows)
-	assert.Equal(t, 3, config.Autoscaling.LoadGeneration.WorkflowDelay)
-	assert.Equal(t, 100, config.Autoscaling.LoadGeneration.ActivitiesPerWorkflow)
+	assert.Equal(t, 10, config.Autoscaling.LoadGeneration.Workflows)
+	assert.Equal(t, 1000, config.Autoscaling.LoadGeneration.WorkflowDelay)
+	assert.Equal(t, 30, config.Autoscaling.LoadGeneration.ActivitiesPerWorkflow)
 	assert.Equal(t, 5, config.Autoscaling.LoadGeneration.BatchDelay)
 	assert.Equal(t, 2000, config.Autoscaling.LoadGeneration.MinProcessingTime)
 	assert.Equal(t, 8000, config.Autoscaling.LoadGeneration.MaxProcessingTime)

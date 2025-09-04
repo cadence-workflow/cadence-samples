@@ -56,9 +56,9 @@ const (
 	DefaultPollerMaxCount  = 8
 	DefaultPollerInitCount = 4
 
-	DefaultWorkflows             = 3
+	DefaultWorkflows             = 10
 	DefaultWorkflowDelay         = 1000
-	DefaultActivitiesPerWorkflow = 40
+	DefaultActivitiesPerWorkflow = 30
 	DefaultBatchDelay            = 2000
 	DefaultMinProcessingTime     = 1000
 	DefaultMaxProcessingTime     = 6000
