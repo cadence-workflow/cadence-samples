@@ -32,7 +32,6 @@ PROGS = helloworld \
 	cancelactivity \
 	ctxpropagation \
 	pso \
-	pageflow \
 	signalcounter \
 	sideeffect \
 	sleep \
@@ -158,8 +157,6 @@ recovery:
 pso:
 	go build -o bin/pso cmd/samples/pso/*.go
 
-pageflow:
-	go build -o bin/pageflow cmd/samples/pageflow/*.go
 
 signalcounter:
 	go build -o bin/signalcounter cmd/samples/recipes/signalcounter/*.go
@@ -218,7 +215,6 @@ bins: helloworld \
 	recovery \
 	ctxpropagation \
 	pso \
-	pageflow \
 	signalcounter \
 	sideeffect \
 	sleep \
