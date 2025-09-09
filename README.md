@@ -72,7 +72,6 @@ make
   - [Expense](#expense)
   - [File Processing](#file-processing)
   - [DSL](#dsl)
-  - [Page Flow](#page-flow)
   - [PSO (Particle Swarm Optimization)](#pso-particle-swarm-optimization)
 
 ---
@@ -492,17 +491,6 @@ Start Workflow:
 
 ##### How to run
 * Check **[Detailed Guide](cmd/samples/dsl/README.md)** to run the sample
-
-#### Page Flow
-* **Shows**: UI-driven workflows and web application integration.
-* **What it does**: Shows a React frontend that interacts with Cadence workflows through signals and queries.
-* **Real-world use case**: Multi-step forms, wizard interfaces, approval workflows, user onboarding.
-* **Key concepts**: UI integration, signal handling, state management, frontend-backend coordination.
-* **Source code**: [cmd/samples/pageflow/](cmd/samples/pageflow/)
-
-##### How to run
-* Check **[Detailed Guide](cmd/samples/pageflow/README.md)** to run the sample
-
 
 #### PSO (Particle Swarm Optimization)
 * **Shows**: Complex mathematical workflows and long-running optimization workflows.
