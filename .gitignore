@@ -14,4 +14,3 @@ test.log
 vendor/
 # Executables produced by cadence-samples repo
 bin/
-docker-compose.yml

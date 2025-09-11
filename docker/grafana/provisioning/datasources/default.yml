@@ -1,0 +1,7 @@
+# Based on: https://github.com/cadence-workflow/cadence/blob/master/docker/grafana/provisioning/datasources/default.yaml
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://host.docker.internal:9090
+    version: 1
+    editable: true
