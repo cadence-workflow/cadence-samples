@@ -1,14 +1,18 @@
-package batch
+package main
 
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"go.uber.org/cadence/workflow"
 	"go.uber.org/cadence/x"
 )
+
+// ApplicationName is the task list for this sample
+const ApplicationName = "batchGroup"
+
+const batchWorkflowName = "batchWorkflow"
 
 type BatchWorkflowInput struct {
 	Concurrency int
@@ -21,8 +25,8 @@ func BatchWorkflow(ctx workflow.Context, input BatchWorkflowInput) error {
 		taskID := taskID
 		factories[taskID] = func(ctx workflow.Context) workflow.Future {
 			aCtx := workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
-				ScheduleToStartTimeout: time.Second * 10,
-				StartToCloseTimeout:    time.Second * 10,
+				ScheduleToStartTimeout: time.Minute * 10,
+				StartToCloseTimeout:    time.Minute * 10,
 			})
 			return workflow.ExecuteActivity(aCtx, BatchActivity, taskID)
 		}
@@ -40,7 +44,7 @@ func BatchActivity(ctx context.Context, taskID int) error {
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf("batch activity %d failed: %w", taskID, ctx.Err())
-	case <-time.After(time.Duration(rand.Int63n(100))*time.Millisecond + 900*time.Millisecond):
+	case <-time.After(time.Duration(10000)*time.Millisecond):
 		return nil
 	}
 }

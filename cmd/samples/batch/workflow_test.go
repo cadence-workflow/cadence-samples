@@ -1,4 +1,4 @@
-package batch
+package main
 
 import (
 	"testing"
