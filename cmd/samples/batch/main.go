@@ -35,7 +35,7 @@ func startWorkflow(h *common.SampleHelper) {
 
 	// Default batch configuration
 	input := BatchWorkflowInput{
-		Concurrency: 2,
+		Concurrency: 3,
 		TotalSize:   10,
 	}
 
