@@ -14,10 +14,11 @@ require (
 	github.com/uber-go/tally v3.4.3+incompatible
 	github.com/uber/cadence-idl v0.0.0-20250616185004-cc6f52f87bc6
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	go.uber.org/cadence v1.3.1-rc.8
+	go.uber.org/cadence v1.3.1-rc.10
 	go.uber.org/yarpc v1.60.0
 	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -70,6 +71,5 @@ require (
 	google.golang.org/genproto v0.0.0-20200212174721-66ed5ce911ce // indirect
 	google.golang.org/grpc v1.28.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.3.2 // indirect
 )
