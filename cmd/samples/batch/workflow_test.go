@@ -16,9 +16,9 @@ func Test_BatchWorkflow(t *testing.T) {
 	env.RegisterWorkflow(BatchWorkflow)
 	env.RegisterActivity(BatchActivity)
 
-	// Execute workflow with 2 concurrent workers processing 10 tasks
+	// Execute workflow with 3 concurrent workers processing 10 tasks
 	env.ExecuteWorkflow(BatchWorkflow, BatchWorkflowInput{
-		Concurrency: 2,
+		Concurrency: 3,
 		TotalSize:   10,
 	})
 

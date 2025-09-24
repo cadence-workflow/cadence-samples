@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"go.uber.org/cadence/workflow"
-	"go.uber.org/cadence/x"
 )
 
 // ApplicationName is the task list for this sample
@@ -36,7 +35,7 @@ func BatchWorkflow(ctx workflow.Context, input BatchWorkflowInput) error {
 	}
 
 	// Execute all activities with controlled concurrency
-	batch, err := x.NewBatchFuture(ctx, input.Concurrency, factories)
+	batch, err := workflow.NewBatchFuture(ctx, input.Concurrency, factories)
 	if err != nil {
 		return fmt.Errorf("failed to create batch future: %w", err)
 	}
@@ -51,6 +50,7 @@ func BatchActivity(ctx context.Context, taskID int) error {
 		// Return error if workflow/activity is cancelled
 		return fmt.Errorf("batch activity %d failed: %w", taskID, ctx.Err())
 	case <-time.After(time.Duration(rand.Int63n(100))*time.Millisecond + 900*time.Millisecond):
+		// Wait for random duration (900-999ms) to simulate work, then return success
 		return nil
 	}
 }
