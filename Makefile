@@ -53,7 +53,6 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/dsl \
 	./cmd/samples/expense \
 	./cmd/samples/fileprocessing \
-	./cmd/samples/batch \
 	./cmd/samples/recipes/branch \
 	./cmd/samples/recipes/choice \
 	./cmd/samples/recipes/greetings \
@@ -76,7 +75,7 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/recipes/dataconverter \
 	./cmd/samples/recovery \
 	./cmd/samples/pso \
-
+	./cmd/samples/batch \
 
 cancelactivity:
 	go build -o bin/cancelactivity cmd/samples/recipes/cancelactivity/*.go
