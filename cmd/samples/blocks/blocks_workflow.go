@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"go.uber.org/cadence/workflow"
+	"go.uber.org/cadence/x/blocks"
 	"go.uber.org/zap"
 )
 
@@ -15,39 +16,6 @@ import (
 const ApplicationName = "blocksGroup"
 
 const blocksWorkflowName = "blocksWorkflow"
-
-// Query response structures
-type LunchQueryResponse struct {
-	CadenceResponseType string  `json:"cadenceResponseType"`
-	Format              string  `json:"format"`
-	Blocks              []Block `json:"blocks"`
-}
-
-type Block struct {
-	Type             string            `json:"type"`
-	Format           string            `json:"format,omitempty"`
-	ComponentOptions *ComponentOptions `json:"componentOptions,omitempty"`
-	Elements         []Element         `json:"elements,omitempty"`
-}
-
-type Element struct {
-	Type             string            `json:"type"`
-	ComponentOptions *ComponentOptions `json:"componentOptions,omitempty"`
-	Action           *Action           `json:"action,omitempty"`
-}
-
-type ComponentOptions struct {
-	Type string `json:"type,omitempty"`
-	Text string `json:"text,omitempty"`
-}
-
-type Action struct {
-	Type        string      `json:"type"`
-	SignalName  string      `json:"signal_name,omitempty"`
-	SignalValue interface{} `json:"signal_value,omitempty"`
-	WorkflowID  string      `json:"workflow_id,omitempty"`
-	RunID       string      `json:"run_id,omitempty"`
-}
 
 // This is an example of using the 'blocks' query response in a cadence query, in this example,
 // to select the lunch option.
@@ -63,81 +31,11 @@ func blocksWorkflow(ctx workflow.Context, name string) error {
 
 	votes := []map[string]string{}
 
-	workflow.SetQueryHandler(ctx, "options", func() (LunchQueryResponse, error) {
+	workflow.SetQueryHandler(ctx, "options", func() (blocks.QueryResponse, error) {
 		logger := workflow.GetLogger(ctx)
 		logger.Info("Responding to 'options' query")
 
-		return LunchQueryResponse{
-			CadenceResponseType: "formattedData",
-			Format:              "blocks",
-			Blocks: []Block{
-				{
-					Type:   "section",
-					Format: "text/markdown",
-					ComponentOptions: &ComponentOptions{
-						Text: "## Lunch options\nWe're voting on where to order lunch today. Select the option you want to vote for.",
-					},
-				},
-				{
-					Type: "divider",
-				},
-				{
-					Type:   "section",
-					Format: "text/markdown",
-					ComponentOptions: &ComponentOptions{
-						Text: makeVoteTable(votes),
-					},
-				},
-				{
-					Type:   "section",
-					Format: "text/markdown",
-					ComponentOptions: &ComponentOptions{
-						Text: makeMenu(),
-					},
-				},
-				{
-					Type: "actions",
-					Elements: []Element{
-						{
-							Type: "button",
-							ComponentOptions: &ComponentOptions{
-								Type: "plain_text",
-								Text: "Farmhouse",
-							},
-							Action: &Action{
-								Type:        "signal",
-								SignalName:  "lunch_order",
-								SignalValue: map[string]string{"location": "farmhouse - red thai curry", "requests": "spicy"},
-							},
-						},
-						{
-							Type: "button",
-							ComponentOptions: &ComponentOptions{
-								Type: "plain_text",
-								Text: "Ethiopian",
-							},
-							Action: &Action{
-								Type:       "signal",
-								SignalName: "no_lunch_order_walk_in_person",
-								WorkflowID: "in-person-order-workflow",
-							},
-						},
-						{
-							Type: "button",
-							ComponentOptions: &ComponentOptions{
-								Type: "plain_text",
-								Text: "Ler Ros",
-							},
-							Action: &Action{
-								Type:        "signal",
-								SignalName:  "lunch_order",
-								SignalValue: map[string]string{"location": "Ler Ros", "meal": "tofo Bahn Mi"},
-							},
-						},
-					},
-				},
-			},
-		}, nil
+		return makeResponse(votes), nil
 	})
 
 	votesChan := workflow.GetSignalChannel(ctx, "lunch_order")
@@ -160,6 +58,21 @@ func blocksWorkflow(ctx workflow.Context, name string) error {
 
 	logger.Info("Workflow completed.", zap.Any("Result", votes))
 	return nil
+}
+
+// makeResponse creates the lunch query response payload based on the current votes
+func makeResponse(votes []map[string]string) blocks.QueryResponse {
+	return blocks.New(
+		blocks.NewMarkdownSection("## Lunch options\nWe're voting on where to order lunch today. Select the option you want to vote for."),
+		blocks.NewDivider(),
+		blocks.NewMarkdownSection(makeVoteTable(votes)),
+		blocks.NewMarkdownSection(makeMenu()),
+		blocks.NewSignalActions(
+			blocks.NewSignalButton("Farmhouse", "lunch_order", map[string]string{"location": "farmhouse - red thai curry", "requests": "spicy"}),
+			blocks.NewSignalButtonWithExternalWorkflow("Ethiopian", "no_lunch_order_walk_in_person", nil, "in-person-order-workflow", ""),
+			blocks.NewSignalButton("Ler Ros", "lunch_order", map[string]string{"location": "Ler Ros", "meal": "tofo Bahn Mi"}),
+		),
+	)
 }
 
 func makeMenu() string {
