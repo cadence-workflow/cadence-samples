@@ -38,6 +38,7 @@ PROGS = helloworld \
 	sleep \
 	dataconverter \
 	autoscaling-monitoring \
+	batch \
 
 TEST_ARG ?= -race -v -timeout 5m
 BUILD := ./build
@@ -76,7 +77,7 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/recipes/dataconverter \
 	./cmd/samples/recovery \
 	./cmd/samples/pso \
-
+	./cmd/samples/batch \
 
 cancelactivity:
 	go build -o bin/cancelactivity cmd/samples/recipes/cancelactivity/*.go
@@ -192,6 +193,21 @@ dataconverter:
 autoscaling-monitoring:
 	go build -o bin/autoscaling-monitoring cmd/samples/advanced/autoscaling-monitoring/*.go
 
+batch:
+	go build -o bin/batch cmd/samples/batch/*.go
+
+test: bins
+	@rm -f test
+	@rm -f test.log
+	@echo $(TEST_DIRS)
+	@for dir in $(TEST_DIRS); do \
+		go test -coverprofile=$@ "$$dir" | tee -a test.log; \
+	done;
+
+clean:
+	rm -rf bin
+	rm -Rf $(BUILD)
+
 bins: helloworld \
 	blocks \
 	versioning \
@@ -226,15 +242,4 @@ bins: helloworld \
 	sleep \
 	dataconverter \
 	autoscaling-monitoring \
-
-test: bins
-	@rm -f test
-	@rm -f test.log
-	@echo $(TEST_DIRS)
-	@for dir in $(TEST_DIRS); do \
-		go test -coverprofile=$@ "$$dir" | tee -a test.log; \
-	done;
-
-clean:
-	rm -rf bin
-	rm -Rf $(BUILD)
+	batch \
