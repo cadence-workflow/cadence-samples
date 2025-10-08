@@ -37,6 +37,7 @@ PROGS = helloworld \
 	sideeffect \
 	sleep \
 	dataconverter \
+	tls \
 
 TEST_ARG ?= -race -v -timeout 5m
 BUILD := ./build
@@ -72,6 +73,7 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/recipes/signalcounter \
 	./cmd/samples/recipes/sleep \
 	./cmd/samples/recipes/dataconverter \
+	./cmd/samples/recipes/tls \
 	./cmd/samples/recovery \
 	./cmd/samples/pso \
 
@@ -186,6 +188,9 @@ versioning:
 dataconverter:
 	go build -o bin/dataconverter cmd/samples/recipes/dataconverter/*.go
 
+tls:
+	go build -o bin/tls cmd/samples/recipes/tls/*.go
+
 bins: helloworld \
 	versioning \
 	delaystart \
@@ -219,6 +224,7 @@ bins: helloworld \
 	sideeffect \
 	sleep \
 	dataconverter \
+	tls \
 
 test: bins
 	@rm -f test
