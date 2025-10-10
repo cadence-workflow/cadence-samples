@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	cadenceClient := worker.BuildCadenceClient(withTLSDialOption)
 	logger := worker.BuildLogger()
 
