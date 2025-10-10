@@ -15,6 +15,3 @@ vendor/
 # Executables produced by cadence-samples repo
 bin/
 docker-compose.yml
-# Credentials
-new_samples/client_samples/helloworld_tls/credentials/
-credentials/

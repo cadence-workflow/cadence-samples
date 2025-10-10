@@ -11,8 +11,6 @@ import (
 	"go.uber.org/cadence/worker"
 	"go.uber.org/cadence/workflow"
 	"go.uber.org/yarpc"
-	"go.uber.org/yarpc/peer"
-	yarpchostport "go.uber.org/yarpc/peer/hostport"
 	"go.uber.org/yarpc/transport/grpc"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -71,18 +69,11 @@ func StartWorker() {
 
 }
 
-func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.Interface {
-	grpcTransport := grpc.NewTransport()
-	myChooser := peer.NewSingle(
-		yarpchostport.Identify(HostPort),
-		grpcTransport.NewDialer(dialOptions...),
-	)
-	outbound := grpcTransport.NewOutbound(myChooser)
-
+func BuildCadenceClient() workflowserviceclient.Interface {
 	dispatcher := yarpc.NewDispatcher(yarpc.Config{
 		Name: ClientName,
 		Outbounds: yarpc.Outbounds{
-			CadenceService: {Unary: outbound},
+			CadenceService: {Unary: grpc.NewTransport().NewSingleOutbound(HostPort)},
 		},
 	})
 	if err := dispatcher.Start(); err != nil {
