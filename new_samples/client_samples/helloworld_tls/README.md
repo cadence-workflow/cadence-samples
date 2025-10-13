@@ -20,10 +20,6 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
 
 4. **Start cadence server with TLS**
    ```bash
-   ./cadence-server --zone tls start
-   ```
-   Or
-   ```bash
    ./cadence-server --env development --zone tls start
    ```
 
@@ -32,8 +28,7 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
 ### Step 1: Download Certificates
 ```bash
 cd new_samples/client_samples/helloworld_tls/credentials
-chmod +x download-certs.sh
-./download-certs.sh
+Download certificates from config/credentials of cadence server and place them here
 cd ..
 ```
 
