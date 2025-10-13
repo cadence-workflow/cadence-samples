@@ -26,10 +26,10 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
 ## Running the Sample
 
 ### Step 1: Download Certificates
+Download certificates from config/credentials of cadence server and place them in below folder
+
 ```bash
-cd new_samples/client_samples/helloworld_tls/credentials
-Download certificates from config/credentials of cadence server and place them here
-cd ..
+new_samples/client_samples/helloworld_tls/credentials
 ```
 
 ### Step 2: Register the Domain
