@@ -1,3 +1,32 @@
+## Pre-requisites
+
+Follow this document to start cadence server:
+https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495c8fc2f8a8/CONTRIBUTING.md#L1
+
+1. **Build tools in cadence server**
+   ```bash
+   make bins
+   ```
+
+2. **Start cassandra**
+   ```bash
+   docker compose -f ./docker/dev/cassandra.yml up -d
+   ```
+
+3. **Install schema**
+   ```bash
+   make install-schema
+   ```
+
+4. **Start cadence server with TLS**
+   ```bash
+   ./cadence-server --zone tls start
+   ```
+   Or
+   ```bash
+   ./cadence-server --env development --zone tls start
+   ```
+
 ## Running the Sample
 
 ### Step 1: Download Certificates
