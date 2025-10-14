@@ -27,16 +27,23 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
 
 ### Step 1: Download Certificates
 Download certificates from config/credentials of cadence server and place them in below folder
+Or follow below commands
 
 ```bash
-new_samples/client_samples/helloworld_tls/credentials
+mkdir -p new_samples/client_samples/helloworld_tls/credentials
+
+$ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/client.crt
+$ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/client.key
+$ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/keytest.crt
+$ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/keytest.pub
+
 ```
 
 ### Step 2: Register the Domain
 Before running workflows, you must register the "default" domain:
 
 ```bash
-cd new_samples/client_samples/helloworld_tls
+cd ..
 go run register_domain.go
 ```
 
@@ -53,7 +60,6 @@ Domain already exists  {"domain": "default"}
 ### Step 3: Run the Sample
 In another terminal:
 ```bash
-cd new_samples/client_samples/helloworld_tls
 go run hello_world_tls.go
 ```
 
