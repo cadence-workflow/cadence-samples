@@ -27,7 +27,7 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
 
 ### Step 1: Download Certificates
 Download certificates from config/credentials of cadence server and place them in below folder
-Or follow below commands
+Or follow below steps
 
 ```bash
 mkdir -p new_samples/client_samples/helloworld_tls/credentials
