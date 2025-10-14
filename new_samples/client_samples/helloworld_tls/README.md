@@ -35,7 +35,6 @@ mkdir -p new_samples/client_samples/helloworld_tls/credentials
 $ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/client.crt
 $ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/client.key
 $ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/keytest.crt
-$ curl -s -O https://raw.githubusercontent.com/cadence-workflow/cadence/master/config/credentials/keytest.pub
 
 ```
 
