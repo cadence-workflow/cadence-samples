@@ -6,8 +6,6 @@ This doc is intended for contributors to Cadence samples. Thanks for considering
 
 Once you go through the rest of this doc and get familiar with local development setup, take a look at the list of issues labeled with
 [good first issue](https://github.com/uber-common/cadence-samples/labels/good%20first%20issue).
-These issues are a great way to start contributing to Cadence samples. Later when you are more familiar with Cadence, look at issues with
-[help wanted](https://github.com/uber-common/cadence-samples/labels/help%20wanted).
 
 Join our community on the CNCF Slack workspace at [cloud-native.slack.com](https://communityinviter.com/apps/cloud-native/cncf) in the **#cadence-users** channel to reach out and discuss issues with the team.
 
