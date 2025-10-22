@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/uber-common/cadence-samples/new_samples/worker"
 	"go.uber.org/cadence/.gen/go/shared"
 	"go.uber.org/zap"
-	"time"
 )
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	defer cancel()
 	resp, err := cadenceClient.StartWorkflowExecution(ctx, &req)
 	if err != nil {
-		logger.Error("Failed to create workflow", zap.Error(err))
+		logger.Error("Error: Unsecure connection to cadence", zap.String("error", err.Error()))
 		panic("Failed to create workflow.")
 	}
 
