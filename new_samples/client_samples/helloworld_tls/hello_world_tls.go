@@ -54,7 +54,7 @@ func main() {
 	defer cancel()
 	resp, err := cadenceClient.StartWorkflowExecution(ctx, &req)
 	if err != nil {
-		logger.Error("Failed to create workflow", zap.Error(err))
+		logger.Error("Error: Unsecure connection to cadence", zap.String("error", err.Error()))
 		panic("Failed to create workflow.")
 	}
 
