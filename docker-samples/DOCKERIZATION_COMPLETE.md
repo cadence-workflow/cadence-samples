@@ -59,7 +59,7 @@
 ### 5. **Created Helper Scripts** ✅
 
 #### Quick Start Script
-- **File**: `samples/quick-start.sh`
+- **File**: `docker-samples/quick-start.sh`
 - **Does**:
   - Starts all services
   - Registers domain
@@ -69,36 +69,38 @@
 - **User Experience**: One command to see it working
 
 #### List Workflows Script
-- **File**: `samples/list-workflows.sh`
+- **File**: `docker-samples/list-workflows.sh`
 - **Does**: Quickly list all workflows in test-domain
 
 ### 6. **Added Build Optimization** ✅
-- **File**: `samples/hello-world/.dockerignore`
+- **File**: `docker-samples/hello-world/.dockerignore`
 - **Excludes**: Build artifacts, docs, tests from Docker context
 - **Result**: Faster builds, smaller context
+
+### 7. **Kept It Simple** ✅
+- **Decision**: Single hello-world workflow only
+- **Rationale**: The main samples repo has 20+ comprehensive examples
+- **Benefit**: Docker samples stay focused on quick onboarding
 
 ---
 
 ## 📊 Files Created/Modified
 
-### New Files (8)
+### New Files (10)
 ```
-samples/
+docker-samples/
 ├── docker-compose.yml                    # Main orchestration file
 ├── README.md                             # Samples overview & Docker guide
 ├── quick-start.sh                        # One-command demo script
 ├── list-workflows.sh                     # Helper script
+├── DOCKERIZATION_COMPLETE.md             # Implementation documentation
 └── hello-world/
     ├── Dockerfile                        # Worker container definition
     ├── .dockerignore                     # Build optimization
-    └── (updated files below)
-```
-
-### Modified Files (2)
-```
-samples/hello-world/
-├── main.go                               # Added env var configuration
-└── README.md                             # Added Docker instructions
+    ├── main.go                           # Standalone worker with env vars
+    ├── README.md                         # Comprehensive Docker guide
+    ├── go.mod                            # Go module dependencies
+    └── go.sum                            # Go module checksums
 ```
 
 ---

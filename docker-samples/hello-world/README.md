@@ -18,10 +18,10 @@ This is a simple hello world example for Cadence workflow engine using the Go cl
 
 ### 1. Start Everything
 
-From the `samples` directory:
+From the `docker-samples` directory:
 
 ```bash
-cd /path/to/cadence/samples
+cd docker-samples
 docker-compose up
 ```
 
@@ -85,8 +85,8 @@ Before running locally, make sure you have:
 
 1. **Build the worker:**
    ```bash
-   cd /path/to/cadence/samples/hello-world
-   GOWORK=off go build -o hello-world
+   cd docker-samples/hello-world
+   go build -o hello-world
    ```
 
 2. **Run the worker:**
@@ -133,21 +133,15 @@ This sample includes:
 
 1. **`helloWorldWorkflow`** - Basic workflow that executes a simple activity
    - Fast execution (~50ms)
-   - Great for testing
-
-2. **`longRunningWorkflow`** - Demonstrates a workflow that stays open
-   - Executes activity then sleeps for 2 minutes
-   - Useful for seeing running workflows in the UI
+   - Great for testing and learning Cadence basics
 
 ### Activities
 
 1. **`helloWorldActivity`** - Takes a name and returns a greeting
-2. **`longRunningActivity`** - Simulates a long-running task
 
 ### Files
 
 - `main.go` - Worker service with workflow/activity implementations
-- `long_running_example.go` - Long-running workflow example
 - `Dockerfile` - Docker image configuration
 - `go.mod`, `go.sum` - Go dependencies
 
@@ -159,7 +153,7 @@ This sample includes:
 
 ```bash
 # Docker
-docker run --network=samples_cadence-network --rm ubercadence/cli:master \
+docker run --network=docker-samples_cadence-network --rm ubercadence/cli:master \
   --address cadence:7833 \
   --domain test-domain workflow start \
   --tasklist test-worker \
@@ -174,24 +168,7 @@ cadence --domain test-domain workflow start \
   --input '"YourName"'
 ```
 
-### Long-Running Workflow
-
-```bash
-# Docker
-docker run --network=samples_cadence-network --rm ubercadence/cli:master \
-  --address cadence:7833 \
-  --domain test-domain workflow start \
-  --tasklist test-worker \
-  --workflow_type main.longRunningWorkflow \
-  --execution_timeout 300 \
-  --input '"Test"'
-
-# Local
-cadence --domain test-domain workflow start \
-  --et 300 --tl test-worker \
-  --workflow_type main.longRunningWorkflow \
-  --input '"Test"'
-```
+> **Note**: For more workflow examples beyond this basic hello world, check out the [main samples directory](../../cmd/samples/) which includes dozens of real-world patterns like retries, timers, child workflows, and more.
 
 ---
 
@@ -266,13 +243,13 @@ docker run -e CADENCE_HOST=cadence:7833 -e CADENCE_DOMAIN=my-domain \
 
 ### Using docker-compose (recommended):
 ```bash
-cd /path/to/cadence/samples
+cd docker-samples
 docker-compose build hello-world-worker
 ```
 
 ### Using docker build directly:
 ```bash
-cd /path/to/cadence/samples/hello-world
+cd docker-samples/hello-world
 docker build -t hello-world-sample .
 ```
 

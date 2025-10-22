@@ -102,9 +102,7 @@ func startWorker(logger *zap.Logger, service workflowserviceclient.Interface) {
 
 	// Register workflow and activity
 	worker.RegisterWorkflow(helloWorldWorkflow)
-	worker.RegisterWorkflow(longRunningWorkflow)
 	worker.RegisterActivity(helloWorldActivity)
-	worker.RegisterActivity(longRunningActivity)
 
 	err = worker.Start()
 	if err != nil {
