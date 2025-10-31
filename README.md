@@ -15,6 +15,7 @@ Learn more about Cadence at:
 - [Documentation](https://cadenceworkflow.io)
 - [Cadence Server](https://github.com/cadence-workflow/cadence)
 - [Cadence Go Client](https://github.com/cadence-workflow/cadence-go-client)
+- [CNCF Slack](https://communityinviter.com/apps/cloud-native/cncf) - Join **#cadence-users** channel on CNCF Slack
 
 ## 🚀 Quick Start
 
