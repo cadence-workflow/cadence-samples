@@ -73,6 +73,8 @@ func StartWorker() {
 
 func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.Interface {
 	grpcTransport := grpc.NewTransport()
+	// Create a single peer chooser that identifies the host/port and configures
+	// a gRPC dialer with TLS credentials
 	myChooser := peer.NewSingle(
 		yarpchostport.Identify(HostPort),
 		grpcTransport.NewDialer(dialOptions...),
@@ -91,6 +93,8 @@ func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.In
 
 	clientConfig := dispatcher.ClientConfig(CadenceService)
 
+	// Create a compatibility adapter that wraps proto-based YARPC clients
+	// to provide a unified interface for domain, workflow, worker, and visibility APIs
 	return compatibility.NewThrift2ProtoAdapter(
 		apiv1.NewDomainAPIYARPCClient(clientConfig),
 		apiv1.NewWorkflowAPIYARPCClient(clientConfig),

@@ -19,9 +19,14 @@ https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495
    ```
 
 4. **Start cadence server with TLS**
-   ```bash
-   ./cadence-server --env development --zone tls start
-   ```
+To enable mTLS in Cadence server, you need to configure TLS settings and start the server with the appropriate environment configuration.
+Starting the Server with TLS
+Use the --zone flag to specify the TLS configuration when starting the Cadence server:
+
+./cadence-server --env development --zone tls start
+
+This will load [config/development.yaml](https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495c8fc2f8a8/config/development.yaml) + [config/development_tls.yaml](https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495c8fc2f8a8/config/development_tls.yaml). 
+See [CONTRIBUTING.md](https://github.com/cadence-workflow/cadence/blob/e1267de12f8bc670fc84fab456d3495c8fc2f8a8/CONTRIBUTING.md#4-run) for more details. 
 
 ## Running the Sample
 

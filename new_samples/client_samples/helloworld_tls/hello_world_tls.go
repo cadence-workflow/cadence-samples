@@ -80,7 +80,10 @@ func withTLSDialOption() (grpc.DialOption, error) {
 		RootCAs:            caCertPool,
 		Certificates:       []tls.Certificate{clientCert},
 	}
+	// Create TLS credentials from the TLS configuration
 	creds := credentials.NewTLS(&tlsConfig)
+	// Create a gRPC dial option with TLS credentials for secure connection
 	grpc.DialerCredentials(creds)
+	// Return the gRPC dial option configured with TLS credentials
 	return grpc.DialerCredentials(creds), nil
 }
