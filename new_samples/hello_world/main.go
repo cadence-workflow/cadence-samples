@@ -1,3 +1,6 @@
+// THIS IS A GENERATED FILE
+// PLEASE DO NOT EDIT
+
 package main
 
 import (

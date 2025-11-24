@@ -1,3 +1,6 @@
+// THIS IS A GENERATED FILE
+// PLEASE DO NOT EDIT
+
 // Package worker implements a Cadence worker with basic configurations.
 package main
 
