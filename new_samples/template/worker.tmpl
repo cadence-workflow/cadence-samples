@@ -1,8 +1,10 @@
+// THIS IS A GENERATED FILE
+// PLEASE DO NOT EDIT
+
 // Package worker implements a Cadence worker with basic configurations.
-package worker
+package main
 
 import (
-	"github.com/uber-common/cadence-samples/new_samples/workflows"
 	"github.com/uber-go/tally"
 	apiv1 "github.com/uber/cadence-idl/go/proto/api/v1"
 	"go.uber.org/cadence/.gen/go/cadence/workflowserviceclient"
@@ -20,7 +22,7 @@ import (
 
 const (
 	HostPort = "127.0.0.1:7833"
-	Domain   = "default"
+	Domain   = "cadence-samples"
 	// TaskListName identifies set of client workflows, activities, and workers.
 	// It could be your group or client or application name.
 	TaskListName   = "cadence-samples-worker"
@@ -42,26 +44,12 @@ func StartWorker() {
 		TaskListName,
 		workerOptions)
 	// HelloWorld workflow registration
-	w.RegisterWorkflowWithOptions(workflows.HelloWorldWorkflow, workflow.RegisterOptions{Name: "cadence_samples.HelloWorldWorkflow"})
-	w.RegisterActivityWithOptions(workflows.HelloWorldActivity, activity.RegisterOptions{Name: "cadence_samples.HelloWorldActivity"})
-
-	// Signal workflow registration
-	w.RegisterWorkflowWithOptions(workflows.SignalGreeterMultiLanguageWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SignalGreeterMultiLanguageWorkflow"})
-	w.RegisterActivityWithOptions(workflows.GenerateGreetingMessage, activity.RegisterOptions{Name: "cadence_samples.GenerateGreetingMessage"})
-
-	// Dynamic workflow registration
-	w.RegisterWorkflowWithOptions(workflows.DynamicWorkflow, workflow.RegisterOptions{Name: "cadence_samples.DynamicWorkflow"})
-	w.RegisterActivityWithOptions(workflows.DynamicGreetingActivity, activity.RegisterOptions{Name: "cadence_samples.DynamicGreetingActivity"})
-
-	// ParallelPickFirst workflow registration
-	w.RegisterWorkflowWithOptions(workflows.ParallelBranchPickFirstWorkflow, workflow.RegisterOptions{Name: "cadence_samples.ParallelBranchPickFirstWorkflow"})
-	w.RegisterActivityWithOptions(workflows.ParallelActivity, activity.RegisterOptions{Name: "cadence_samples.ParallelActivity"})
-
-	// Cancel workflow registration
-	w.RegisterWorkflowWithOptions(workflows.CancelWorkflow, workflow.RegisterOptions{Name: "cadence_samples.CancelWorkflow"})
-	w.RegisterActivityWithOptions(workflows.ActivityToBeSkipped, activity.RegisterOptions{Name: "cadence_samples.ActivityToBeSkipped"})
-	w.RegisterActivityWithOptions(workflows.ActivityToBeCanceled, activity.RegisterOptions{Name: "cadence_samples.ActivityToBeCanceled"})
-	w.RegisterActivityWithOptions(workflows.CleanupActivity, activity.RegisterOptions{Name: "cadence_samples.CleanupActivity"})
+	{{- range .Workflows}}
+	w.RegisterWorkflowWithOptions({{.}}, workflow.RegisterOptions{Name: "cadence_samples.{{.}}"})
+	{{- end}}
+	{{- range .Activities}}
+	w.RegisterActivityWithOptions({{.}}, activity.RegisterOptions{Name: "cadence_samples.{{.}}"})
+	{{- end}}
 
 	err := w.Start()
 	if err != nil {
