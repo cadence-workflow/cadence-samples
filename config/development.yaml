@@ -1,5 +1,5 @@
 # config for sample
-domain: "default"
+domain: "cadence-samples"
 service: "cadence-frontend"
 host: "localhost:7833"
 # config for emitting metrics
