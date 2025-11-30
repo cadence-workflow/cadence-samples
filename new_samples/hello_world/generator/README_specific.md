@@ -37,7 +37,7 @@ Click on `cadence-samples` domain in cadence-web to view your workflow.
 List workflows using the following command:
 
 ```bash
- cadence --env development --domain cadence-samples --workflow list
+cadence --env development --domain cadence-samples workflow list
 ```
 
 You can view an individual workflow by using the following command:
@@ -45,8 +45,8 @@ You can view an individual workflow by using the following command:
 ```bash
 cadence --env development \
   --domain cadence-samples \
-  --workflow describe \
- --wid <workflow_id>
+  workflow describe \
+  --wid <workflow_id>
 ```
 
 * `workflow` is the noun to run commands within workflow scope
@@ -59,6 +59,6 @@ To view the entire history of the workflow, use the following command:
 ```bash
 cadence --env development \
   --domain cadence-samples \
-  --workflow show \
- --wid <workflow_id>
+  workflow show \
+  --wid <workflow_id>
 ```
