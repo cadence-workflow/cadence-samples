@@ -38,6 +38,46 @@ This downloads and starts all required dependencies including Cadence server, da
 make
 ```
 
+### Docker Troubleshooting
+
+The `docker-compose` command requires Docker daemon to be running. On macOS/Windows, open Docker Desktop. On Linux, run `sudo systemctl start docker`.
+
+<details>
+<summary>Port conflicts</summary>
+
+If you see `Bind for 0.0.0.0:<port> failed: port is already allocated`, find the process using that port:
+
+```bash
+lsof -i tcp:<port>
+```
+
+To find which container is using it:
+```bash
+docker ps --format '{{.ID}}\t{{.Ports}}\t{{.Names}}' | grep <port>
+```
+
+Stop and remove the conflicting container:
+```bash
+docker stop <container_id> && docker rm <container_id>
+```
+
+Cadence uses these ports: `7833`, `7933`, `7939`, `8000-8003`, `8088` (Web UI), `9042` (Cassandra), `9090` (Prometheus), `3000` (Grafana).
+
+</details>
+
+<details>
+<summary>Reset everything</summary>
+
+```bash
+docker-compose down
+docker ps -a  # check for leftover containers
+docker rm <container_id>  # remove if needed
+```
+
+Verify with `docker ps` and visit [http://localhost:8088](http://localhost:8088).
+
+</details>
+
 ## 📚 Sample Categories
 
 ### Table of Contents
