@@ -19,10 +19,6 @@ cadence --env development --domain cadence-samples domain register
 
 Refresh the [domains page](http://localhost:8088/domains) from step 2 to verify `cadence-samples` is registered.
 
-A fresh domain with no workflows looks like this:
-
-![Fresh domain with no workflows](images/04-web-ui-fresh-domain-no-workflows.png)
-
 ## Steps to run sample
 
 Inside the folder this sample is defined, run the following command:
@@ -78,15 +74,11 @@ Click on the workflow to see details:
 
 * In Summary tab, you will see the input and output to your workflow
 
-![Summary tab](images/05-web-ui-summary-tab.png)
+![Summary tab](images/04-web-ui-summary-tab.png)
 
-* Click on History tab to see individual steps
+* Click on History tab to see individual steps. Expand an activity to see its result:
 
-![History tab showing workflow execution](images/09-web-ui-history-timeline-view.png)
-
-Expand an activity to see its result:
-
-![History tab with activity result expanded](images/07-web-ui-history-activity-result.png)
+![History tab with activity result](images/05-web-ui-history-activity-result.png)
 
 #### CLI
 
@@ -123,7 +115,7 @@ cadence --env development \
 
 If you see port conflicts when starting Docker, use `lsof` to find what's using the port:
 
-![Docker port conflict troubleshooting](images/08-docker-port-conflict-troubleshooting.png)
+![Docker port conflict troubleshooting](images/06-docker-port-conflict-troubleshooting.png)
 
 See the main [README](../../README.md#docker-troubleshooting) for detailed Docker troubleshooting steps.
 

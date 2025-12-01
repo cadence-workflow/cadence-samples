@@ -46,8 +46,8 @@ func StartWorker() {
 	w.RegisterActivityWithOptions(workflows.HelloWorldActivity, activity.RegisterOptions{Name: "cadence_samples.HelloWorldActivity"})
 
 	// Signal workflow registration
-	w.RegisterWorkflowWithOptions(workflows.SignalGreeterMultiLanguageWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SignalGreeterMultiLanguageWorkflow"})
-	w.RegisterActivityWithOptions(workflows.GenerateGreetingMessage, activity.RegisterOptions{Name: "cadence_samples.GenerateGreetingMessage"})
+	w.RegisterWorkflowWithOptions(workflows.SimpleSignalWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SimpleSignalWorkflow"})
+	w.RegisterActivityWithOptions(workflows.SimpleSignalActivity, activity.RegisterOptions{Name: "cadence_samples.SimpleSignalActivity"})
 
 	// Dynamic workflow registration
 	w.RegisterWorkflowWithOptions(workflows.DynamicWorkflow, workflow.RegisterOptions{Name: "cadence_samples.DynamicWorkflow"})

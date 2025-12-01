@@ -33,43 +33,41 @@ cadence --env development \
 Try to inspect the log message for the output.
 
 ### Signal Workflow
-This workflow demonstrate a basic signal workflow. It takes your name as input parameter
-and greet you based on languages you pick. To start the workflow, try the following CLI.
+This workflow demonstrates a basic signal workflow. It waits for a signal to complete.
+To start the workflow, try the following CLI.
 
 ```bash
 cadence --env development \
   --domain cadence-samples \
   workflow start \
-  --workflow_type cadence_samples.SignalGreeterMultiLanguageWorkflow \
+  --workflow_type cadence_samples.SimpleSignalWorkflow \
   --tl cadence-samples-worker \
-  --et 6000 \
-  --input '{"name":"Uber"}'
+  --et 600
 ```
 
-A workflow ID and run ID will be return in your terminal. Copy the workflow ID and replace
-to the CLI below to trigger the signal. Try to change the input language value and inspect what
-happens in the log. Also, try to inspect what happened after you interact with the signal multiple times.
+A workflow ID and run ID will be returned in your terminal. Copy the workflow ID and use
+the CLI below to send a signal. The workflow will continue running until it receives a
+`complete` signal with the value `true`.
 
 ```bash
 cadence --env development \
   --domain cadence-samples \
   workflow signal \
-  --workflow_id <Your workflow ID> \
-  --name "language" \
-  --input '"english"'
+  --wid <Your workflow ID> \
+  --name "complete" \
+  --input 'false'
 ```
 
-To cancel the workflow, try the following CLI.
+To complete the workflow, send the signal with `true`:
 
 ```bash
 cadence --env development \
   --domain cadence-samples \
   workflow signal \
-  --workflow_id <Your workflow ID> \
-  --name "cancel" \
+  --wid <Your workflow ID> \
+  --name "complete" \
   --input 'true'
 ```
-The workflow should have a status of fail.
 
 ### Dynamic workflow
 This dynamic workflow is very similar to the Hello World workflow above, but instead of passing the
