@@ -19,6 +19,10 @@ cadence --env development --domain cadence-samples domain register
 
 Refresh the [domains page](http://localhost:8088/domains) from step 2 to verify `cadence-samples` is registered.
 
+A fresh domain with no workflows looks like this:
+
+![Fresh domain with no workflows](images/04-web-ui-fresh-domain-no-workflows.png)
+
 ## Steps to run sample
 
 Inside the folder this sample is defined, run the following command:
@@ -43,6 +47,14 @@ cadence --env development \
   --input '{"message":"Cadence"}'
 ```
 
+You should see output like this:
+
+![Trigger command output](images/02-trigger-command-started-workflow.png)
+
+And the worker will log the completed workflow:
+
+![Worker output showing workflow completed](images/01-worker-output-workflow-completed.png)
+
 Here are the details to this command:
 
 * `--domain` option describes under which domain to run this workflow
@@ -60,8 +72,21 @@ To see more options run `cadence --help`
 
 Click on `cadence-samples` domain in cadence-web to view your workflow.
 
+![Workflow list showing completed workflow](images/03-web-ui-workflow-list-completed.png)
+
+Click on the workflow to see details:
+
 * In Summary tab, you will see the input and output to your workflow
-* Click on History tab to see individual steps.
+
+![Summary tab](images/05-web-ui-summary-tab.png)
+
+* Click on History tab to see individual steps
+
+![History tab showing workflow execution](images/09-web-ui-history-timeline-view.png)
+
+Expand an activity to see its result:
+
+![History tab with activity result expanded](images/07-web-ui-history-activity-result.png)
 
 #### CLI
 
@@ -93,6 +118,14 @@ cadence --env development \
   workflow show \
   --wid <workflow_id>
 ```
+
+## Troubleshooting
+
+If you see port conflicts when starting Docker, use `lsof` to find what's using the port:
+
+![Docker port conflict troubleshooting](images/08-docker-port-conflict-troubleshooting.png)
+
+See the main [README](../../README.md#docker-troubleshooting) for detailed Docker troubleshooting steps.
 
 ## References
 
