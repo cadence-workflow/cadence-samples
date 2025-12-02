@@ -2,6 +2,8 @@
 
 This is the foundational Cadence workflow sample demonstrating basic workflow and activity execution.
 
+> **Looking for a step-by-step visual guide?** See the [new_samples/hello_world](../../../../new_samples/hello_world/) tutorial with screenshots and detailed setup instructions.
+
 ## Prerequisites
 
 1. Cadence server running (see [main README](../../../../README.md))
