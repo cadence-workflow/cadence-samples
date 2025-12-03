@@ -17,7 +17,6 @@ func BranchWorkflow(ctx workflow.Context) error {
 	ao := workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Minute,
 		StartToCloseTimeout:    time.Minute,
-		HeartbeatTimeout:       time.Second * 20,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
@@ -52,7 +51,6 @@ func ParallelWorkflow(ctx workflow.Context) error {
 	ao := workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Minute,
 		StartToCloseTimeout:    time.Minute,
-		HeartbeatTimeout:       time.Second * 20,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
