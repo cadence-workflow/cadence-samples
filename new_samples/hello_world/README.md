@@ -80,6 +80,9 @@ Click on the workflow to see details:
 
 ![History tab with activity result](images/05-web-ui-history-activity-result.png)
 
+* In Summary tab, you will see the input and output to your workflow
+* Click on History tab to see individual steps.
+
 #### CLI
 
 List workflows using the following command:
@@ -118,7 +121,6 @@ If you see port conflicts when starting Docker, use `lsof` to find what's using 
 ![Docker port conflict troubleshooting](images/06-docker-port-conflict-troubleshooting.png)
 
 See the main [README](../../README.md#docker-troubleshooting) for detailed Docker troubleshooting steps.
-
 ## References
 
 * The website: https://cadenceworkflow.io

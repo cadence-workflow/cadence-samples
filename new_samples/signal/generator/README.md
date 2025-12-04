@@ -21,3 +21,8 @@ In most cases, the workflow code (e.g. `workflow.go`) is the part that users car
 * When creating a new sample, follow the steps mentioned in the README file in the main samples folder.
 * To update the sample workflow code, edit the workflow file directly.
 * To update the worker, client, or other boilerplate logic, edit the generator file. If your change applies to all samples, update the common generator file inside the `template` folder. Edit the generator file in this folder only when the change should affect this sample alone.
+* When you are done run the following command in the generator folder
+
+```bash
+go run .
+```
