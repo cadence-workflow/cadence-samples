@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cadence-helloworld-worker
+  labels:
+    app: cadence-helloworld-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cadence-helloworld-worker
+  template:
+    metadata:
+      labels:
+        app: cadence-helloworld-worker
+    spec:
+      containers:
+      - name: worker
+        image: ${DOCKER_REGISTRY}/cadence-helloworld-worker:latest
+        imagePullPolicy: Always
+        env:
+        - name: CADENCE_HOST_PORT
+          value: "cadence:7833"
+        ports:
+        - containerPort: 8080
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
