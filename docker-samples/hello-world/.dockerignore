@@ -1,0 +1,24 @@
+# Build artifacts
+hello-world
+*.log
+
+# Documentation (not needed in container)
+README.md
+COMPLETION_SUMMARY.md
+TEST_RESULTS.md
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Test files
+*_test.go
+
+
+

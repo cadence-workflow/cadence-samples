@@ -1,0 +1,75 @@
+version: '3.7'
+
+services:
+  cassandra:
+    image: cassandra:4.1.1
+    container_name: cadence-cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_LISTEN_ADDRESS=cassandra
+    networks:
+      - cadence-network
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  cadence:
+    image: ubercadence/server:master-auto-setup
+    container_name: cadence-server
+    ports:
+      - "7833:7833"
+      - "7933:7933"
+      - "7934:7934"
+      - "7935:7935"
+      - "7939:7939"
+    environment:
+      - "CASSANDRA_SEEDS=cassandra"
+      - "DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml"
+      - "SERVICES=frontend:history:matching:worker"
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    networks:
+      - cadence-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7833"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  cadence-web:
+    image: ubercadence/web:latest
+    container_name: cadence-web
+    ports:
+      - "8088:8088"
+    environment:
+      - "CADENCE_TCHANNEL_PEERS=cadence:7933"
+    depends_on:
+      - cadence
+    networks:
+      - cadence-network
+
+  hello-world-worker:
+    build:
+      context: ./hello-world
+      dockerfile: Dockerfile
+    container_name: hello-world-worker
+    environment:
+      - "CADENCE_HOST=cadence:7833"
+      - "CADENCE_DOMAIN=test-domain"
+      - "TASK_LIST=test-worker"
+      - "CLIENT_NAME=test-worker"
+    depends_on:
+      cadence:
+        condition: service_healthy
+    networks:
+      - cadence-network
+    restart: unless-stopped
+
+networks:
+  cadence-network:
+    driver: bridge
+
