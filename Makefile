@@ -21,6 +21,7 @@ PROGS = helloworld \
 	splitmerge \
 	timer \
 	localactivity \
+	localactivityfailure \
 	query \
 	consistentquery \
 	cron \
@@ -130,6 +131,9 @@ timer:
 localactivity:
 	go build -o bin/localactivity cmd/samples/recipes/localactivity/*.go
 
+localactivityfailure:
+	go build -o bin/localactivityfailure cmd/samples/recipes/localactivityfailure/*.go
+
 query:
 	go build -o bin/query cmd/samples/recipes/query/*.go
 
@@ -169,6 +173,11 @@ signalcounter:
 
 crossdomain:
 	go build -o bin/crossdomain cmd/samples/recipes/crossdomain/*.go
+
+
+setup:
+	# use the ..cadence-server --env development_xdc_cluster0 ... to set up three
+	cadence --ad 127.0.0.1:7933 --env development --do samples-domain domain register --ac cluster0 --gd true
 
 crossdomain-setup:
 	# use the ..cadence-server --env development_xdc_cluster0 ... to set up three
@@ -242,6 +251,7 @@ bins: helloworld \
 	expense_dummy \
 	expense \
 	localactivity \
+	localactivityfailure \
 	query \
 	consistentquery \
 	recovery \
