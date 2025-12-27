@@ -66,7 +66,7 @@ func makeMDXQueryResponse(ctx workflow.Context) blocks.QueryResponse {
 	You can use markdown as your query response, which also supports starting and signaling workflows.
 	
 	* Use the Complete button to complete this workflow.
-	* Use the Continue button to just send a signal to continue this workflow.
+	* Use the Continue button just to send a signal to continue this workflow.
 	* Or you can use the "Start Another" button to start another workflow of this type.
 	
 	<Signal
