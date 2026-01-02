@@ -44,8 +44,8 @@ func StartWorker() {
 		TaskListName,
 		workerOptions)
 	// HelloWorld workflow registration
-	w.RegisterWorkflowWithOptions(MDXQueryWorkflow, workflow.RegisterOptions{Name: "cadence_samples.MDXQueryWorkflow"})
-	w.RegisterActivityWithOptions(MDXQueryActivity, activity.RegisterOptions{Name: "cadence_samples.MDXQueryActivity"})
+	w.RegisterWorkflowWithOptions(MarkdownQueryWorkflow, workflow.RegisterOptions{Name: "cadence_samples.MarkdownQueryWorkflow"})
+	w.RegisterActivityWithOptions(MarkdownQueryActivity, activity.RegisterOptions{Name: "cadence_samples.MarkdownQueryActivity"})
 
 	err := w.Start()
 	if err != nil {

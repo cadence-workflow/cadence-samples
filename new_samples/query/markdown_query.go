@@ -17,20 +17,20 @@ const (
 	CompleteSignalChan = "complete"
 )
 
-func MDXQueryWorkflow(ctx workflow.Context) error {
+func MarkdownQueryWorkflow(ctx workflow.Context) error {
 	ao := workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Minute * 60,
 		StartToCloseTimeout:    time.Minute * 60,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 	logger := workflow.GetLogger(ctx)
-	logger.Info("MDXQueryWorkflow started")
+	logger.Info("MarkdownQueryWorkflow started")
 
 	workflow.SetQueryHandler(ctx, "Signal", func() (blocks.QueryResponse, error) {
 		logger := workflow.GetLogger(ctx)
 		logger.Info("Responding to 'Signal' query")
 
-		return makeMDXQueryResponse(ctx), nil
+		return makeMarkdownQueryResponse(ctx), nil
 	})
 
 	var complete bool
@@ -46,7 +46,7 @@ func MDXQueryWorkflow(ctx workflow.Context) error {
 		s.Select(ctx)
 
 		var result string
-		err := workflow.ExecuteActivity(ctx, MDXQueryActivity, complete).Get(ctx, &result)
+		err := workflow.ExecuteActivity(ctx, MarkdownQueryActivity, complete).Get(ctx, &result)
 		if err != nil {
 			return err
 		}
@@ -57,11 +57,11 @@ func MDXQueryWorkflow(ctx workflow.Context) error {
 	}
 }
 
-func makeMDXQueryResponse(ctx workflow.Context) blocks.QueryResponse {
+func makeMarkdownQueryResponse(ctx workflow.Context) blocks.QueryResponse {
 	type P map[string]interface{}
 
-	mdxTemplate, err := template.New("").Parse(`
-	## MDX Query Workflow
+	markdownTemplate, err := template.New("").Parse(`
+	## Markdown Query Workflow
 	
 	You can use markdown as your query response, which also supports starting and signaling workflows.
 	
@@ -69,58 +69,54 @@ func makeMDXQueryResponse(ctx workflow.Context) blocks.QueryResponse {
 	* Use the Continue button just to send a signal to continue this workflow.
 	* Or you can use the "Start Another" button to start another workflow of this type.
 	
-	<Signal
+	{% signal 
+		signalName="complete" 
+		label="Complete"
 		domain="cadence-samples"
 		cluster="cluster0"
-		wf-id="{{.workflowID}}"
-		run-id="{{.runID}}"
-		name="complete"
-		input={true}
-	>
-		Complete
-	</Signal>
-
-	<Signal
-	  domain="cadence-samples"
-	  cluster="cluster0"
-	  wf-id="{{.workflowID}}"
-	  run-id="{{.runID}}"
-	  name="complete"
-	  input={false}
-	>
-		Continue
-	</Signal>
-	
-	<Start
-	  domain="cadence-samples"
-	  workflow-type="cadence_samples.MDXQueryWorkflow"
-	  task-list="cadence-samples-worker"
-	  wf-id={"mdx-" + Math.floor(Math.random() * 10000000)}
-	  input={undefined}
-	  timeout-seconds={60}
-	>
-		Start Another
-	</Start>
+		workflowId="{{.workflowID}}"
+		runId="{{.runID}}"
+		input=true
+	/%}
+	{% signal
+		signalName="complete" 
+		label="Continue"
+		domain="cadence-samples"
+		cluster="cluster0"
+		workflowId="{{.workflowID}}"
+		runId="{{.runID}}"
+		input=false
+	/%}
+	{% start
+		workflowType="cadence_samples.MarkdownQueryWorkflow" 
+		label="Start Another"
+		domain="cadence-samples"
+		cluster="cluster0"
+		taskList="cadence-samples-worker"
+		workflowId="{{.newWorkflowID}}"
+		timeoutSeconds=60
+	/%}
 		`)
 	if err != nil {
 		panic("Failed to parse template: " + err.Error())
 	}
 
-	var mdx bytes.Buffer
-	err = mdxTemplate.Execute(&mdx, P{
+	var markdown bytes.Buffer
+	err = markdownTemplate.Execute(&markdown, P{
 		"workflowID": workflow.GetInfo(ctx).WorkflowExecution.ID,
 		"runID":      workflow.GetInfo(ctx).WorkflowExecution.RunID,
+		"newWorkflowID": "markdown-" + strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
 	})
 	if err != nil {
 		panic("Failed to execute template: " + err.Error())
 	}
 
-	return blocks.New(blocks.NewMarkdownSection(mdx.String()))
+	return blocks.New(blocks.NewMarkdownSection(markdown.String()))
 }
 
-func MDXQueryActivity(ctx context.Context, complete bool) (string, error) {
+func MarkdownQueryActivity(ctx context.Context, complete bool) (string, error) {
 	logger := activity.GetLogger(ctx)
-	logger.Info("MDXQueryActivity started, a new signal has been received", zap.Bool("complete", complete))
+	logger.Info("MarkdownQueryActivity started, a new signal has been received", zap.Bool("complete", complete))
 	if complete {
 		return "Workflow will complete now", nil
 	}
