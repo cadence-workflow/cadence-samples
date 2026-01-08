@@ -1,4 +1,5 @@
 # Cadence Samples ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/uber-common/cadence-samples/build.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcadence-workflow%2Fcadence-samples.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcadence-workflow%2Fcadence-samples?ref=badge_shield)
 
 Welcome to the Cadence Samples repository! This collection demonstrates the powerful capabilities of Cadence workflow orchestration through practical, real-world examples. Whether you're new to Cadence or looking to implement specific patterns, these samples will help you understand how to build reliable, scalable, and maintainable workflow applications.
 
@@ -574,6 +575,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## 📄 **License**
 
 Apache 2.0 License - see [LICENSE](LICENSE) for details.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcadence-workflow%2Fcadence-samples.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcadence-workflow%2Fcadence-samples?ref=badge_large)
 
 ## 🆘 **Getting Help**
 
