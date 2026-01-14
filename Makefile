@@ -1,4 +1,4 @@
-.PHONY: test bins clean
+.PHONY: test bins clean run-generators
 PROJECT_ROOT = github.com/uber-common/cadence-samples
 
 export PATH := $(GOPATH)/bin:$(PATH)
@@ -195,6 +195,16 @@ autoscaling-monitoring:
 
 batch:
 	go build -o bin/batch cmd/samples/batch/*.go
+
+run-generators:
+	@echo "Running generators in new_samples..."
+	@for dir in new_samples/*/generator; do \
+		if [ -d "$$dir" ]; then \
+			echo "Running generator in $$dir"; \
+			(cd $$dir && go run .); \
+		fi; \
+	done
+	@echo "All generators completed"
 
 test: bins
 	@rm -f test
