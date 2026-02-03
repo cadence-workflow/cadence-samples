@@ -98,7 +98,7 @@ func makeMarkdownQueryResponse(ctx workflow.Context) blocks.QueryResponse {
 	/%}
 	
 	{% br /%} 
-	{% image src="https://cadenceworkflow.io/img/logo-white.svg" alt="Cadence Logo" height="100" /%}
+	{% image src="https://cadenceworkflow.io/img/cadence-logo.svg" alt="Cadence Logo" height="100" /%}
 		`)
 	if err != nil {
 		panic("Failed to parse template: " + err.Error())
