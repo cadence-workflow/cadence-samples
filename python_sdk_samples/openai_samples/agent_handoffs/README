@@ -16,7 +16,9 @@ curl https://raw.githubusercontent.com/cadence-workflow/cadence/master/docker/do
 # Start Agent workers
 
 ```
-uv run python main.py
+cd python_sdk_samples
+uv sync
+uv run python -m openai_samples.agent_handoffs.main
 ```
 
 # Trigger Agent Run

@@ -39,7 +39,7 @@ class BookTripAgentWorkflow:
         agent =Agent(
             name = "Book Trip Agent",
             instructions = """
-            "You are a trip planner. You can plan short or long trips.
+            You are a trip planner. You can plan short or long trips.
             """,
             model = "gpt-4o-mini",
             handoffs = [
