@@ -8,6 +8,7 @@ This directory contains samples demonstrating various Cadence workflow concepts.
 |--------|-------------|
 | [activities/](activities/) | Activity patterns: dynamic execution by name, parallel execution with pick-first |
 | [client_tls/](client_tls/) | Client-side TLS configuration for secure Cadence connections |
+| [data/](data/) | Custom DataConverters: gzip compression, AES-256-GCM encryption, and S3 "claim-check" offload |
 | [hello_world/](hello_world/) | Basic "Hello World" workflow and activity |
 | [operations/](operations/) | Workflow operations: cancellation and cleanup patterns |
 | [query/](query/) | Workflow query patterns |
