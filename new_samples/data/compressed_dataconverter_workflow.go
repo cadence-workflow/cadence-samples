@@ -281,12 +281,12 @@ func GetPayloadSizeInfo(payload LargePayload, converter encoded.DataConverter) (
 	return originalSize, compressedSize, compressionPercentage, nil
 }
 
-// LargeDataConverterWorkflow demonstrates processing large payloads with compression.
+// CompressionDataConverterWorkflow demonstrates processing large payloads with compression.
 // The DataConverter automatically compresses/decompresses all workflow data.
 // Note: The workflow generates its own payload internally so it can be started from CLI
 // without requiring the CLI to use the custom DataConverter. The compression demonstration
 // happens when data is passed between workflow and activity.
-func LargeDataConverterWorkflow(ctx workflow.Context) (LargePayload, error) {
+func CompressionDataConverterWorkflow(ctx workflow.Context) (LargePayload, error) {
 	logger := workflow.GetLogger(ctx)
 
 	// Generate the large payload internally - this allows the workflow to be started
@@ -304,7 +304,7 @@ func LargeDataConverterWorkflow(ctx workflow.Context) (LargePayload, error) {
 	ctx = workflow.WithActivityOptions(ctx, activityOptions)
 
 	var result LargePayload
-	err := workflow.ExecuteActivity(ctx, LargeDataConverterActivity, input).Get(ctx, &result)
+	err := workflow.ExecuteActivity(ctx, CompressionDataConverterActivity, input).Get(ctx, &result)
 	if err != nil {
 		logger.Error("Large payload activity failed", zap.Error(err))
 		return LargePayload{}, err
@@ -315,9 +315,9 @@ func LargeDataConverterWorkflow(ctx workflow.Context) (LargePayload, error) {
 	return result, nil
 }
 
-// LargeDataConverterActivity processes the large payload.
+// CompressionDataConverterActivity processes the large payload.
 // In production, this might involve data transformation, validation, etc.
-func LargeDataConverterActivity(ctx context.Context, input LargePayload) (LargePayload, error) {
+func CompressionDataConverterActivity(ctx context.Context, input LargePayload) (LargePayload, error) {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Large payload activity received input", zap.String("payload_id", input.ID), zap.Int("items_count", len(input.Items)))
 

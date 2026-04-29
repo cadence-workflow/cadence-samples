@@ -10,11 +10,11 @@ import (
 	"go.uber.org/cadence/worker"
 )
 
-func Test_LargeDataConverterWorkflow(t *testing.T) {
+func Test_CompressionDataConverterWorkflow(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestWorkflowEnvironment()
-	env.RegisterWorkflow(LargeDataConverterWorkflow)
-	env.RegisterActivity(LargeDataConverterActivity)
+	env.RegisterWorkflow(CompressionDataConverterWorkflow)
+	env.RegisterActivity(CompressionDataConverterActivity)
 
 	dataConverter := NewCompressedJSONDataConverter()
 	workerOptions := worker.Options{
@@ -28,7 +28,7 @@ func Test_LargeDataConverterWorkflow(t *testing.T) {
 	})
 
 	// Workflow generates its own payload internally, no input needed
-	env.ExecuteWorkflow(LargeDataConverterWorkflow)
+	env.ExecuteWorkflow(CompressionDataConverterWorkflow)
 
 	require.True(t, env.IsWorkflowCompleted())
 	require.NoError(t, env.GetWorkflowError())
