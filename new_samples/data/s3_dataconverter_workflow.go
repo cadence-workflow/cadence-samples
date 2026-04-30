@@ -41,16 +41,20 @@ func NewLocalFSBlobStore() BlobStore {
 	return &localFSBlobStore{baseDir: baseDir}
 }
 
+// sanitizeKey turns a "bucket/uuid" key into a single safe filename. Keys are always
+// generated internally by the DataConverter, but filepath.Base provides a belt-and-suspenders
+// guarantee against directory traversal in case a future caller passes a user-controlled key.
+func sanitizeKey(key string) string {
+	return filepath.Base(strings.ReplaceAll(key, "/", "_"))
+}
+
 func (s *localFSBlobStore) Put(_ context.Context, key string, data []byte) error {
-	// Sanitize key to avoid directory traversal
-	safeKey := strings.ReplaceAll(key, "/", "_")
-	path := filepath.Join(s.baseDir, safeKey)
+	path := filepath.Join(s.baseDir, sanitizeKey(key))
 	return os.WriteFile(path, data, 0o644)
 }
 
 func (s *localFSBlobStore) Get(_ context.Context, key string) ([]byte, error) {
-	safeKey := strings.ReplaceAll(key, "/", "_")
-	path := filepath.Join(s.baseDir, safeKey)
+	path := filepath.Join(s.baseDir, sanitizeKey(key))
 	return os.ReadFile(path)
 }
 
