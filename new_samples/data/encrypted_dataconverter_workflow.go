@@ -46,7 +46,10 @@ func NewEncryptedJSONDataConverter(key []byte) encoded.DataConverter {
 var demoEncryptionKey = []byte("cadence-demo-key-NOT-FOR-PROD!!!")
 
 // LoadEncryptionKey reads a 32-byte AES key from the CADENCE_ENCRYPTION_KEY environment
-// variable (hex-encoded, 64 hex chars). Falls back to a hardcoded demo key with a warning.
+// variable (hex-encoded, 64 hex chars). If the env var is unset, falls back to a hardcoded
+// demo key with a warning. If the env var is set but invalid, panics — silently falling back
+// to the public demo key when the user clearly intended their own key would be a security
+// hole.
 func LoadEncryptionKey() []byte {
 	hexKey := os.Getenv("CADENCE_ENCRYPTION_KEY")
 	if hexKey == "" {
@@ -55,9 +58,11 @@ func LoadEncryptionKey() []byte {
 		return demoEncryptionKey
 	}
 	key, err := hex.DecodeString(hexKey)
-	if err != nil || len(key) != 32 {
-		fmt.Printf("WARNING: CADENCE_ENCRYPTION_KEY must be 64 hex chars (32 bytes). Got error: %v. Falling back to demo key.\n", err)
-		return demoEncryptionKey
+	if err != nil {
+		panic(fmt.Sprintf("CADENCE_ENCRYPTION_KEY is not valid hex: %v", err))
+	}
+	if len(key) != 32 {
+		panic(fmt.Sprintf("CADENCE_ENCRYPTION_KEY must be exactly 64 hex chars (32 bytes), got %d hex chars (%d bytes)", len(hexKey), len(key)))
 	}
 	return key
 }
