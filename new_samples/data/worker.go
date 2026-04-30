@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/uber-go/tally"
 	apiv1 "github.com/uber/cadence-idl/go/proto/api/v1"
@@ -154,7 +155,7 @@ func printS3OffloadStats() {
 	fmt.Printf("Stored in BlobStore:       %d bytes (%.2f KB)\n", jsonSize, float64(jsonSize)/1024.0)
 	fmt.Printf("Stored in Cadence history: %d bytes (claim-check reference only)\n", cadenceBytes)
 	fmt.Printf("Reduction in Cadence:      %.1f%%\n", 100.0*(1.0-float64(cadenceBytes)/float64(jsonSize)))
-	fmt.Printf("BlobStore location:        %s/cadence-samples-data-s3/\n", "os.TempDir()")
+	fmt.Printf("BlobStore location:        %s/cadence-samples-data-s3/\n", os.TempDir())
 	fmt.Printf("Start workflow: cadence --domain %s workflow start --tl %s --workflow_type cadence_samples.S3OffloadDataConverterWorkflow --et 60\n", Domain, TaskListS3)
 	fmt.Printf("=====================================\n\n")
 }
