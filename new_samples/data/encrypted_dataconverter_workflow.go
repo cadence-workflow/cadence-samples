@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -27,18 +28,20 @@ type encryptedJSONDataConverter struct {
 	gcm cipher.AEAD
 }
 
+var errFailedToCreateConverter = errors.New("failed to create encrypted data converter")
+
 // NewEncryptedJSONDataConverter creates a new encrypted JSON data converter.
-// key must be exactly 32 bytes (AES-256).
-func NewEncryptedJSONDataConverter(key []byte) encoded.DataConverter {
+// key must be exactly 32 bytes (AES-256). Returns an error if the key is invalid.
+func NewEncryptedJSONDataConverter(key []byte) (encoded.DataConverter, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create AES cipher: %v", err))
+		return nil, errors.Join(errFailedToCreateConverter, err)
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(fmt.Sprintf("failed to create GCM: %v", err))
+		return nil, errors.Join(errFailedToCreateConverter, err)
 	}
-	return &encryptedJSONDataConverter{gcm: gcm}
+	return &encryptedJSONDataConverter{gcm: gcm}, nil
 }
 
 // demoEncryptionKey is a hardcoded 32-byte key used ONLY when CADENCE_ENCRYPTION_KEY is unset.

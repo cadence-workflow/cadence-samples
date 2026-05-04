@@ -16,7 +16,8 @@ func Test_EncryptionDataConverterWorkflow(t *testing.T) {
 	env.RegisterWorkflow(EncryptionDataConverterWorkflow)
 	env.RegisterActivity(EncryptionDataConverterActivity)
 
-	dataConverter := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	dataConverter, err := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	require.NoError(t, err)
 	workerOptions := worker.Options{
 		DataConverter: dataConverter,
 	}
@@ -37,7 +38,8 @@ func Test_EncryptionDataConverterWorkflow(t *testing.T) {
 }
 
 func Test_EncryptionRoundTrip(t *testing.T) {
-	converter := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	converter, err := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	require.NoError(t, err)
 
 	original := CreateSensitiveCustomerRecord()
 	encrypted, err := converter.ToData(original)
@@ -53,7 +55,8 @@ func Test_EncryptionRoundTrip(t *testing.T) {
 }
 
 func Test_EncryptionDifferentEachTime(t *testing.T) {
-	converter := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	converter, err := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	require.NoError(t, err)
 	record := CreateSensitiveCustomerRecord()
 
 	enc1, err := converter.ToData(record)
@@ -63,4 +66,10 @@ func Test_EncryptionDifferentEachTime(t *testing.T) {
 
 	// Each encryption produces a different ciphertext due to random nonce
 	require.NotEqual(t, enc1, enc2)
+}
+
+func Test_NewEncryptedJSONDataConverter_InvalidKey(t *testing.T) {
+	_, err := NewEncryptedJSONDataConverter([]byte("too-short"))
+	require.Error(t, err)
+	require.ErrorIs(t, err, errFailedToCreateConverter)
 }

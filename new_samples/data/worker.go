@@ -68,7 +68,10 @@ func startCompressionWorker(logger *zap.Logger, cadenceClient workflowservicecli
 
 func startEncryptionWorker(logger *zap.Logger, cadenceClient workflowserviceclient.Interface) {
 	key := LoadEncryptionKey()
-	dataConverter := NewEncryptedJSONDataConverter(key)
+	dataConverter, err := NewEncryptedJSONDataConverter(key)
+	if err != nil {
+		panic("Failed to create encryption data converter: " + err.Error())
+	}
 	workerOptions := worker.Options{
 		Logger:        logger,
 		MetricsScope:  tally.NewTestScope(TaskListEncryption, nil),
@@ -125,7 +128,11 @@ func printCompressionStats() {
 // printEncryptionStats displays AES-256-GCM encryption statistics for the sample record.
 func printEncryptionStats() {
 	record := CreateSensitiveCustomerRecord()
-	converter := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	converter, err := NewEncryptedJSONDataConverter(demoEncryptionKey)
+	if err != nil {
+		fmt.Printf("Error creating encryption converter for stats: %v\n", err)
+		return
+	}
 	plaintextSize, ciphertextSize, preview, err := GetEncryptionSizeInfo(record, converter)
 	if err != nil {
 		fmt.Printf("Error calculating encryption stats: %v\n", err)
