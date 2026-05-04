@@ -92,7 +92,7 @@ go run .
 
 > **WARNING:** The hardcoded demo key (`cadence-demo-key-NOT-FOR-PROD!!!`) is public.
 > Never use it in production. In production, load your key from a secrets manager
-> (AWS Secrets Manager, HashiCorp Vault, GCP Secret Manager, etc.) and rotate it regularly.
+> (AWS Secrets Manager, HashiCorp Vault, GCP Secret Manager, etc.).
 
 #### How AES-256-GCM works
 
