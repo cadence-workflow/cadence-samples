@@ -282,8 +282,8 @@ func GetS3OffloadSizeInfo(payload S3LargePayload, thresholdBytes int) (int, int,
 	jsonSize := len(jsonData)
 
 	// The Cadence history reference is: 1 prefix byte + JSON envelope {"__s3_ref":"<bucket>/<sha256hex>"}
-	// A UUID is 36 chars; bucket + "/" + UUID ≈ bucket + 37 chars
-	sampleEnvelope, _ := json.Marshal(s3Envelope{S3Ref: "cadence-samples-data-s3/" + "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"})
+	// A SHA-256 hex digest is 64 chars; bucket + "/" + hex ≈ bucket + 65 chars
+	sampleEnvelope, _ := json.Marshal(s3Envelope{S3Ref: "cadence-samples-data-s3/" + strings.Repeat("a", 64)})
 	cadenceBytes := 1 + len(sampleEnvelope)
 
 	return jsonSize, cadenceBytes, nil
