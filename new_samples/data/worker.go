@@ -143,7 +143,6 @@ func printEncryptionStats() {
 	fmt.Printf("Plaintext JSON size:  %d bytes\n", plaintextSize)
 	fmt.Printf("Ciphertext size:      %d bytes (overhead: %d bytes nonce+tag)\n", ciphertextSize, ciphertextSize-plaintextSize)
 	fmt.Printf("Ciphertext preview:   %s\n", preview)
-	fmt.Printf("WARNING: Using demo key. Set CADENCE_ENCRYPTION_KEY (64 hex chars) for production.\n")
 	fmt.Printf("Start workflow: cadence --domain %s workflow start --tl %s --workflow_type cadence_samples.EncryptionDataConverterWorkflow --et 60\n", Domain, TaskListEncryption)
 	fmt.Printf("====================================\n\n")
 }
