@@ -87,6 +87,33 @@ func Test_S3OffloadRoundTrip(t *testing.T) {
 	require.Equal(t, len(original.DataPoints), len(decoded.DataPoints))
 }
 
+func Test_S3ReplayIdempotent(t *testing.T) {
+	// Simulate Cadence replay: ToData is called multiple times on the same payload.
+	// Each call must produce an identical encoded output and write to the same blob key,
+	// not create new orphaned blobs on every replay.
+	store := newMemoryBlobStore()
+	converter := NewS3OffloadDataConverter(store, "test-bucket", defaultThresholdBytes)
+
+	payload := CreateS3LargePayload()
+
+	enc1, err := converter.ToData(payload)
+	require.NoError(t, err)
+	require.Equal(t, offloadPrefix, enc1[0], "expected offload prefix for large payload")
+
+	enc2, err := converter.ToData(payload)
+	require.NoError(t, err)
+
+	// Both calls must return byte-for-byte identical output (same key in the envelope).
+	require.Equal(t, enc1, enc2, "ToData must be idempotent across replays — same payload must produce same encoded bytes")
+
+	// The store must contain exactly one entry, not two.
+	mstore := store.(*memoryBlobStore)
+	mstore.mu.RLock()
+	blobCount := len(mstore.data)
+	mstore.mu.RUnlock()
+	require.Equal(t, 1, blobCount, "replayed ToData calls must overwrite the same blob key, not create new orphaned entries")
+}
+
 func Test_S3InlineSmallPayload(t *testing.T) {
 	store := newMemoryBlobStore()
 	converter := NewS3OffloadDataConverter(store, "test-bucket", 100000) // very high threshold

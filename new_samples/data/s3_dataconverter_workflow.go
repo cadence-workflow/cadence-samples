@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/cadence/activity"
 	"go.uber.org/cadence/encoded"
 	"go.uber.org/cadence/workflow"
@@ -41,7 +41,7 @@ func NewLocalFSBlobStore() BlobStore {
 	return &localFSBlobStore{baseDir: baseDir}
 }
 
-// sanitizeKey turns a "bucket/uuid" key into a single safe filename. Keys are always
+// sanitizeKey turns a "bucket/sha256hex" key into a single safe filename. Keys are always
 // generated internally by the DataConverter, but filepath.Base provides a belt-and-suspenders
 // guarantee against directory traversal in case a future caller passes a user-controlled key.
 func sanitizeKey(key string) string {
@@ -166,8 +166,14 @@ func (dc *s3OffloadDataConverter) ToData(value ...interface{}) ([]byte, error) {
 		return result, nil
 	}
 
-	// Large payload: offload to blob store, store only a reference in Cadence history
-	key := fmt.Sprintf("%s/%s", dc.bucket, uuid.New().String())
+	// Derive the key from the SHA-256 of the payload so ToData is idempotent across
+	// Cadence workflow replays. Using uuid.New() here would write a new orphaned blob
+	// on every replay because the SDK calls ToData again each time the workflow is
+	// re-executed from the top. If the workflow needs to control the key (e.g. to
+	// encode routing metadata), generate it with workflow.SideEffect and pass it
+	// alongside the payload instead.
+	hash := sha256.Sum256(jsonBytes)
+	key := fmt.Sprintf("%s/%x", dc.bucket, hash)
 	if err := dc.store.Put(context.Background(), key, jsonBytes); err != nil {
 		return nil, fmt.Errorf("failed to offload payload to blob store (key=%s): %v", key, err)
 	}
@@ -275,7 +281,7 @@ func GetS3OffloadSizeInfo(payload S3LargePayload, thresholdBytes int) (int, int,
 	}
 	jsonSize := len(jsonData)
 
-	// The Cadence history reference is: 1 prefix byte + JSON envelope {"__s3_ref":"<bucket>/<uuid>"}
+	// The Cadence history reference is: 1 prefix byte + JSON envelope {"__s3_ref":"<bucket>/<sha256hex>"}
 	// A UUID is 36 chars; bucket + "/" + UUID ≈ bucket + 37 chars
 	sampleEnvelope, _ := json.Marshal(s3Envelope{S3Ref: "cadence-samples-data-s3/" + "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"})
 	cadenceBytes := 1 + len(sampleEnvelope)
