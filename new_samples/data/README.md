@@ -121,7 +121,7 @@ cadence --domain cadence-samples \
 
 #### How it works
 
-- `ToData`: JSON-encode → if `len(json) > thresholdBytes`, upload to `BlobStore` under a UUID key and return `0x01 || {"__s3_ref":"<bucket>/<uuid>"}`. Otherwise return `0x00 || json` inline.
+- `ToData`: JSON-encode → if `len(json) > thresholdBytes`, upload to `BlobStore` under a SHA-256 key and return `0x01 || {"__s3_ref":"<bucket>/<sha256hex>"}`. Otherwise return `0x00 || json` inline.
 - `FromData`: read prefix byte → if `0x01`, fetch from `BlobStore` and decode; if `0x00`, decode inline.
 
 #### Default store (zero-config)
