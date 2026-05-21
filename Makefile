@@ -23,6 +23,7 @@ PROGS = helloworld \
 	query \
 	consistentquery \
 	cron \
+	schedule \
 	tracing \
 	dsl \
 	fileprocessing \
@@ -48,6 +49,7 @@ ALL_SRC := $(shell find ./cmd/samples/common -name "*.go")
 
 # all directories with *_test.go files in them
 TEST_DIRS=./cmd/samples/cron \
+	./cmd/samples/schedule \
 	./cmd/samples/dsl \
 	./cmd/samples/expense \
 	./cmd/samples/fileprocessing \
@@ -136,6 +138,9 @@ tracing:
 cron:
 	go build -o bin/cron cmd/samples/cron/*.go
 
+schedule:
+	go build -o bin/schedule cmd/samples/schedule/*.go
+
 dsl:
 	go build -o bin/dsl cmd/samples/dsl/*.go
 
@@ -220,6 +225,7 @@ bins: helloworld \
 	searchattributes \
 	timer \
 	cron \
+	schedule \
 	tracing \
 	dsl \
 	fileprocessing \

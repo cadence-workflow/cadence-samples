@@ -39,12 +39,12 @@ func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.In
 
 	clientConfig := dispatcher.ClientConfig(CadenceService)
 
-	return compatibility.NewThrift2ProtoAdapter(
-		apiv1.NewDomainAPIYARPCClient(clientConfig),
-		apiv1.NewWorkflowAPIYARPCClient(clientConfig),
-		apiv1.NewWorkerAPIYARPCClient(clientConfig),
-		apiv1.NewVisibilityAPIYARPCClient(clientConfig),
-	)
+	return compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
+		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
+		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
+		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
+		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+	})
 }
 
 // BuildLogger creates a zap logger for the client.
