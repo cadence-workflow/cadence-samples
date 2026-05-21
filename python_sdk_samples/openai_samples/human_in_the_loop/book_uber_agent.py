@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from textwrap import dedent
 from typing import Any
 
 from agents import Agent, RunConfig, Runner, ToolApprovalItem, function_tool
@@ -26,6 +27,15 @@ async def book_uber(from_address: str, to_address: str, passengers: int) -> Uber
     """
     return UberTrip(from_address=from_address, to_address=to_address, passengers=passengers, price=100, driver_name="John Doe", driver_phone="1234567890", driver_car="Toyota", driver_car_plate="1234567890", driver_car_color="Red")
 
+
+# Shape that Cadence Web expects to render a query result as markdown.
+@dataclass
+class MarkdownQueryResponse:
+    cadenceResponseType: str
+    format: str
+    data: str
+
+
 @agent_registry.workflow(name="BookUberAgentWorkflow")
 class BookUberAgentWorkflow:
     def __init__(self) -> None:
@@ -35,20 +45,28 @@ class BookUberAgentWorkflow:
         self._decisions: dict[str, bool] = {}
 
     @cadence.workflow.query(name="get_interruptions")
-    def get_interruptions(self) -> list[dict[str, Any]]:
-        return [
-            {
-                "call_id": item.call_id,
-                "tool_name": item.tool_name,
-                "arguments": item.arguments,
-            }
-            for item in self._pending.values()
-        ]
+    def get_interruptions(self) -> MarkdownQueryResponse:
+        info = cadence.workflow.WorkflowContext.get().info()
+        return MarkdownQueryResponse(
+            cadenceResponseType="formattedData",
+            format="text/markdown",
+            data=_render_interruptions_markdown(
+                domain=info.workflow_domain,
+                workflow_id=info.workflow_id,
+                run_id=info.workflow_run_id,
+                pending=self._pending,
+            ),
+        )
 
-    @cadence.workflow.signal(name="approve_interruption")
-    def approve_interruption(self, call_id: str, approved: bool = True) -> None:
+    @cadence.workflow.signal(name="approve_tool_call")
+    def approve_tool_call(self, call_id: str) -> None:
         if call_id in self._pending:
-            self._decisions[call_id] = approved
+            self._decisions[call_id] = True
+
+    @cadence.workflow.signal(name="reject_tool_call")
+    def reject_tool_call(self, call_id: str) -> None:
+        if call_id in self._pending:
+            self._decisions[call_id] = False
 
     @cadence.workflow.run
     async def run(self, input: str) -> str:
@@ -91,3 +109,72 @@ class BookUberAgentWorkflow:
             run_input = state
             self._pending = {}
             self._decisions = {}
+
+
+def _render_interruptions_markdown(
+    *,
+    domain: str,
+    workflow_id: str,
+    run_id: str,
+    pending: dict[str, ToolApprovalItem],
+) -> str:
+    if not pending:
+        return dedent(
+            """\
+            ## Tool Approvals
+
+            _No tool calls are awaiting approval._
+            """
+        )
+
+    sections: list[str] = [
+        "## Tool Approvals",
+        "",
+        "The agent is paused. Approve or reject each pending tool call below.",
+        "",
+        "---",
+        "",
+    ]
+    for item in pending.values():
+        sections.append(f"### `{item.tool_name}`")
+        sections.append("")
+        sections.append(f"- **Call ID:** `{item.call_id}`")
+        if item.arguments:
+            sections.append("- **Arguments:**")
+            sections.append("")
+            sections.append("```json")
+            sections.append(item.arguments)
+            sections.append("```")
+        sections.append("")
+        sections.append(_render_decision_buttons(domain, workflow_id, run_id, item.call_id))
+        sections.append("")
+        sections.append("---")
+        sections.append("")
+
+    return "\n".join(sections)
+
+
+def _render_decision_buttons(
+    domain: str, workflow_id: str, run_id: str, call_id: str
+) -> str:
+    return dedent(
+        f"""\
+        {{% signal
+            signalName="approve_tool_call"
+            label="✓ Approve"
+            domain="{domain}"
+            cluster="cluster0"
+            workflowId="{workflow_id}"
+            runId="{run_id}"
+            input="{call_id}"
+        /%}}
+        {{% signal
+            signalName="reject_tool_call"
+            label="✗ Reject"
+            domain="{domain}"
+            cluster="cluster0"
+            workflowId="{workflow_id}"
+            runId="{run_id}"
+            input="{call_id}"
+        /%}}"""
+    )
