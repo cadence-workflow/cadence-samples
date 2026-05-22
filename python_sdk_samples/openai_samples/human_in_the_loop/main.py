@@ -25,10 +25,9 @@ async def main():
             agent_registry),
     )
 
-    # start BookFlightAgentWorkflow
     async with worker:
         logger.info("Worker started. Go to http://localhost:8088/domains/default/cluster0/workflows to start an agent run.")
-        logger.info("Sample input: Book a trip for me from Uber Seattle Office to Uber San Francisco Office tomorrow at 10:00 AM")
+        logger.info("Sample input: Book a trip for me (1 passenger) from Uber Seattle Office to Seattle Airport tomorrow at 10:00 AM")
         shutdown_event = asyncio.Event()
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGTERM, signal.SIGINT):

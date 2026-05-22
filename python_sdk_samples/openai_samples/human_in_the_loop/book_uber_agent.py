@@ -88,9 +88,11 @@ class BookUberAgentWorkflow:
             if not result.interruptions:
                 return result.final_output
 
-            self._pending = {
-                item.call_id: item for item in result.interruptions if item.call_id
-            }
+            for item in result.interruptions:
+                if not item.call_id:
+                    raise RuntimeError("Tool call ID is required for interruption %s", item.qualified_name)
+                self._pending[item.call_id] = item
+
             self._decisions = {}
 
             # Block until every pending tool call has an approve/reject signal.
