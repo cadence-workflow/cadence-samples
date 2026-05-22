@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(CancelWorkflow, workflow.RegisterOptions{Name: "cadence_samples.CancelWorkflow"})
 	w.RegisterActivityWithOptions(LongRunningActivity, activity.RegisterOptions{Name: "cadence_samples.LongRunningActivity"})
 	w.RegisterActivityWithOptions(CleanupActivity, activity.RegisterOptions{Name: "cadence_samples.CleanupActivity"})

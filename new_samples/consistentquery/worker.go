@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(ConsistentQueryWorkflow, workflow.RegisterOptions{Name: "cadence_samples.ConsistentQueryWorkflow"})
 
 	err := w.Start()

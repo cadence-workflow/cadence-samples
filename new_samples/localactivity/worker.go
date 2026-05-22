@@ -44,8 +44,8 @@ func StartWorker() {
 		TaskListName,
 		workerOptions)
 	// workflow registration
-	w.RegisterWorkflowWithOptions(HelloWorldWorkflow, workflow.RegisterOptions{Name: "cadence_samples.HelloWorldWorkflow"})
-	w.RegisterActivityWithOptions(HelloWorldActivity, activity.RegisterOptions{Name: "cadence_samples.HelloWorldActivity"})
+	w.RegisterWorkflowWithOptions(LocalActivityWorkflow, workflow.RegisterOptions{Name: "cadence_samples.LocalActivityWorkflow"})
+	w.RegisterActivityWithOptions(ProcessActivity, activity.RegisterOptions{Name: "cadence_samples.ProcessActivity"})
 
 	err := w.Start()
 	if err != nil {

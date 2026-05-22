@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(SideEffectWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SideEffectWorkflow"})
 
 	err := w.Start()

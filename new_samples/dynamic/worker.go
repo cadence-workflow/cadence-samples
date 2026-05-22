@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(DynamicGreetingsWorkflow, workflow.RegisterOptions{Name: "cadence_samples.DynamicGreetingsWorkflow"})
 	w.RegisterActivityWithOptions(GetNameActivity, activity.RegisterOptions{Name: "cadence_samples.GetNameActivity"})
 	w.RegisterActivityWithOptions(GetGreetingActivity, activity.RegisterOptions{Name: "cadence_samples.GetGreetingActivity"})

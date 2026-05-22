@@ -42,7 +42,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(SignalCounterWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SignalCounterWorkflow"})
 
 	err := w.Start()

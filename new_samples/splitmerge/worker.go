@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(SplitMergeWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SplitMergeWorkflow"})
 	w.RegisterActivityWithOptions(ChunkProcessingActivity, activity.RegisterOptions{Name: "cadence_samples.ChunkProcessingActivity"})
 

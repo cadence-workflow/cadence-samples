@@ -43,7 +43,7 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// HelloWorld workflow registration
+	// workflow registration
 	w.RegisterWorkflowWithOptions(DelayStartWorkflow, workflow.RegisterOptions{Name: "cadence_samples.DelayStartWorkflow"})
 	w.RegisterActivityWithOptions(DelayStartActivity, activity.RegisterOptions{Name: "cadence_samples.DelayStartActivity"})
 

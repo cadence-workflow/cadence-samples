@@ -1,7 +1,7 @@
 <!-- THIS IS A GENERATED FILE -->
 <!-- PLEASE DO NOT EDIT -->
 
-# Query Sample
+# Sleep Sample
 
 ## Prerequisites
 
@@ -29,9 +29,9 @@ go run .
 
 This will call the main function in main.go which starts the worker, which will be execute the sample workflow code
 
-## Query Workflow Sample
+## Sleep Workflow Sample
 
-This sample demonstrates **workflow queries** - inspecting workflow state without affecting execution.
+This sample demonstrates **workflow.Sleep** - pausing workflow execution for a specified duration.
 
 ### Start the Workflow
 
@@ -40,56 +40,51 @@ cadence --env development \
   --domain cadence-samples \
   workflow start \
   --tl cadence-samples-worker \
-  --et 180 \
-  --workflow_type cadence_samples.QueryWorkflow
+  --et 120 \
+  --workflow_type cadence_samples.SleepWorkflow \
+  --input '10000000000'
 ```
 
-### Query the Workflow
-
-While the workflow is running, query its state:
-
-```bash
-cadence --env development \
-  --domain cadence-samples \
-  workflow query \
-  --wid <workflow_id> \
-  --qt state
-```
+The input is sleep duration in nanoseconds (10 seconds = 10000000000).
 
 ### What Happens
 
-The workflow goes through states that you can query:
-
 ```
-Time 0:   state = "started"
-Time 1s:  state = "waiting on timer"
-Time 2m:  state = "done" (workflow completes)
+Time 0:    Workflow starts
+           └── workflow.Sleep(10s) begins
+
+Time 10s:  Sleep completes
+           └── MainSleepActivity executes
+
+Time ~10s: Workflow completes
 ```
 
-### Key Concept: Query Handler
+### Key Concept: workflow.Sleep
 
 ```go
-func QueryWorkflow(ctx workflow.Context) error {
-    currentState := "started"
+func SleepWorkflow(ctx workflow.Context, sleepDuration time.Duration) error {
+    // Sleep for the specified duration
+    err := workflow.Sleep(ctx, sleepDuration)
+    if err != nil {
+        return err
+    }
     
-    // Register query handler for "state" query type
-    workflow.SetQueryHandler(ctx, "state", func() (string, error) {
-        return currentState, nil
-    })
-    
-    currentState = "waiting on timer"
-    workflow.NewTimer(ctx, 2*time.Minute).Get(ctx, nil)
-    
-    currentState = "done"
-    return nil
+    // Continue with workflow logic after sleep
+    return workflow.ExecuteActivity(ctx, MainSleepActivity).Get(ctx, nil)
 }
 ```
 
+### Sleep vs Timer
+
+- `workflow.Sleep(ctx, duration)` - Simple, blocks workflow execution
+- `workflow.NewTimer(ctx, duration)` - Returns a Future, can be used with Selector for racing
+
 ### Use Cases
 
-- Progress monitoring dashboards
-- Debugging running workflows
-- Health checks without affecting execution
+- Delayed processing
+- Rate limiting
+- Scheduled tasks
+- Waiting periods between retries
 
 
 ## References

@@ -8,7 +8,6 @@ import (
 	"github.com/uber-go/tally"
 	apiv1 "github.com/uber/cadence-idl/go/proto/api/v1"
 	"go.uber.org/cadence/.gen/go/cadence/workflowserviceclient"
-	"go.uber.org/cadence/activity"
 	"go.uber.org/cadence/compatibility"
 	"go.uber.org/cadence/worker"
 	"go.uber.org/cadence/workflow"
@@ -44,8 +43,8 @@ func StartWorker() {
 		TaskListName,
 		workerOptions)
 	// workflow registration
-	w.RegisterWorkflowWithOptions(HelloWorldWorkflow, workflow.RegisterOptions{Name: "cadence_samples.HelloWorldWorkflow"})
-	w.RegisterActivityWithOptions(HelloWorldActivity, activity.RegisterOptions{Name: "cadence_samples.HelloWorldActivity"})
+	w.RegisterWorkflowWithOptions(ParentWorkflow, workflow.RegisterOptions{Name: "cadence_samples.ParentWorkflow"})
+	w.RegisterWorkflowWithOptions(ChildWorkflow, workflow.RegisterOptions{Name: "cadence_samples.ChildWorkflow"})
 
 	err := w.Start()
 	if err != nil {
