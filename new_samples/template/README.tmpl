@@ -14,7 +14,7 @@
 3. Register the `cadence-samples` domain:
 
 ```bash
-cadence --env development --domain cadence-samples domain register
+cadence --domain cadence-samples domain register
 ```
 
 Refresh the [domains page](http://localhost:8088/domains) from step 2 to verify `cadence-samples` is registered.

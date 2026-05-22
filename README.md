@@ -106,7 +106,6 @@ Verify with `docker ps` and visit [http://localhost:8088](http://localhost:8088)
   - [Context Propagation](#context-propagation)
   - [Tracing](#tracing)
   - [Side Effect](#side-effect)
-  - [Batch](#batch)
   - [Recovery](#recovery)
 
 - [🏢 Business Application Examples](#-business-application-examples)
@@ -471,24 +470,6 @@ Start Workflow:
 Start Workflow:
 ```bash
 ./bin/sideeffect
-```
-
-#### Batch
-* **Shows**: Batch processing and concurrency control.
-* **What it does**: Processes large batches of tasks with controlled concurrency.
-* **Real-world use case**: Batch data processing, bulk operations, ETL jobs, report generation.
-* **Key concepts**: Batch processing, concurrency control, task distribution.
-* **Source code**: [cmd/samples/batch/](cmd/samples/batch/)
-
-##### How to run
-Start Worker:
-```bash
-./bin/batch -m worker
-```
-
-Start Workflow:
-```bash
-./bin/batch -m trigger
 ```
 
 #### Recovery

@@ -14,7 +14,12 @@ test.log
 vendor/
 # Executables produced by cadence-samples repo
 bin/
+# Binary from go build in new_samples/query
+new_samples/query/query
 docker-compose.yml
 
 # Credentials
 new_samples/client_samples/helloworld_tls/credentials/
+
+# Python SDK Samples
+__pycache__/

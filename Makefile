@@ -1,4 +1,4 @@
-.PHONY: test bins clean
+.PHONY: test bins clean run-generators
 PROJECT_ROOT = github.com/uber-common/cadence-samples
 
 export PATH := $(GOPATH)/bin:$(PATH)
@@ -7,7 +7,6 @@ export PATH := $(GOPATH)/bin:$(PATH)
 default: test
 
 PROGS = helloworld \
-	blocks \
 	versioning \
 	delaystart \
 	branch \
@@ -36,9 +35,7 @@ PROGS = helloworld \
 	signalcounter \
 	sideeffect \
 	sleep \
-	dataconverter \
 	autoscaling-monitoring \
-	batch \
 
 TEST_ARG ?= -race -v -timeout 5m
 BUILD := ./build
@@ -54,7 +51,6 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/dsl \
 	./cmd/samples/expense \
 	./cmd/samples/fileprocessing \
-	./cmd/samples/blocks \
 	./cmd/samples/recipes/branch \
 	./cmd/samples/recipes/choice \
 	./cmd/samples/recipes/greetings \
@@ -74,19 +70,14 @@ TEST_DIRS=./cmd/samples/cron \
 	./cmd/samples/recipes/sideeffect \
 	./cmd/samples/recipes/signalcounter \
 	./cmd/samples/recipes/sleep \
-	./cmd/samples/recipes/dataconverter \
 	./cmd/samples/recovery \
 	./cmd/samples/pso \
-	./cmd/samples/batch \
 
 cancelactivity:
 	go build -o bin/cancelactivity cmd/samples/recipes/cancelactivity/*.go
 
 helloworld:
 	go build -o bin/helloworld cmd/samples/recipes/helloworld/*.go
-
-blocks:
-	go build -o bin/blocks cmd/samples/blocks/*.go
 
 delaystart:
 	go build -o bin/delaystart cmd/samples/recipes/delaystart/*.go
@@ -187,14 +178,18 @@ sideeffect:
 versioning:
 	go build -o bin/versioning cmd/samples/recipes/versioning/*.go
 
-dataconverter:
-	go build -o bin/dataconverter cmd/samples/recipes/dataconverter/*.go
-
 autoscaling-monitoring:
 	go build -o bin/autoscaling-monitoring cmd/samples/advanced/autoscaling-monitoring/*.go
 
-batch:
-	go build -o bin/batch cmd/samples/batch/*.go
+run-generators:
+	@echo "Running generators in new_samples..."
+	@for dir in new_samples/*/generator; do \
+		if [ -d "$$dir" ]; then \
+			echo "Running generator in $$dir"; \
+			(cd $$dir && go run .); \
+		fi; \
+	done
+	@echo "All generators completed"
 
 test: bins
 	@rm -f test
@@ -209,7 +204,6 @@ clean:
 	rm -Rf $(BUILD)
 
 bins: helloworld \
-	blocks \
 	versioning \
 	delaystart \
 	branch \
@@ -240,6 +234,4 @@ bins: helloworld \
 	signalcounter \
 	sideeffect \
 	sleep \
-	dataconverter \
 	autoscaling-monitoring \
-	batch \

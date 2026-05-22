@@ -14,7 +14,7 @@
 3. Register the `cadence-samples` domain:
 
 ```bash
-cadence --env development --domain cadence-samples domain register
+cadence --domain cadence-samples domain register
 ```
 
 Refresh the [domains page](http://localhost:8088/domains) from step 2 to verify `cadence-samples` is registered.
@@ -34,8 +34,7 @@ This will call the main function in main.go which starts the worker, which will 
 This workflow takes an input message and greet you as response. Try the following CLI
 
 ```bash
-cadence --env development \
-  --domain cadence-samples \
+cadence --domain cadence-samples \
   workflow start \
   --tl cadence-samples-worker \
   --et 60 \
@@ -52,8 +51,7 @@ If this is your first sample, please refer to [HelloWorkflow sample](https://git
 This workflow will need a signal to complete successfully. Below is how you can send a signal. In this example, we are sending a `bool` value `true` (JSON formatted) via the signal called `complete`
 
 ```bash
-cadence --env development \
-  --domain cadence-samples \
+cadence --domain cadence-samples \
   workflow signal \
   --wid <workflow_id> \
   --name complete \
