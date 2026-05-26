@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/cadence/activity"
 	"go.uber.org/cadence/workflow"
 	"go.uber.org/zap"
@@ -12,7 +11,7 @@ import (
 
 // Configuration for cross-domain execution
 const (
-	ChildDomain   = "child-domain"     // Must be registered separately
+	ChildDomain   = "child-domain" // Must be registered separately
 	ChildTaskList = "child-task-list"
 )
 
@@ -26,10 +25,14 @@ func CrossDomainWorkflow(ctx workflow.Context) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("CrossDomainWorkflow started")
 
+	// Deterministic child ID: uuid or time in workflow code breaks replay.
+	info := workflow.GetInfo(ctx)
+	childWorkflowID := "child-wf-" + info.WorkflowExecution.RunID
+
 	// Execute child workflow in a different domain
 	childCtx := workflow.WithChildOptions(ctx, workflow.ChildWorkflowOptions{
 		Domain:                       ChildDomain,
-		WorkflowID:                   "child-wf-" + uuid.New().String(),
+		WorkflowID:                   childWorkflowID,
 		TaskList:                     ChildTaskList,
 		ExecutionStartToCloseTimeout: time.Minute,
 	})
@@ -70,4 +73,3 @@ func ChildDomainActivity(ctx context.Context) (string, error) {
 	logger.Info("ChildDomainActivity running")
 	return "Hello from child domain!", nil
 }
-

@@ -34,8 +34,9 @@ const (
 func StartWorker() {
 	logger, cadenceClient := BuildLogger(), BuildCadenceClient()
 	workerOptions := worker.Options{
-		Logger:       logger,
-		MetricsScope: tally.NewTestScope(TaskListName, nil),
+		Logger:             logger,
+		MetricsScope:       tally.NewTestScope(TaskListName, nil),
+		ContextPropagators: []workflow.ContextPropagator{NewContextPropagator()},
 	}
 
 	w := worker.New(
