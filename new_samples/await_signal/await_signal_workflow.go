@@ -11,8 +11,8 @@ import (
 	"go.uber.org/cadence/workflow"
 )
 
-var SignalToSignalTimeout = time.Second * 30
-var FromFirstSignalTimeout = time.Second * 60
+var signalToSignalTimeout = time.Second * 30
+var fromFirstSignalTimeout = time.Second * 60
 
 type AwaitSignals struct {
 	FirstSignalTime time.Time
@@ -54,12 +54,12 @@ func (a *AwaitSignals) GetNextTimeout(ctx workflow.Context) (time.Duration, erro
 		panic("FirstSignalTime is not yet set")
 	}
 	total := workflow.Now(ctx).Sub(a.FirstSignalTime)
-	totalLeft := FromFirstSignalTimeout - total
+	totalLeft := fromFirstSignalTimeout - total
 	if totalLeft <= 0 {
 		return 0, cadence.NewCustomError("FromFirstSignalTimeout")
 	}
-	if SignalToSignalTimeout < totalLeft {
-		return SignalToSignalTimeout, nil
+	if signalToSignalTimeout < totalLeft {
+		return signalToSignalTimeout, nil
 	}
 	return totalLeft, nil
 }
