@@ -1,5 +1,3 @@
-// This sample is a Cadence port of the Temporal Go SDK await-signals sample:
-// https://github.com/temporalio/samples-go/tree/main/await-signals
 package main
 
 import (
