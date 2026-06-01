@@ -45,7 +45,11 @@ func StartWorker() {
 		workerOptions)
 	// workflow registration
 	w.RegisterWorkflowWithOptions(SimpleSignalWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SimpleSignalWorkflow"})
+	w.RegisterWorkflowWithOptions(AwaitSignalWorkflow, workflow.RegisterOptions{Name: "cadence_samples.AwaitSignalWorkflow"})
 	w.RegisterActivityWithOptions(SimpleSignalActivity, activity.RegisterOptions{Name: "cadence_samples.SimpleSignalActivity"})
+	w.RegisterActivityWithOptions(Signal1Activity, activity.RegisterOptions{Name: "cadence_samples.Signal1Activity"})
+	w.RegisterActivityWithOptions(Signal2Activity, activity.RegisterOptions{Name: "cadence_samples.Signal2Activity"})
+	w.RegisterActivityWithOptions(Signal3Activity, activity.RegisterOptions{Name: "cadence_samples.Signal3Activity"})
 
 	err := w.Start()
 	if err != nil {

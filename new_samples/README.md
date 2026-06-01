@@ -12,7 +12,7 @@ This directory contains samples demonstrating various Cadence workflow concepts.
 | [hello_world/](hello_world/) | Basic "Hello World" workflow and activity |
 | [operations/](operations/) | Workflow operations: cancellation and cleanup patterns |
 | [query/](query/) | Workflow query patterns |
-| [signal/](signal/) | Workflow signal patterns |
+| [signal/](signal/) | Workflow signal patterns: single-signal completion, and ordered processing of out-of-order signals with timeouts |
 
 ## Prerequisites
 
