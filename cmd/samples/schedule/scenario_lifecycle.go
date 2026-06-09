@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.uber.org/cadence/client"
@@ -24,7 +25,7 @@ func runLifecycle(h *common.SampleHelper) {
 	scheduleID := newScheduleID("sample-lifecycle")
 	defer deleteQuietly(h, sc, context.Background(), scheduleID)
 
-	// ── 1. Create with every settable field ────────────────────────────────
+	// ── Step 1: Create with every settable field ─────────────────────────────
 	h.Logger.Info("=== Create (full field) ===", zap.String("scheduleID", scheduleID))
 	now := time.Now()
 	action := startWorkflowAction(h, 0)
@@ -33,7 +34,7 @@ func runLifecycle(h *common.SampleHelper) {
 	// back as raw bytes (map[string][]byte) which you decode — see actionMemoPresent below.
 	action.Memo = map[string]interface{}{"actionNote": "round-trips via describe"}
 
-	_, err := sc.Create(ctx, &client.CreateScheduleRequest{
+	createReq := &client.CreateScheduleRequest{
 		ScheduleID: scheduleID,
 		Spec: &client.ScheduleSpec{
 			CronExpression: "0 * * * *", // hourly
@@ -53,16 +54,17 @@ func runLifecycle(h *common.SampleHelper) {
 		// Schedule-level Memo IS returned (raw bytes) by Describe — see decode in the
 		// dataconverter scenario. Here we just round-trip its presence.
 		Memo: map[string]interface{}{"owner": "schedule-sample", "purpose": "lifecycle-demo"},
-	})
+	}
+
+	_, err := sc.Create(ctx, createReq)
 	if err != nil {
 		h.Logger.Fatal("Create failed", zap.Error(err))
 	}
 
-	// Describe and log the full round-trip, calling out the documented gaps.
 	desc := mustDescribe(h, sc, ctx, scheduleID)
-	logDescribe(h, "after create", desc)
+	verifyAfterCreate(h, createReq, desc)
 
-	// ── §2.5-C Create is not idempotent ──────────────────────────────────────
+	// ── Step 2: Create is not idempotent ─────────────────────────────────────
 	h.Logger.Info("=== Create again with same ID (expected to fail — not idempotent) ===")
 	if _, err = sc.Create(ctx, &client.CreateScheduleRequest{
 		ScheduleID: scheduleID,
@@ -74,29 +76,27 @@ func runLifecycle(h *common.SampleHelper) {
 		h.Logger.Warn("Duplicate create unexpectedly SUCCEEDED — Create should not be idempotent")
 	}
 
-	// ── §2.2 Update is describe-then-update (siblings preserved) ──────────────
+	// ── Step 3: Update — change cron + one policy sub-field (siblings preserved) ──
 	// The Update API takes a callback. The SDK calls DescribeSchedule for you, hands you the
 	// current state pre-populated in *client.ScheduleUpdate, and you mutate only what you want
 	// to change. The SDK diffs against the described baseline and sends just those changes, so
 	// sibling sub-fields (PauseOnFailure, BufferLimit, ...) and untouched top-level fields (the
 	// Action) survive — no need to re-send the whole schedule, no accidental resets.
 	h.Logger.Info("=== Update (describe-then-update: change cron + one policy sub-field) ===")
+	wantCron := "0 */2 * * *" // every 2h
+	wantOverlap := client.ScheduleOverlapPolicyConcurrent
 	if err = sc.Update(ctx, scheduleID, func(u *client.ScheduleUpdate) error {
-		u.Spec.CronExpression = "0 */2 * * *"                              // every 2h
-		u.Policies.OverlapPolicy = client.ScheduleOverlapPolicyConcurrent // flip ONE sub-field
+		u.Spec.CronExpression = wantCron
+		u.Policies.OverlapPolicy = wantOverlap
 		return nil
 	}); err != nil {
 		h.Logger.Fatal("Update failed", zap.Error(err))
 	}
 	desc = mustDescribe(h, sc, ctx, scheduleID)
-	logDescribe(h, "after describe-then-update", desc)
-	h.Logger.Info("Note: PauseOnFailure / BufferLimit / ConcurrencyLimit are PRESERVED — " +
-		"describe-then-update changes only the sub-fields you touch; the siblings survive " +
-		"(this is the opposite of a blind full-replacement). The Action is untouched too.")
+	verifyAfterCronAndOverlapUpdate(h, wantCron, wantOverlap, createReq.Policies, desc)
 
-	// Update again, changing ONLY the action-level Memo via the SetActionMemo helper (which
-	// encodes native Go values the same way Create does). Spec and Policies are left alone and
-	// therefore preserved — demonstrating a targeted action change.
+	// ── Step 4: Update — action memo only (SetActionMemo) ───────────────────────
+	// Spec and Policies are left alone and therefore preserved — demonstrating a targeted action change.
 	h.Logger.Info("=== Update (action memo only, via SetActionMemo) ===")
 	if err = sc.Update(ctx, scheduleID, func(u *client.ScheduleUpdate) error {
 		return u.SetActionMemo(map[string]interface{}{"actionNote": "updated via describe-then-update"})
@@ -104,9 +104,9 @@ func runLifecycle(h *common.SampleHelper) {
 		h.Logger.Fatal("Update (action memo) failed", zap.Error(err))
 	}
 	desc = mustDescribe(h, sc, ctx, scheduleID)
-	logDescribe(h, "after action-memo update", desc)
+	verifyAfterActionMemoUpdate(h, wantCron, wantOverlap, desc)
 
-	// ── §2.3 Pause (reason is reflected in PauseInfo) ────────────────────────
+	// ── Step 5: Pause (reason is reflected in PauseInfo) ────────────────────────
 	const pauseReason = "lifecycle demo pause"
 	h.Logger.Info("=== Pause ===", zap.String("reason", pauseReason))
 	if err = sc.Pause(ctx, scheduleID, pauseReason); err != nil {
@@ -119,7 +119,7 @@ func runLifecycle(h *common.SampleHelper) {
 			zap.String("reason", desc.State.PauseInfo.Reason))
 	}
 
-	// ── §2.3 Unpause ─────────────────────────────────────────────────────────
+	// ── Step 6: Unpause ──────────────────────────────────────────────────────
 	h.Logger.Info("=== Unpause ===")
 	if err = sc.Unpause(ctx, scheduleID, "resuming after demo", client.ScheduleCatchUpPolicySkip); err != nil {
 		h.Logger.Fatal("Unpause failed", zap.Error(err))
@@ -127,7 +127,7 @@ func runLifecycle(h *common.SampleHelper) {
 	desc = mustDescribe(h, sc, ctx, scheduleID)
 	h.Logger.Info("Unpaused", zap.Bool("paused", desc.State != nil && desc.State.Paused))
 
-	// ── §2.3 Backfill a past range (inclusive of both endpoints) ─────────────
+	// ── Step 7: Backfill a past range (inclusive of both endpoints) ─────────────
 	// Cron is now every 2h; backfill a 6-hour window so several boundaries fire.
 	h.Logger.Info("=== Backfill past 6h (watch the worker pick up runs) ===")
 	if err = sc.Backfill(ctx, scheduleID, &client.BackfillRequest{
@@ -140,7 +140,7 @@ func runLifecycle(h *common.SampleHelper) {
 	h.Logger.Info("Backfill submitted — sleeping briefly so the worker can run the backfilled executions")
 	time.Sleep(5 * time.Second)
 
-	// ── §2.4 List entry fields ───────────────────────────────────────────────
+	// ── Step 8: List entry fields ────────────────────────────────────────────
 	h.Logger.Info("=== List (entry fields) ===")
 	if entry := findInList(h, sc, ctx, scheduleID); entry != nil {
 		h.Logger.Info("Found our schedule in List",
@@ -152,7 +152,7 @@ func runLifecycle(h *common.SampleHelper) {
 		h.Logger.Warn("Our schedule not yet visible in List (indexing may lag)")
 	}
 
-	// ── §2.3 Delete, then confirm it disappears from List ────────────────────
+	// ── Step 9: Delete, then confirm it disappears from List ─────────────────
 	h.Logger.Info("=== Delete ===")
 	if err = sc.Delete(ctx, scheduleID); err != nil {
 		h.Logger.Fatal("Delete failed", zap.Error(err))
@@ -195,42 +195,81 @@ func findInList(h *common.SampleHelper, sc client.ScheduleClient, ctx context.Co
 	return nil
 }
 
-// logDescribe prints the interesting fields of a Describe response, calling out the
-// fields the server is known not to populate yet (so they read as findings, not bugs).
-func logDescribe(h *common.SampleHelper, when string, desc *client.DescribeScheduleResponse) {
-	if desc == nil {
-		return
+// logCmp logs a WANT / GOT comparison for one field. Match → Info; mismatch → Warn.
+func logCmp(h *common.SampleHelper, field string, want, got interface{}) {
+	if fmt.Sprintf("%v", want) == fmt.Sprintf("%v", got) {
+		h.Logger.Info("  MATCH   "+field, zap.Any("value", got))
+	} else {
+		h.Logger.Warn("  MISMATCH "+field, zap.Any("want", want), zap.Any("got", got))
 	}
+}
+
+// verifyAfterCreate compares every field of the Create request against the Describe response.
+func verifyAfterCreate(h *common.SampleHelper, req *client.CreateScheduleRequest, desc *client.DescribeScheduleResponse) {
+	h.Logger.Info("--- Verify: Create round-trip ---")
+	if req.Spec != nil && desc.Spec != nil {
+		logCmp(h, "spec.cron",      req.Spec.CronExpression, desc.Spec.CronExpression)
+		logCmp(h, "spec.startTime", req.Spec.StartTime.UTC().Truncate(time.Second), desc.Spec.StartTime.UTC().Truncate(time.Second))
+		logCmp(h, "spec.endTime",   req.Spec.EndTime.UTC().Truncate(time.Second), desc.Spec.EndTime.UTC().Truncate(time.Second))
+		logCmp(h, "spec.jitter",    req.Spec.Jitter, desc.Spec.Jitter)
+	}
+	if req.Action != nil && req.Action.StartWorkflow != nil && desc.Action != nil && desc.Action.StartWorkflow != nil {
+		logCmp(h, "action.workflowType", req.Action.StartWorkflow.WorkflowType, desc.Action.StartWorkflow.WorkflowType)
+		logCmp(h, "action.taskList",     req.Action.StartWorkflow.TaskList, desc.Action.StartWorkflow.TaskList)
+		// Memo: set as map[string]interface{} on create, returned as map[string][]byte on describe — check presence only.
+		logCmp(h, "action.memoPresent",  len(req.Action.StartWorkflow.Memo) > 0, len(desc.Action.StartWorkflow.Memo) > 0)
+	}
+	if req.Policies != nil && desc.Policies != nil {
+		logCmp(h, "policies.overlapPolicy",    req.Policies.OverlapPolicy, desc.Policies.OverlapPolicy)
+		logCmp(h, "policies.catchUpPolicy",    req.Policies.CatchUpPolicy, desc.Policies.CatchUpPolicy)
+		logCmp(h, "policies.catchUpWindow",    req.Policies.CatchUpWindow, desc.Policies.CatchUpWindow)
+		logCmp(h, "policies.pauseOnFailure",   req.Policies.PauseOnFailure, desc.Policies.PauseOnFailure)
+		logCmp(h, "policies.bufferLimit",      req.Policies.BufferLimit, desc.Policies.BufferLimit)
+		logCmp(h, "policies.concurrencyLimit", req.Policies.ConcurrencyLimit, desc.Policies.ConcurrencyLimit)
+	}
+	// Schedule-level Memo is returned as map[string][]byte on describe — check presence only.
+	logCmp(h, "memo.present", len(req.Memo) > 0, len(desc.Memo) > 0)
+	if desc.Info != nil {
+		// Known server-side gaps — these zero/nil values are expected, not sample failures.
+		h.Logger.Info("  info (known server gaps)",
+			zap.Time("createTime_zero", desc.Info.CreateTime),
+			zap.Time("lastUpdateTime_zero", desc.Info.LastUpdateTime),
+			zap.Int("ongoingBackfills_nil", len(desc.Info.OngoingBackfills)))
+	}
+}
+
+// verifyAfterCronAndOverlapUpdate checks that the first Update (cron + overlapPolicy) took effect and
+// that the sibling policies untouched by the update are still at their Create values.
+func verifyAfterCronAndOverlapUpdate(h *common.SampleHelper, wantCron string, wantOverlap client.ScheduleOverlapPolicy, createPolicies *client.SchedulePolicies, desc *client.DescribeScheduleResponse) {
+	h.Logger.Info("--- Verify: Update 1 — changed fields ---")
 	if desc.Spec != nil {
-		h.Logger.Info("Describe "+when+": spec",
-			zap.String("cron", desc.Spec.CronExpression),
-			zap.Time("startTime", desc.Spec.StartTime),
-			zap.Time("endTime", desc.Spec.EndTime),
-			zap.Duration("jitter", desc.Spec.Jitter))
-	}
-	if desc.Action != nil && desc.Action.StartWorkflow != nil {
-		h.Logger.Info("Describe "+when+": action",
-			zap.String("workflowType", desc.Action.StartWorkflow.WorkflowType),
-			zap.String("taskList", desc.Action.StartWorkflow.TaskList),
-			zap.Bool("actionMemoPresent", len(desc.Action.StartWorkflow.Memo) > 0)) // expected true — returned on read
+		logCmp(h, "spec.cron (changed)", wantCron, desc.Spec.CronExpression)
 	}
 	if desc.Policies != nil {
-		h.Logger.Info("Describe "+when+": policies",
-			zap.Int("overlapPolicy", int(desc.Policies.OverlapPolicy)),
-			zap.Int("catchUpPolicy", int(desc.Policies.CatchUpPolicy)),
-			zap.Duration("catchUpWindow", desc.Policies.CatchUpWindow),
-			zap.Bool("pauseOnFailure", desc.Policies.PauseOnFailure),
-			zap.Int32("bufferLimit", desc.Policies.BufferLimit),
-			zap.Int32("concurrencyLimit", desc.Policies.ConcurrencyLimit))
+		logCmp(h, "policies.overlapPolicy (changed)", wantOverlap, desc.Policies.OverlapPolicy)
 	}
-	h.Logger.Info("Describe "+when+": schedule-level memo present (raw bytes, decodable with your DataConverter)",
-		zap.Bool("memoPresent", len(desc.Memo) > 0))
-	if desc.Info != nil {
-		// CreateTime/LastUpdateTime (zero) and OngoingBackfills (nil) are documented gaps.
-		h.Logger.Info("Describe "+when+": info",
-			zap.Int64("totalRuns", desc.Info.TotalRuns),
-			zap.Time("createTime_BUG1_zero", desc.Info.CreateTime),
-			zap.Time("lastUpdateTime_BUG1_zero", desc.Info.LastUpdateTime),
-			zap.Int("ongoingBackfills_BUG3_nil", len(desc.Info.OngoingBackfills)))
+	if createPolicies != nil && desc.Policies != nil {
+		h.Logger.Info("--- Verify: Update 1 — sibling policies preserved (not touched by update) ---")
+		logCmp(h, "policies.catchUpPolicy (preserved)",    createPolicies.CatchUpPolicy, desc.Policies.CatchUpPolicy)
+		logCmp(h, "policies.catchUpWindow (preserved)",    createPolicies.CatchUpWindow, desc.Policies.CatchUpWindow)
+		logCmp(h, "policies.pauseOnFailure (preserved)",   createPolicies.PauseOnFailure, desc.Policies.PauseOnFailure)
+		logCmp(h, "policies.bufferLimit (preserved)",      createPolicies.BufferLimit, desc.Policies.BufferLimit)
+		logCmp(h, "policies.concurrencyLimit (preserved)", createPolicies.ConcurrencyLimit, desc.Policies.ConcurrencyLimit)
+	}
+}
+
+// verifyAfterActionMemoUpdate confirms the action memo changed and that spec and policies
+// were not disturbed — demonstrating a targeted action-only update.
+func verifyAfterActionMemoUpdate(h *common.SampleHelper, wantCron string, wantOverlap client.ScheduleOverlapPolicy, desc *client.DescribeScheduleResponse) {
+	h.Logger.Info("--- Verify: Update 2 — action memo changed ---")
+	if desc.Action != nil && desc.Action.StartWorkflow != nil {
+		logCmp(h, "action.memoPresent (changed)", true, len(desc.Action.StartWorkflow.Memo) > 0)
+	}
+	h.Logger.Info("--- Verify: Update 2 — spec and policies preserved ---")
+	if desc.Spec != nil {
+		logCmp(h, "spec.cron (preserved)", wantCron, desc.Spec.CronExpression)
+	}
+	if desc.Policies != nil {
+		logCmp(h, "policies.overlapPolicy (preserved)", wantOverlap, desc.Policies.OverlapPolicy)
 	}
 }
