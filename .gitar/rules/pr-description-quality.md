@@ -1,17 +1,26 @@
 ---
 title: PR Description Quality Standards
 description: Ensures PR descriptions meet quality criteria for the cadence-samples (Go) repo using guidance from the PR template and .github/pull_request_guidance.md
-when: PR description is created or updated
-actions: Read PR template and guidance, then report requirement status
+when: PR is created or updated
+actions: Inspect the diff for new files, read PR template and guidance, then report requirement status
 ---
 
 # PR Description Quality Standards
 
-When evaluating a pull request description:
+When evaluating a pull request:
 
-1. **Read the PR template guidance** at `.github/pull_request_guidance.md` to understand the expected guidance for each section
-2. Apply that guidance to evaluate the current PR description
-3. Provide recommendations for how to improve the description.
+1. **Inspect the diff** to identify what files were added, modified, or deleted
+2. **Read the PR template guidance** at `.github/pull_request_guidance.md` to understand the expected guidance for each section
+3. Apply that guidance to evaluate the current PR description
+4. Provide recommendations for how to improve the description.
+
+## Diff-Based Policy Check (evaluate before anything else)
+
+Scan the diff for **newly added files** (lines starting with `+++ b/`). If any new file is added under the `cmd/samples/` path, flag it as a policy violation regardless of what the PR description says:
+
+> **Policy violation:** New samples must be added under `new_samples/`, not `cmd/samples/`. `cmd/samples` is legacy. Move the new sample to `new_samples/` instead.
+
+Modifications to **existing** files under `cmd/samples/` (bug fixes, updates) are allowed and should not be flagged.
 
 ## Core Principle: Why Not How
 
@@ -25,7 +34,7 @@ From https://cbea.ms/git-commit/#why-not-how:
 ### Required Sections (must exist with substantive content per PR template guidance)
 
 1. **Which sample(s) or area?** 
-   - One line listing area(s) touched. This repo has two sample trees: **cmd/samples** (legacy; make + ./bin/…) and **new_samples** (per-folder; go run .). Identify which tree and area(s) are touched.
+   - One line listing area(s) touched. This repo has two sample trees: **cmd/samples** (legacy) and **new_samples** (current standard; per-folder; go run .). Identify which tree and area(s) are touched.
    - **cmd/samples:** e.g. cmd/samples/recipes/helloworld, cmd/samples/recipes/branch, cmd/samples/recipes/query, cmd/samples/batch, cmd/samples/cron, cmd/samples/expense, cmd/samples/fileprocessing, cmd/samples/dsl, cmd/samples/pso, cmd/samples/recovery, cmd/samples/recipes/cancelactivity, etc.
    - **new_samples:** hello_world, activities, query, signal, operations, client_tls, template.
    - **Other:** README, build, config, Makefile, common.
