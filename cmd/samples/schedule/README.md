@@ -37,9 +37,13 @@ Ports used by this sample:
 - `localhost:7933` — TChannel (Cadence CLI)
 - `localhost:7833` — gRPC (Go client)
 
-The `cadence-samples` domain is registered automatically when the binary starts.
+**Step 2 — Register the domain (one-time)**
 
-**Step 2 — Build**
+```bash
+cadence --address localhost:7933 domain register --domain cadence-samples
+```
+
+**Step 3 — Build**
 
 ```bash
 cd ~/src/cadence-samples
@@ -50,7 +54,7 @@ make schedule          # produces bin/schedule
 > the Go client and pins the matching `cadence-idl`. Remove the `replace` once the SDK
 > changes are released.
 
-**Step 3 — Start the worker (Terminal 1)**
+**Step 4 — Start the worker (Terminal 1)**
 
 ```bash
 ./bin/schedule -m worker
@@ -58,7 +62,7 @@ make schedule          # produces bin/schedule
 
 Leave it running; it polls the `scheduleGroup` task list. Required for `lifecycle`, `overlap`, and `catchup`.
 
-**Step 4 — Run a scenario (Terminal 2)**
+**Step 5 — Run a scenario (Terminal 2)**
 
 ```bash
 ./bin/schedule -m manage -scenario lifecycle      # default
@@ -76,6 +80,6 @@ Scheduled activity executed
 Scheduled workflow completed
 ```
 
-**Step 5 — Stop the worker**
+**Step 6 — Stop the worker**
 
 Press `CMD+C` in Terminal 1.
