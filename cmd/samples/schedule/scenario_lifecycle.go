@@ -265,7 +265,7 @@ func verifyAfterActionMemoUpdate(h *common.SampleHelper, wantCron string, wantOv
 	if desc.Action != nil && desc.Action.StartWorkflow != nil {
 		logCmp(h, "action.memoPresent (changed)", true, len(desc.Action.StartWorkflow.Memo) > 0)
 	}
-	h.Logger.Info("--- Verify: Update 2 — spec and policies preserved ---")
+	h.Logger.Info("--- Verify: SetActionMemo left spec.cron and overlapPolicy untouched ---")
 	if desc.Spec != nil {
 		logCmp(h, "spec.cron (preserved)", wantCron, desc.Spec.CronExpression)
 	}
