@@ -1,183 +1,62 @@
-## Query Samples
+## Query Workflow Sample
 
-This folder contains samples demonstrating how to use Cadence queries with **MarkDoc-formatted responses**. MarkDoc allows you to create interactive query responses with buttons that can signal workflows or start new workflows.
+This sample demonstrates **workflow queries** - inspecting workflow state without affecting execution.
 
-### Why This Matters for Ops Teams
-
-Many teams build custom admin panels (using Retool, React, etc.) to manage long-running workflows because:
-- The CLI requires manually formatting JSON payloads
-- The generic Web UI doesn't provide context-specific actions
-- Support staff need simple buttons, not JSON knowledge
-
-**MarkDoc solves this.** Your workflow query becomes your admin panel:
-- State-appropriate buttons that change based on workflow status
-- Structured payloads sent with a single click
-- Built-in audit trail in workflow history
-- Zero additional infrastructure required
-
----
-
-### Markdown Query Workflow
-
-A basic example demonstrating MarkDoc query usage with signal buttons.
+### Start the Workflow
 
 ```bash
-cadence --domain cadence-samples \
+cadence --env development \
+  --domain cadence-samples \
   workflow start \
   --tl cadence-samples-worker \
-  --et 1000 \
-  --workflow_type cadence_samples.MarkdownQueryWorkflow
+  --et 180 \
+  --workflow_type cadence_samples.QueryWorkflow
 ```
 
-#### How to interact
+### Query the Workflow
 
-1. Go to the `cadence-samples` domain in cadence-web and click on this workflow
-2. Click the **"Query"** tab
-3. Select **"Signal"** from the query dropdown
-4. Use the rendered buttons to control the workflow
-
----
-
-### Lunch Vote Workflow
-
-An interactive voting system demonstrating dynamic query responses.
+While the workflow is running, query its state:
 
 ```bash
-cadence --domain cadence-samples \
-  workflow start \
-  --tl cadence-samples-worker \
-  --et 600 \
-  --workflow_type cadence_samples.LunchVoteWorkflow
+cadence --env development \
+  --domain cadence-samples \
+  workflow query \
+  --wid <workflow_id> \
+  --qt state
 ```
 
-#### How to vote
+### What Happens
 
-1. Navigate to the workflow in cadence-web
-2. Click the **"Query"** tab, select **"options"**
-3. Click any vote button
-4. Refresh the query to see updated vote counts
-
----
-
-### Order Fulfillment Workflow (Admin Panel Demo)
-
-**This is the flagship sample.** It demonstrates how MarkDoc can replace custom admin panels for ops teams.
-
-```bash
-cadence --domain cadence-samples \
-  workflow start \
-  --tl cadence-samples-worker \
-  --et 3600 \
-  --workflow_type cadence_samples.OrderFulfillmentWorkflow
-```
-
-#### The Scenario
-
-You're an ops team member managing e-commerce orders. Instead of building a Retool dashboard or custom React app, you use the Cadence Web query feature as your admin panel.
-
-#### Order State Machine
+The workflow goes through states that you can query:
 
 ```
-pending_payment → payment_approved → ready_to_ship → shipped → delivered
-       ↓                 ↓                 ↓
-   cancelled          refunded         cancelled
+Time 0:   state = "started"
+Time 1s:  state = "waiting on timer"
+Time 2m:  state = "done" (workflow completes)
 ```
 
-#### How to Use
+### Key Concept: Query Handler
 
-1. **Start the workflow** using the CLI command above
-2. **Open Cadence Web** at `localhost:8088`
-3. Navigate to `cadence-samples` domain → find your workflow
-4. Click the **"Query"** tab
-5. Select **"dashboard"** from the dropdown
-6. **You'll see:**
-   - Order details (customer, items, total)
-   - Current status with visual indicator
-   - State-appropriate action buttons
-   - Complete action history (audit trail)
-
-#### Walking Through the Flow
-
-**Step 1: Payment Review**
-- Status shows "🟡 Pending Payment"
-- Available actions: "Approve Payment" or "Reject" (with reason options)
-- Click **"✓ Approve Payment"**
-
-**Step 2: Fulfillment**
-- Refresh query - status now shows "🟢 Payment Approved"
-- Available actions: "Mark Ready to Ship" or "Issue Refund"
-- Click **"📦 Mark Ready to Ship"**
-
-**Step 3: Shipping**
-- Refresh query - status shows "📦 Ready to Ship"
-- Available actions: Ship via UPS/FedEx/USPS, or Cancel Order
-- Click **"🚚 Ship via UPS"**
-
-**Step 4: Delivery**
-- Refresh query - status shows "🚚 Shipped" with tracking number
-- Available action: "Mark as Delivered"
-- Click **"✅ Mark as Delivered"**
-
-**Step 5: Complete**
-- Status shows "✅ Delivered"
-- No more actions available
-- Full audit trail visible in Action History table
-
-#### Key Features Demonstrated
-
-| Feature | What It Shows |
-|---------|---------------|
-| **State-Driven UI** | Buttons change based on order status - you can't ship before payment approval |
-| **Structured Payloads** | Shipping sends `{trackingNumber, carrier}`, refunds send `{amount, reason}` |
-| **Multiple Choice via Buttons** | Rejection reasons as separate buttons - no JSON formatting needed |
-| **Audit Trail** | Every action recorded with timestamp, operator, and details |
-| **Business Context** | Order details, items, amounts displayed alongside actions |
-
-#### The Value Proposition
-
-> **"Your workflow IS your admin panel."**
-
-Instead of:
-- Building a Retool dashboard
-- Maintaining a separate React app
-- Teaching ops to format JSON
-
-You get:
-- Interactive UI generated from workflow state
-- Actions that enforce valid state transitions
-- Automatic audit logging in workflow history
-- Zero additional infrastructure
-
----
-
-### MarkDoc Syntax Reference
-
-MarkDoc uses special tags for interactive elements:
-
-**Signal Button:**
-```
-{% signal 
-    signalName="approve_payment" 
-    label="Approve"
-    domain="cadence-samples"
-    workflowId="your-workflow-id"
-    runId="your-run-id"
-    input={"key":"value"}
-/%}
+```go
+func QueryWorkflow(ctx workflow.Context) error {
+    currentState := "started"
+    
+    // Register query handler for "state" query type
+    workflow.SetQueryHandler(ctx, "state", func() (string, error) {
+        return currentState, nil
+    })
+    
+    currentState = "waiting on timer"
+    workflow.NewTimer(ctx, 2*time.Minute).Get(ctx, nil)
+    
+    currentState = "done"
+    return nil
+}
 ```
 
-**Start Workflow Button:**
-```
-{% start
-    workflowType="cadence_samples.MyWorkflow" 
-    label="Start New"
-    domain="cadence-samples"
-    taskList="cadence-samples-worker"
-    workflowId="new-workflow-id"
-    timeoutSeconds=60
-/%}
-```
+### Use Cases
 
-**Other Tags:**
-- `{% br /%}` - Line break
-- `{% image src="url" alt="text" /%}` - Image
+- Progress monitoring dashboards
+- Debugging running workflows
+- Health checks without affecting execution
+

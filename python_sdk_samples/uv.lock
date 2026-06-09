@@ -34,7 +34,7 @@ wheels = [
 
 [[package]]
 name = "cadence-python-client"
-version = "0.2.1"
+version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "grpcio" },
@@ -44,9 +44,9 @@ dependencies = [
     { name = "protobuf" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/d3/6977d43ba0d683744c685c0bd6ed875d67f5e0d0bd5a250e1f23fe1e0de0/cadence_python_client-0.2.1.tar.gz", hash = "sha256:f2d14c15b56a87ab33ca240276d07e93f3d12a1bebdd1271981eb4dc94f6378a", size = 425419, upload-time = "2026-04-14T19:08:58.365Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2f/8f/edb7ef8bb55a3aca0a096e6f74a91d5f66fedced43ed02a956c6b7c197b1/cadence_python_client-0.2.3.tar.gz", hash = "sha256:cce3e729b35e4fd6c80525ffe1ea6d2e8e7aada2b379f2078685f892a453cd2d", size = 465689, upload-time = "2026-05-20T20:24:18.136Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/83/c0be26401ec0cac485569c4b4a96a4eb104f97e19d1c756c5191a574ef46/cadence_python_client-0.2.1-py3-none-any.whl", hash = "sha256:e696fdb3031a2b4b108700bf5744902a50ac1339d0c78b571846f37b2907988f", size = 297962, upload-time = "2026-04-14T19:08:56.559Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/72/0fd7b574532a927e22b1378f90911c43397eaf25647f44edc783cfeaa54a/cadence_python_client-0.2.3-py3-none-any.whl", hash = "sha256:91740205ce8137ac97e2d116b1177d924ac62b193bef341e1f411b7a77978f11", size = 319664, upload-time = "2026-05-20T20:24:16.343Z" },
 ]
 
 [package.optional-dependencies]
@@ -706,7 +706,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cadence-python-client", extras = ["openai"], specifier = ">=0.2.1" },
+    { name = "cadence-python-client", extras = ["openai"], specifier = "==0.2.3" },
     { name = "ruff", specifier = ">=0.15.10" },
 ]
 

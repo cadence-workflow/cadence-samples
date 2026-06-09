@@ -36,6 +36,9 @@ func StartWorker() {
 	workerOptions := worker.Options{
 		Logger:       logger,
 		MetricsScope: tally.NewTestScope(TaskListName, nil),
+{{- if .EnableContextPropagators}}
+		ContextPropagators: []workflow.ContextPropagator{NewContextPropagator()},
+{{- end}}
 	}
 
 	w := worker.New(

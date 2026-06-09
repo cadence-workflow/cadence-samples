@@ -9,6 +9,8 @@ type TemplateData struct {
 	SampleName string
 	Workflows  []string
 	Activities []string
+	// EnableContextPropagators emits worker.Options.ContextPropagators with NewContextPropagator().
+	EnableContextPropagators bool
 }
 
 func GenerateAll(data TemplateData) {
