@@ -40,7 +40,7 @@ Ports used by this sample:
 **Step 2 — Register the domain (one-time)**
 
 ```bash
-cadence --address localhost:7933 --do cadence-samples domain register
+./cadence --address localhost:7933 --do cadence-samples domain register
 ```
 
 **Step 3 — Build**
