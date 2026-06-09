@@ -23,3 +23,6 @@ new_samples/client_samples/helloworld_tls/credentials/
 
 # Python SDK Samples
 __pycache__/
+
+# Stray binary if `go build ./cmd/samples/schedule/` is run from repo root (use `make schedule` → bin/)
+/schedule

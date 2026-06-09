@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
 	github.com/uber-go/tally v3.5.8+incompatible
-	github.com/uber/cadence-idl v0.0.0-20260508213306-6a3d47b53b26
+	github.com/uber/cadence-idl v0.0.0-20260608164623-fe524d5381e6
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	go.uber.org/cadence v1.3.1-rc.11
 	go.uber.org/yarpc v1.88.0

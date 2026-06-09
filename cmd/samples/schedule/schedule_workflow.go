@@ -18,14 +18,30 @@ const (
 )
 
 // scheduledWorkflow is triggered by the schedule on each cron tick.
-func scheduledWorkflow(ctx workflow.Context) error {
+//
+// It takes a single sleepSeconds input so the same workflow can serve every scenario:
+//   - sleepSeconds == 0 → a fast run (lifecycle / catch-up / pagination demos).
+//   - sleepSeconds  > 0 → a run that stays open longer than the cron interval, which is
+//     what the overlap-policy demo (scenario_overlap.go) needs to force runs to overlap.
+//
+// The schedule passes this value via ScheduleStartWorkflowAction.Input, which the SDK
+// delivers as the workflow's input. See encodeWorkflowInput in helpers.go for the
+// matching encoder.
+func scheduledWorkflow(ctx workflow.Context, sleepSeconds int) error {
+	logger := workflow.GetLogger(ctx)
+	logger.Info("Scheduled workflow started", zap.Int("sleepSeconds", sleepSeconds))
+
+	if sleepSeconds > 0 {
+		if err := workflow.Sleep(ctx, time.Duration(sleepSeconds)*time.Second); err != nil {
+			return err
+		}
+	}
+
 	ao := workflow.ActivityOptions{
 		ScheduleToStartTimeout: time.Minute,
 		StartToCloseTimeout:    time.Minute,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
-	logger := workflow.GetLogger(ctx)
-	logger.Info("Scheduled workflow started")
 	if err := workflow.ExecuteActivity(ctx, scheduledActivity).Get(ctx, nil); err != nil {
 		logger.Error("Activity failed", zap.Error(err))
 		return err

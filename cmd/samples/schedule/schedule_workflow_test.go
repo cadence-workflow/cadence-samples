@@ -31,7 +31,7 @@ func (s *UnitTestSuite) TearDownTest() {
 }
 
 func (s *UnitTestSuite) Test_ScheduledWorkflow_Completes() {
-	s.env.ExecuteWorkflow(scheduledWorkflow)
+	s.env.ExecuteWorkflow(scheduledWorkflow, 0)
 
 	s.True(s.env.IsWorkflowCompleted())
 	s.NoError(s.env.GetWorkflowError())
@@ -43,7 +43,7 @@ func (s *UnitTestSuite) Test_ScheduledWorkflow_ExecutesActivity() {
 		activityCalled = true
 	})
 
-	s.env.ExecuteWorkflow(scheduledWorkflow)
+	s.env.ExecuteWorkflow(scheduledWorkflow, 0)
 
 	s.True(s.env.IsWorkflowCompleted())
 	s.NoError(s.env.GetWorkflowError())
