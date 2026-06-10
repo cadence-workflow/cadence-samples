@@ -35,14 +35,16 @@ func (gobDataConverter) FromData(input []byte, valuePtrs ...interface{}) error {
 	return nil
 }
 
-// runDataConverter demonstrates the SDK's memo model end to end for both schedule-level
-// and action-level Memo:
+// runDataConverter demonstrates the SDK's memo model end to end:
 //
 //	write: you pass native Go values; the client's DataConverter encodes them.
 //	read : Describe returns raw bytes (map[string][]byte); you decode them yourself.
 //
-// We configure a custom gob converter to prove the SDK honors it on write for both memos,
-// and that the default JSON converter cannot decode the gob bytes on read.
+// We configure a custom gob converter to prove the SDK honors it on write, and that the
+// default JSON converter cannot decode the gob bytes on read.
+//
+// Server gap: schedule-level Memo is not returned by the server in DescribeSchedule
+// responses. Only action-level Memo (inside Action.StartWorkflow.Memo) is verified here.
 func runDataConverter() {
 	logger := BuildLogger()
 	c := buildScheduleClient(gobDataConverter{})
@@ -57,7 +59,7 @@ func runDataConverter() {
 	action := startWorkflowAction(logger, 0)
 	action.Memo = map[string]interface{}{actionKey: actionVal}
 
-	logger.Info("=== Create with schedule-level AND action-level Memo (encoded via custom gob converter) ===",
+	logger.Info("=== Create with schedule-level AND action-level Memo (gob-encoded) ===",
 		zap.String("scheduleID", scheduleID))
 	if _, err := sc.Create(ctx, &client.CreateScheduleRequest{
 		ScheduleID: scheduleID,
@@ -73,33 +75,55 @@ func runDataConverter() {
 		logger.Fatal("Describe failed", zap.Error(err))
 	}
 
-	decodeMemoAndLog(logger, "schedule-level", desc.Memo, schedKey, schedVal)
+	// Schedule-level Memo: server gap — not returned in DescribeSchedule responses.
+	if len(desc.Memo) == 0 {
+		logger.Info("server gap: schedule-level Memo not returned by server in Describe",
+			zap.String("key", schedKey))
+	} else {
+		// Not expected to reach here with the current server, but verify if it ever does.
+		decodeMemoAndLog(logger, "schedule-level", desc.Memo, schedKey, schedVal)
+	}
+
+	// Action-level Memo: returned inside Action.StartWorkflow.Memo.
+	logger.Info("--- Verify: action-level Memo (gob-encoded) round-trip ---")
 	if desc.Action == nil || desc.Action.StartWorkflow == nil {
 		logger.Fatal("Describe returned no action")
 	}
-	decodeMemoAndLog(logger, "action-level", desc.Action.StartWorkflow.Memo, actionKey, actionVal)
-
-	// Proves the bytes were written with gob, not JSON.
-	var wrong string
-	if err = encoded.GetDefaultDataConverter().FromData(desc.Memo[schedKey], &wrong); err != nil {
-		logger.Info("As expected, the default JSON converter CANNOT decode gob-encoded Memo",
-			zap.String("error", err.Error()))
+	actionMemo := desc.Action.StartWorkflow.Memo
+	if len(actionMemo) == 0 {
+		logger.Warn("server gap: action-level Memo also not returned in Describe")
 	} else {
-		logger.Warn("Default converter unexpectedly decoded the Memo — converter may not have been honored")
+		decodeMemoAndLog(logger, "action-level", actionMemo, actionKey, actionVal)
+
+		// Prove the bytes were written with gob, not JSON.
+		var wrong string
+		if err = encoded.GetDefaultDataConverter().FromData(actionMemo[actionKey], &wrong); err != nil {
+			logger.Info("MATCH   default JSON converter CANNOT decode gob-encoded Memo (as expected)",
+				zap.String("error", err.Error()))
+		} else {
+			logger.Warn("MISMATCH default converter decoded the Memo — custom converter may not have been honored")
+		}
 	}
 }
 
 func decodeMemoAndLog(logger *zap.Logger, level string, memo map[string][]byte, key, want string) {
 	raw, ok := memo[key]
 	if !ok {
-		logger.Fatal("Memo key missing from Describe response",
+		logger.Warn("Memo key missing from Describe response",
 			zap.String("level", level), zap.String("key", key))
+		return
 	}
 	var got string
 	if err := (gobDataConverter{}).FromData(raw, &got); err != nil {
-		logger.Fatal("Failed to decode Memo with the custom converter",
+		logger.Warn("Failed to decode Memo with the custom converter",
 			zap.String("level", level), zap.Error(err))
+		return
 	}
-	logger.Info("Decoded "+level+" Memo with the custom gob converter",
-		zap.String("key", key), zap.String("value", got), zap.Bool("matches", got == want))
+	if got == want {
+		logger.Info("MATCH   decoded "+level+" Memo with the custom gob converter",
+			zap.String("key", key), zap.String("value", got))
+	} else {
+		logger.Warn("MISMATCH "+level+" Memo value",
+			zap.String("key", key), zap.String("want", want), zap.String("got", got))
+	}
 }

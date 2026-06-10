@@ -14,8 +14,11 @@ import (
 //   - 1. full-field create → describe round-trip
 //   - 2. Create is not idempotent
 //   - 3. Update is describe-then-update (mutate current state; untouched fields are preserved)
-//   - 4. Pause (reason), Backfill (runs fire), Delete (absent from List afterward)
+//   - 4. Pause (reason) / Unpause
 //   - 5. List entry fields
+//   - 6. Delete (absent from List afterward)
+//
+// Backfill is covered separately by scenario_backfill.go.
 func runLifecycle() {
 	logger := BuildLogger()
 	c := buildScheduleClient(nil)
@@ -102,11 +105,7 @@ func runLifecycle() {
 		logger.Fatal("Pause failed", zap.Error(err))
 	}
 	desc = mustDescribe(logger, sc, ctx, scheduleID)
-	if desc.State != nil && desc.State.PauseInfo != nil {
-		logger.Info("Paused",
-			zap.Bool("paused", desc.State.Paused),
-			zap.String("reason", desc.State.PauseInfo.Reason))
-	}
+	verifyAfterPause(logger, pauseReason, desc)
 
 	// ── Step 6: Unpause ──────────────────────────────────────────────────────
 	logger.Info("=== Unpause ===")
@@ -114,33 +113,14 @@ func runLifecycle() {
 		logger.Fatal("Unpause failed", zap.Error(err))
 	}
 	desc = mustDescribe(logger, sc, ctx, scheduleID)
-	logger.Info("Unpaused", zap.Bool("paused", desc.State != nil && desc.State.Paused))
+	verifyAfterUnpause(logger, desc)
 
-	// ── Step 7: Backfill ─────────────────────────────────────────────────────
-	logger.Info("=== Backfill past 6h (watch the worker pick up runs) ===")
-	if err = sc.Backfill(ctx, scheduleID, &client.BackfillRequest{
-		StartTime:     now.Add(-6 * time.Hour),
-		EndTime:       now.Add(-1 * time.Hour),
-		OverlapPolicy: client.ScheduleOverlapPolicySkipNew,
-	}); err != nil {
-		logger.Fatal("Backfill failed", zap.Error(err))
-	}
-	logger.Info("Backfill submitted — sleeping briefly so the worker can run the backfilled executions")
-	time.Sleep(5 * time.Second)
-
-	// ── Step 8: List entry fields ────────────────────────────────────────────
+	// ── Step 7: List entry fields ────────────────────────────────────────────
 	logger.Info("=== List (entry fields) ===")
-	if entry := findInList(logger, sc, ctx, scheduleID); entry != nil {
-		logger.Info("Found our schedule in List",
-			zap.String("scheduleID", entry.ScheduleID),
-			zap.String("workflowType", entry.WorkflowType),
-			zap.String("cron", entry.CronExpression),
-			zap.Bool("paused", entry.State != nil && entry.State.Paused))
-	} else {
-		logger.Warn("Our schedule not yet visible in List (indexing may lag)")
-	}
+	entry := findInList(logger, sc, ctx, scheduleID)
+	verifyListEntry(logger, scheduleID, entry)
 
-	// ── Step 9: Delete, then confirm it disappears from List ─────────────────
+	// ── Step 8: Delete, then confirm it disappears from List ─────────────────
 	logger.Info("=== Delete ===")
 	if err = sc.Delete(ctx, scheduleID); err != nil {
 		logger.Fatal("Delete failed", zap.Error(err))
@@ -247,5 +227,42 @@ func verifyAfterActionMemoUpdate(logger *zap.Logger, wantCron string, wantOverla
 	}
 	if desc.Policies != nil {
 		logCmp(logger, "policies.overlapPolicy (preserved)", wantOverlap, desc.Policies.OverlapPolicy)
+	}
+}
+
+func verifyAfterPause(logger *zap.Logger, wantReason string, desc *client.DescribeScheduleResponse) {
+	logger.Info("--- Verify: Pause ---")
+	if desc.State == nil {
+		logger.Warn("  MISMATCH state is nil")
+		return
+	}
+	logCmp(logger, "state.paused", true, desc.State.Paused)
+	if desc.State.PauseInfo != nil {
+		logCmp(logger, "state.pauseInfo.reason", wantReason, desc.State.PauseInfo.Reason)
+	} else {
+		logger.Warn("  MISMATCH state.pauseInfo is nil, want reason=" + wantReason)
+	}
+}
+
+func verifyAfterUnpause(logger *zap.Logger, desc *client.DescribeScheduleResponse) {
+	logger.Info("--- Verify: Unpause ---")
+	if desc.State == nil {
+		logger.Warn("  MISMATCH state is nil")
+		return
+	}
+	logCmp(logger, "state.paused", false, desc.State.Paused)
+}
+
+func verifyListEntry(logger *zap.Logger, wantScheduleID string, entry *client.ScheduleListEntry) {
+	logger.Info("--- Verify: List entry fields ---")
+	if entry == nil {
+		logger.Warn("  MISMATCH schedule not found in List (indexing may lag)")
+		return
+	}
+	logCmp(logger, "list.scheduleID", wantScheduleID, entry.ScheduleID)
+	if entry.State != nil {
+		logCmp(logger, "list.paused", false, entry.State.Paused)
+	} else {
+		logger.Warn("  MISMATCH list.state is nil")
 	}
 }

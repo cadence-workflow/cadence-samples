@@ -16,6 +16,7 @@ var scenarios = map[string]func(){
 	"catchup":       runCatchUp,
 	"pagination":    runPagination,
 	"dataconverter": runDataConverter,
+	"backfill":      runBackfill,
 }
 
 func scenarioNames() string {

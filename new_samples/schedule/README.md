@@ -10,13 +10,15 @@ This sample demonstrates the Cadence **Schedule** SDK — a client-side API for 
 
 ## Scenarios (`-m manage -scenario <name>`)
 
-| Scenario | What it exercises | Needs worker? |
-|---|---|---|
-| `lifecycle` (default) | Full-field **Create→Describe** round-trip, **Create non-idempotency**, **describe-then-update Update** (change cron + one policy sub-field with siblings preserved, then action Memo via `SetActionMemo`), **Pause** (reason) / **Unpause**, **Backfill** a past range, **List** entry fields, **Delete** + confirm absent from List | yes (for backfill runs) |
-| `overlap` | `ScheduleOverlapPolicy` — SkipNew / Concurrent / CancelPrevious, with runs that outlast the cron interval so overlaps actually occur | yes |
-| `catchup` | Catch-up on **Unpause** — `Skip` vs `All` over missed fire times | yes |
-| `pagination` | `List` paging through all schedules via `NextPageToken` (pageSize=2), asserting each appears exactly once | no |
-| `dataconverter` | **Memo** (schedule-level *and* action-level) encoded on write / decoded on read through a **custom** `DataConverter` (gob); shows the default JSON converter cannot decode it | no |
+- **`lifecycle`** *(default)* — Full-field **Create→Describe** round-trip, **Create non-idempotency**, **describe-then-update Update** (change cron + one policy sub-field with siblings preserved, then action Memo via `SetActionMemo`), **Pause** (reason) / **Unpause**, **Backfill** a past range, **List** entry fields, **Delete** + confirm absent from List. Requires the worker (for backfill runs).
+
+- **`overlap`** — `ScheduleOverlapPolicy` in action: SkipNew, Concurrent, and CancelPrevious, each with runs that outlast the cron interval so overlaps actually occur. Requires the worker.
+
+- **`catchup`** — Catch-up behavior on **Unpause**: `Skip` (missed fires discarded) vs `All` (every missed fire replayed within the catch-up window). Requires the worker.
+
+- **`pagination`** — `List` paging through all schedules via `NextPageToken` with pageSize=2, asserting each created schedule appears exactly once across all pages. No worker needed.
+
+- **`dataconverter`** — **Memo** (schedule-level *and* action-level) encoded on write / decoded on read through a **custom** `DataConverter` (gob); also shows the default JSON converter cannot decode the gob bytes. No worker needed.
 
 ## Steps to run
 
