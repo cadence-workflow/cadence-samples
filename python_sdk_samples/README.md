@@ -29,3 +29,30 @@ This downloads and starts all required dependencies including Cadence server, da
 ```bash
 uv run python -m openai_samples.agent_handoffs.main
 ```
+
+---
+
+## Samples
+
+### OpenAI Samples (`openai_samples/`)
+
+LLM-powered workflow samples using the Cadence OpenAI integration.
+
+- `agent_handoffs` — multi-agent handoff pattern
+- `human_in_the_loop` — pause a workflow and resume it based on human input
+
+### Schedule Samples (`schedule_samples/`)
+
+Full schedule lifecycle demo: **create → describe → pause → unpause → backfill → update → list → delete**.
+
+**1. Start a worker** (keep running in one terminal):
+```bash
+uv run python -m schedule_samples.schedule_sample worker
+```
+
+**2. Run the demo** (in a second terminal):
+```bash
+uv run python -m schedule_samples.schedule_sample demo
+```
+
+Both subcommands accept `--target` (default `localhost:7833`) and `--domain` (default `default`).
