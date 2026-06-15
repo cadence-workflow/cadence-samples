@@ -26,6 +26,7 @@ from google.protobuf.duration import from_timedelta
 
 from cadence import Registry, workflow
 from cadence.client import Client
+from cadence.error import CadenceRpcError
 from cadence.worker import Worker
 from cadence.api.v1 import common_pb2, schedule_pb2, tasklist_pb2
 
@@ -33,6 +34,19 @@ TASK_LIST = "schedule-sample-tl"
 WORKFLOW_TYPE = "ScheduleSampleWorkflow"
 
 registry = Registry()
+
+
+async def _describe(client: Client, sid: str) -> object:
+    """Describe a schedule, retrying through mid-ContinueAsNew transitions."""
+    for _ in range(10):
+        try:
+            return await client.describe_schedule(sid)
+        except CadenceRpcError as e:
+            if "ContinueAsNew" in str(e):
+                await asyncio.sleep(2)
+                continue
+            raise
+    return await client.describe_schedule(sid)
 
 
 @registry.workflow()
@@ -87,14 +101,14 @@ async def run_demo(args: argparse.Namespace) -> None:
             print(f"Created  : {sid}")
 
             # --- describe ---
-            desc = await client.describe_schedule(sid)
+            desc = await _describe(client, sid)
             print(
                 f"Describe : cron={desc.spec.cron_expression!r}  paused={desc.state.paused}"
             )
 
             # --- pause ---
             await client.pause_schedule(sid, reason="sample demo")
-            desc = await client.describe_schedule(sid)
+            desc = await _describe(client, sid)
             print(
                 f"Paused   : paused={desc.state.paused}  reason={desc.state.pause_info.reason!r}"
             )
@@ -105,7 +119,7 @@ async def run_demo(args: argparse.Namespace) -> None:
                 reason="resuming",
                 catch_up_policy=schedule_pb2.SCHEDULE_CATCH_UP_POLICY_SKIP,
             )
-            desc = await client.describe_schedule(sid)
+            desc = await _describe(client, sid)
             print(f"Unpaused : paused={desc.state.paused}")
 
             # --- backfill (replays the per-minute schedule over the last 2 hours) ---
@@ -126,7 +140,7 @@ async def run_demo(args: argparse.Namespace) -> None:
                 d.spec.cron_expression = "0 * * * *"
 
             await client.update_schedule(sid, set_hourly)
-            desc = await client.describe_schedule(sid)
+            desc = await _describe(client, sid)
             print(f"Updated  : new cron={desc.spec.cron_expression!r}")
 
             # --- list ---
