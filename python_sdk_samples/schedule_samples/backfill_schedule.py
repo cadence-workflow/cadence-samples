@@ -1,7 +1,7 @@
-"""Backfill a Cadence schedule — replay missed fires over a past time window.
+"""Backfill a Cadence schedule over a historical time window.
 
-Submits all fires that would have occurred in the last 2 hours using BUFFER
-overlap so they queue rather than skip each other.
+Submits fires for the last 2 hours using BUFFER overlap so runs queue
+instead of skipping each other.
 
 Usage:
     uv run python -m schedule_samples.backfill_schedule

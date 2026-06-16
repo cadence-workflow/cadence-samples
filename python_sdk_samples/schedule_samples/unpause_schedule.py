@@ -1,6 +1,4 @@
-"""Unpause a Cadence schedule — resumes firing after a pause.
-
-Uses SKIP catch-up policy so fires missed during the pause are discarded.
+"""Unpause a Cadence schedule. Uses SKIP catch-up so missed fires are discarded.
 
 Usage:
     uv run python -m schedule_samples.unpause_schedule

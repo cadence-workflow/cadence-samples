@@ -1,11 +1,5 @@
 """Create a Cadence schedule that fires ScheduleSampleWorkflow every minute.
 
-Demonstrates:
-  - ScheduleSpec: cron expression
-  - ScheduleAction: StartWorkflowAction with workflow_id_prefix and memo
-  - SchedulePolicies: overlap, catch-up, and pause_on_failure
-  - Schedule-level memo (tagged metadata visible in describe/list)
-
 Usage:
     uv run python -m schedule_samples.create_schedule
 """
@@ -24,8 +18,7 @@ from schedule_samples.workflow import SCHEDULE_ID, TASK_LIST, WORKFLOW_TYPE
 
 
 def _payload(value: object) -> common_pb2.Payload:
-    # Cadence encodes memo values as a JSON-wrapped single-element list,
-    # matching the Go and Java SDK conventions.
+    # Cadence memo values are JSON-encoded as a single-element list, matching Go/Java SDK behavior.
     return common_pb2.Payload(data=json.dumps([value]).encode())
 
 
@@ -38,7 +31,6 @@ async def main(args: argparse.Namespace) -> None:
                 start_workflow=schedule_pb2.ScheduleAction.StartWorkflowAction(
                     workflow_type=common_pb2.WorkflowType(name=WORKFLOW_TYPE),
                     task_list=tasklist_pb2.TaskList(name=TASK_LIST),
-                    # Prefix makes individual runs easy to find: <prefix><timestamp>
                     workflow_id_prefix=f"{SCHEDULE_ID}-",
                     execution_start_to_close_timeout=from_timedelta(timedelta(minutes=10)),
                     task_start_to_close_timeout=from_timedelta(timedelta(seconds=10)),
@@ -47,12 +39,8 @@ async def main(args: argparse.Namespace) -> None:
             policies=schedule_pb2.SchedulePolicies(
                 overlap_policy=schedule_pb2.SCHEDULE_OVERLAP_POLICY_SKIP_NEW,
                 catch_up_policy=schedule_pb2.SCHEDULE_CATCH_UP_POLICY_SKIP,
-                # Pause the schedule automatically if a started workflow fails,
-                # preventing a cascade of failing runs until a human investigates.
                 pause_on_failure=True,
             ),
-            # Schedule-level memo: visible in DescribeSchedule and ListSchedules.
-            # Values must be Payload (raw bytes); Cadence encodes them as JSON lists.
             memo=common_pb2.Memo(
                 fields={
                     "owner": _payload("platform-team"),

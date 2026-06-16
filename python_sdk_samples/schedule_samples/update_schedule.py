@@ -1,9 +1,5 @@
 """Update a Cadence schedule using a read-modify-write callback.
 
-Changes the cron expression to hourly. The client fetches the current
-schedule, the callback mutates the spec, and the full updated schedule
-is sent back atomically.
-
 Usage:
     uv run python -m schedule_samples.update_schedule
 """
@@ -22,7 +18,7 @@ async def main(args: argparse.Namespace) -> None:
 
     async with Client(domain=args.domain, target=args.target) as client:
         await client.update_schedule(SCHEDULE_ID, set_cron)
-        print(f"Updated schedule {SCHEDULE_ID!r} → cron={args.cron!r}")
+        print(f"Updated schedule {SCHEDULE_ID!r} cron={args.cron!r}")
 
 
 def build_parser() -> argparse.ArgumentParser:

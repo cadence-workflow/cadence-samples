@@ -38,8 +38,8 @@ uv run python -m openai_samples.agent_handoffs.main
 
 LLM-powered workflow samples using the Cadence OpenAI integration.
 
-- `agent_handoffs` — multi-agent handoff pattern
-- `human_in_the_loop` — pause a workflow and resume it based on human input
+- `agent_handoffs`: multi-agent handoff pattern
+- `human_in_the_loop`: pause a workflow and resume it based on human input
 
 ### Schedule Samples (`schedule_samples/`)
 
@@ -69,17 +69,30 @@ uv run python -m schedule_samples.list_schedules
 uv run python -m schedule_samples.delete_schedule
 ```
 
+**Expected output from `describe_schedule`:**
+```
+Schedule : 'my-cadence-schedule'
+  cron           : '* * * * *'
+  paused         : False
+  overlap policy : SKIP_NEW
+  pause_on_fail  : True
+  next run       : 2026-01-01 09:01:00 UTC
+  last run       : 2026-01-01 09:00:00 UTC
+  total runs     : 1
+  memo           : {'owner': 'platform-team', 'env': 'dev'}
+```
+
 **What each script does:**
 
 | Script | What happens |
 |--------|-------------|
 | `workflow.py` | Shared workflow definition and constants (`SCHEDULE_ID`, `TASK_LIST`) |
 | `run_worker.py` | Starts a worker that executes `ScheduleSampleWorkflow` |
-| `create_schedule.py` | Registers a schedule firing every minute (`* * * * *`), with `SkipNew` overlap and `Skip` catch-up |
-| `describe_schedule.py` | Fetches and prints the schedule's current spec and state |
-| `pause_schedule.py` | Suspends firing — the schedule stays registered but no new runs are started |
-| `unpause_schedule.py` | Resumes firing with `Skip` catch-up — missed fires while paused are discarded |
-| `backfill_schedule.py` | Replays the last 2 hours of schedule fires immediately using `Buffer` overlap |
+| `create_schedule.py` | Registers a schedule firing every minute (`* * * * *`), with `SkipNew` overlap, `Skip` catch-up, `pause_on_failure`, and a schedule-level memo |
+| `describe_schedule.py` | Prints spec, state, policies, next/last run times, total runs, and memo |
+| `pause_schedule.py` | Suspends firing; the schedule stays registered but no new runs start |
+| `unpause_schedule.py` | Resumes firing with `Skip` catch-up; missed fires while paused are discarded |
+| `backfill_schedule.py` | Submits the last 2 hours of schedule fires immediately using `Buffer` overlap |
 | `update_schedule.py` | Changes the cron to hourly (`0 * * * *`) via a read-modify-write callback |
 | `list_schedules.py` | Paginates and prints all schedule IDs in the domain |
-| `delete_schedule.py` | Permanently removes the schedule; running workflows complete normally |
+| `delete_schedule.py` | Removes the schedule; running workflows complete normally |

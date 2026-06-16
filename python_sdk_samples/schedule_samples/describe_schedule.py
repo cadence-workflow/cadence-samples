@@ -1,4 +1,4 @@
-"""Describe a Cadence schedule — prints spec, state, policies, runtime info, and memo.
+"""Describe a Cadence schedule: spec, state, policies, runtime info, and memo.
 
 Usage:
     uv run python -m schedule_samples.describe_schedule

@@ -1,4 +1,4 @@
-"""Pause a Cadence schedule — no new workflow runs until unpaused.
+"""Pause a Cadence schedule. No new workflow runs are started until unpaused.
 
 Usage:
     uv run python -m schedule_samples.pause_schedule
