@@ -14,7 +14,14 @@ async def main(args: argparse.Namespace) -> None:
     async with Client(domain=args.domain, target=args.target) as client:
         count = 0
         async for entry in client.list_schedules():
-            print(entry.schedule_id)
+            parts = [entry.schedule_id]
+            if entry.cron_expression:
+                parts.append(f"cron={entry.cron_expression!r}")
+            if entry.workflow_type.name:
+                parts.append(f"workflow={entry.workflow_type.name!r}")
+            if entry.state.paused:
+                parts.append("[paused]")
+            print("  " + "  ".join(parts))
             count += 1
         if count == 0:
             print("(no schedules found)")
