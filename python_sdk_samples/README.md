@@ -47,40 +47,39 @@ Demonstrates the full Cadence Schedules API. A **schedule** is a server-side
 cron that fires a workflow on a recurring interval without any client process
 needing to stay alive.
 
+Each operation is its own runnable script. All scripts share the schedule ID
+`"my-cadence-schedule"` defined in `workflow.py` and accept `--target`
+(default `localhost:7833`) and `--domain` (default `default`).
+
 **1. Start a worker** (keep running in one terminal):
 ```bash
-uv run python -m schedule_samples.schedule_sample worker
+uv run python -m schedule_samples.run_worker
 ```
 
-**2. Run the demo** (in a second terminal):
+**2. Run each operation** (in a second terminal, in order):
 ```bash
-uv run python -m schedule_samples.schedule_sample demo
+uv run python -m schedule_samples.create_schedule
+uv run python -m schedule_samples.describe_schedule
+uv run python -m schedule_samples.pause_schedule
+uv run python -m schedule_samples.describe_schedule
+uv run python -m schedule_samples.unpause_schedule
+uv run python -m schedule_samples.backfill_schedule
+uv run python -m schedule_samples.update_schedule
+uv run python -m schedule_samples.list_schedules
+uv run python -m schedule_samples.delete_schedule
 ```
 
-Both subcommands accept `--target` (default `localhost:7833`) and `--domain` (default `default`).
+**What each script does:**
 
-**Expected output:**
-```
-Created  : schedule-sample-<id>
-Describe : cron='* * * * *'  paused=False
-Paused   : paused=True  reason='sample demo'
-Unpaused : paused=False
-Backfill : submitted 2-hour window (HH:MM → HH:MM UTC)
-Updated  : new cron='0 * * * *'
-List     : schedules in domain:
-           schedule-sample-<id> ← this one
-Deleted  : schedule-sample-<id>
-```
-
-**What each step does:**
-
-| Step | What happens |
-|------|-------------|
-| **create** | Registers a new schedule that fires `ScheduleSampleWorkflow` every minute (`* * * * *`), with `SkipNew` overlap (skips a fire if the previous run is still active) and `Skip` catch-up (discards missed fires after downtime) |
-| **describe** | Fetches the schedule's current spec and state from the server |
-| **pause** | Suspends firing — the schedule stays registered but no new workflow runs are started until unpaused |
-| **unpause** | Resumes firing with `Skip` catch-up — fires that were missed while paused are discarded |
-| **backfill** | Asks the server to replay the last 2 hours of schedule fires immediately, using `Buffer` overlap so they queue rather than skip each other |
-| **update** | Changes the cron expression to hourly (`0 * * * *`) using a read-modify-write — the client fetches the current schedule, the callback mutates the spec, and the full updated schedule is sent back |
-| **list** | Paginates all schedules in the domain and prints their IDs |
-| **delete** | Permanently removes the schedule; any already-started workflow runs continue to completion |
+| Script | What happens |
+|--------|-------------|
+| `workflow.py` | Shared workflow definition and constants (`SCHEDULE_ID`, `TASK_LIST`) |
+| `run_worker.py` | Starts a worker that executes `ScheduleSampleWorkflow` |
+| `create_schedule.py` | Registers a schedule firing every minute (`* * * * *`), with `SkipNew` overlap and `Skip` catch-up |
+| `describe_schedule.py` | Fetches and prints the schedule's current spec and state |
+| `pause_schedule.py` | Suspends firing — the schedule stays registered but no new runs are started |
+| `unpause_schedule.py` | Resumes firing with `Skip` catch-up — missed fires while paused are discarded |
+| `backfill_schedule.py` | Replays the last 2 hours of schedule fires immediately using `Buffer` overlap |
+| `update_schedule.py` | Changes the cron to hourly (`0 * * * *`) via a read-modify-write callback |
+| `list_schedules.py` | Paginates and prints all schedule IDs in the domain |
+| `delete_schedule.py` | Permanently removes the schedule; running workflows complete normally |
