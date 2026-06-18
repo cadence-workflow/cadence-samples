@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Update a Cadence schedule")
     p.add_argument("--target", default="localhost:7833", help="Cadence frontend host:port")
     p.add_argument("--domain", default="default", help="Cadence domain")
-    p.add_argument("--cron", default="0 * * * *", help="New cron expression")
+    p.add_argument("--cron", default="*/2 * * * *", help="New cron expression (default: every 2 minutes)")
     return p
 
 
