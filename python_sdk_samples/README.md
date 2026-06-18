@@ -29,15 +29,3 @@ This downloads and starts all required dependencies including Cadence server, da
 ```bash
 uv run python -m openai_samples.agent_handoffs.main
 ```
-
----
-
-## Samples
-
-### OpenAI Samples (`openai_samples/`)
-
-LLM-powered workflow samples using the Cadence OpenAI integration.
-
-- `agent_handoffs`: multi-agent handoff pattern
-- `human_in_the_loop`: pause a workflow and resume it based on human input
-
