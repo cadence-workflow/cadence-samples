@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 )
@@ -25,6 +26,7 @@ func operationNames() string {
 	for n := range operations {
 		names = append(names, n)
 	}
+	sort.Strings(names)
 	return strings.Join(names, " | ")
 }
 
@@ -38,7 +40,7 @@ func main() {
 	case "worker":
 		StartWorker()
 		done := make(chan os.Signal, 1)
-		signal.Notify(done, syscall.SIGINT)
+		signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 		fmt.Println("Cadence schedule worker started, press ctrl+c to terminate...")
 		<-done
 	case "manage":

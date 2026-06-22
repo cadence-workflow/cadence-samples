@@ -15,6 +15,9 @@ func runUpdate() {
 
 	const newCron = "*/2 * * * *"
 	if err := sc.Update(context.Background(), ScheduleID, func(u *client.ScheduleUpdate) error {
+		if u.Spec == nil {
+			u.Spec = &client.ScheduleSpec{}
+		}
 		u.Spec.CronExpression = newCron
 		return nil
 	}); err != nil {
