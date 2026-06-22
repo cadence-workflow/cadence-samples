@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ScheduleID            = "my-cadence-schedule"
+	ScheduleID            = "my-cadence-schedule-go"
 	scheduledWorkflowName = "scheduledWorkflow"
 )
 

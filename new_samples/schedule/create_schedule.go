@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/cadence/client"
@@ -32,6 +33,10 @@ func runCreate() {
 		},
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			fmt.Printf("Schedule %q already exists. Run delete first or use a different schedule ID.\n", ScheduleID)
+			return
+		}
 		logger.Fatal("Create failed", zap.Error(err))
 	}
 	fmt.Printf("Created schedule %q (fires every minute)\n", ScheduleID)
