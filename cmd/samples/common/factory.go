@@ -142,12 +142,12 @@ func (b *WorkflowClientBuilder) BuildServiceClient() (workflowserviceclient.Inte
 	}
 
 	clientConfig := b.dispatcher.ClientConfig(_cadenceFrontendService)
-	return compatibility.NewThrift2ProtoAdapter(
-		apiv1.NewDomainAPIYARPCClient(clientConfig),
-		apiv1.NewWorkflowAPIYARPCClient(clientConfig),
-		apiv1.NewWorkerAPIYARPCClient(clientConfig),
-		apiv1.NewVisibilityAPIYARPCClient(clientConfig),
-	), nil
+	return compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
+		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
+		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
+		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
+		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+	}), nil
 }
 
 func (b *WorkflowClientBuilder) build() error {

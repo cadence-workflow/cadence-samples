@@ -62,7 +62,7 @@ func (s *UnitTestSuite) Test_CronWorkflow() {
 		endTimeList = append(endTimeList, endTime)
 	})
 
-	startTime, _ := time.Parse(time.RFC3339, "2018-12-20T16:30:00-80:00")
+	startTime, _ := time.Parse(time.RFC3339, "2018-12-20T16:30:00-08:00")
 	s.env.SetStartTime(startTime)
 
 	s.env.ExecuteWorkflow(testWorkflow)

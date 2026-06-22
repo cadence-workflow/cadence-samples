@@ -6,7 +6,7 @@ toolchain go1.24.2
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/m3db/prometheus_client_golang v0.8.1
+	github.com/m3db/prometheus_client_golang v1.12.8
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
@@ -14,7 +14,7 @@ require (
 	github.com/uber-go/tally v3.5.8+incompatible
 	github.com/uber/cadence-idl v0.0.0-20260609034356-3ee08a98cf70
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	go.uber.org/cadence v1.3.1-rc.21.0.20260609230234-cb92ddb5088b
+	go.uber.org/cadence v1.3.1-rc.21.0.20260616075931-d2f088b49b11
 	go.uber.org/yarpc v1.88.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.67.3
@@ -36,16 +36,15 @@ require (
 	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/jonboulle/clockwork v0.4.0 // indirect
-	github.com/m3db/prometheus_client_model v0.1.0 // indirect
-	github.com/m3db/prometheus_common v0.1.0 // indirect
-	github.com/m3db/prometheus_procfs v0.8.1 // indirect
+	github.com/m3db/prometheus_client_model v0.2.1 // indirect
+	github.com/m3db/prometheus_common v0.34.6 // indirect
 	github.com/marusama/semaphore/v2 v2.5.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.11.1 // indirect
+	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.6.0 // indirect
-	github.com/prometheus/common v0.26.0 // indirect
-	github.com/prometheus/procfs v0.6.0 // indirect
+	github.com/prometheus/common v0.34.0 // indirect
+	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twmb/murmur3 v1.1.8 // indirect
@@ -66,7 +65,7 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/time v0.0.0-20170927054726-6dc17368e09b // indirect
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
