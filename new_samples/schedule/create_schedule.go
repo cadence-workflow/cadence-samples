@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/cadence/.gen/go/shared"
@@ -32,7 +33,7 @@ func runCreate() {
 		},
 	})
 	if err != nil {
-		if _, ok := err.(*shared.BadRequestError); ok {
+		if be, ok := err.(*shared.BadRequestError); ok && strings.Contains(be.Message, "already") {
 			fmt.Printf("Schedule %q already exists. Run delete first or use a different schedule ID.\n", ScheduleID)
 			return
 		}
