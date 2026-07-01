@@ -12,12 +12,11 @@ import (
 func runBackfill() {
 	logger := BuildLogger()
 	c := buildScheduleClient()
-	sc := c.ScheduleClient()
 
 	end := time.Now()
 	start := end.Add(-2 * time.Hour)
 
-	if err := sc.Backfill(context.Background(), ScheduleID, &client.BackfillRequest{
+	if err := c.Backfill(context.Background(), ScheduleID, &client.BackfillRequest{
 		StartTime:     start,
 		EndTime:       end,
 		OverlapPolicy: client.ScheduleOverlapPolicyBuffer,

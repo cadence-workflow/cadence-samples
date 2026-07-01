@@ -8,8 +8,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func buildScheduleClient() client.Client {
-	return client.NewClient(BuildCadenceClient(), Domain, nil)
+func buildScheduleClient() client.ScheduleClient {
+	return client.NewClient(BuildCadenceClient(), Domain, nil).ScheduleClient()
 }
 
 func encodeWorkflowInput(logger *zap.Logger, sleepSeconds int) []byte {

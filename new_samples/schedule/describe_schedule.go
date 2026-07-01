@@ -10,9 +10,8 @@ import (
 func runDescribe() {
 	logger := BuildLogger()
 	c := buildScheduleClient()
-	sc := c.ScheduleClient()
 
-	desc, err := sc.Describe(context.Background(), ScheduleID)
+	desc, err := c.Describe(context.Background(), ScheduleID)
 	if err != nil {
 		logger.Fatal("Describe failed", zap.String("scheduleID", ScheduleID), zap.Error(err))
 	}

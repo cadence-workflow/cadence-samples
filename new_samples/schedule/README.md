@@ -22,7 +22,7 @@ Each operation is its own standalone command, matching the [Python schedule samp
 **Step 1 — Start a Cadence server**
 
 ```bash
-cd ~/src/cadence
+cd <path-to-cadence-repo>
 docker-compose up
 ```
 

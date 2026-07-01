@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
+	"go.uber.org/cadence/.gen/go/shared"
 	"go.uber.org/cadence/client"
 	"go.uber.org/zap"
 )
@@ -13,12 +13,11 @@ import (
 func runCreate() {
 	logger := BuildLogger()
 	c := buildScheduleClient()
-	sc := c.ScheduleClient()
 
 	action := startWorkflowAction(logger)
 	action.WorkflowIDPrefix = ScheduleID + "-"
 
-	_, err := sc.Create(context.Background(), &client.CreateScheduleRequest{
+	_, err := c.Create(context.Background(), &client.CreateScheduleRequest{
 		ScheduleID: ScheduleID,
 		Spec:       &client.ScheduleSpec{CronExpression: "* * * * *"},
 		Action:     &client.ScheduleAction{StartWorkflow: action},
@@ -33,7 +32,7 @@ func runCreate() {
 		},
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "already exists") {
+		if _, ok := err.(*shared.BadRequestError); ok {
 			fmt.Printf("Schedule %q already exists. Run delete first or use a different schedule ID.\n", ScheduleID)
 			return
 		}
@@ -41,7 +40,7 @@ func runCreate() {
 	}
 	fmt.Printf("Created schedule %q (fires every minute)\n", ScheduleID)
 
-	desc, err := sc.Describe(context.Background(), ScheduleID)
+	desc, err := c.Describe(context.Background(), ScheduleID)
 	if err != nil {
 		logger.Fatal("Describe failed", zap.Error(err))
 	}

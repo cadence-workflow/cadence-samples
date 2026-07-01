@@ -11,10 +11,9 @@ import (
 func runUpdate() {
 	logger := BuildLogger()
 	c := buildScheduleClient()
-	sc := c.ScheduleClient()
 
 	const newCron = "*/2 * * * *"
-	if err := sc.Update(context.Background(), ScheduleID, func(u *client.ScheduleUpdate) error {
+	if err := c.Update(context.Background(), ScheduleID, func(u *client.ScheduleUpdate) error {
 		if u.Spec == nil {
 			u.Spec = &client.ScheduleSpec{}
 		}

@@ -10,12 +10,11 @@ import (
 func runList() {
 	logger := BuildLogger()
 	c := buildScheduleClient()
-	sc := c.ScheduleClient()
 
 	count := 0
 	var token []byte
 	for {
-		resp, err := sc.List(context.Background(), 100, token)
+		resp, err := c.List(context.Background(), 100, token)
 		if err != nil {
 			logger.Fatal("List failed", zap.Error(err))
 		}
