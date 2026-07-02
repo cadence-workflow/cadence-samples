@@ -1,13 +1,10 @@
-// THIS IS A GENERATED FILE
-// PLEASE DO NOT EDIT
-
-// Package worker implements a Cadence worker with basic configurations.
 package main
 
 import (
 	"github.com/uber-go/tally"
 	apiv1 "github.com/uber/cadence-idl/go/proto/api/v1"
 	"go.uber.org/cadence/.gen/go/cadence/workflowserviceclient"
+	"go.uber.org/cadence/activity"
 	"go.uber.org/cadence/compatibility"
 	"go.uber.org/cadence/worker"
 	"go.uber.org/cadence/workflow"
@@ -20,16 +17,13 @@ import (
 )
 
 const (
-	HostPort = "127.0.0.1:7833"
-	Domain   = "cadence-samples"
-	// TaskListName identifies set of client workflows, activities, and workers.
-	// It could be your group or client or application name.
-	TaskListName   = "cadence-samples-worker"
-	ClientName     = "cadence-samples-worker"
+	HostPort       = "127.0.0.1:7833"
+	Domain         = "cadence-samples"
+	TaskListName   = "schedule-sample-worker"
+	ClientName     = "schedule-sample-worker"
 	CadenceService = "cadence-frontend"
 )
 
-// StartWorker creates and starts a basic Cadence worker.
 func StartWorker() {
 	logger, cadenceClient := BuildLogger(), BuildCadenceClient()
 	workerOptions := worker.Options{
@@ -42,21 +36,18 @@ func StartWorker() {
 		Domain,
 		TaskListName,
 		workerOptions)
-	// workflow registration
-	w.RegisterWorkflowWithOptions(SideEffectWorkflow, workflow.RegisterOptions{Name: "cadence_samples.SideEffectWorkflow"})
+	w.RegisterWorkflowWithOptions(scheduledWorkflow, workflow.RegisterOptions{Name: scheduledWorkflowName})
+	w.RegisterActivityWithOptions(scheduledActivity, activity.RegisterOptions{Name: "scheduledActivity"})
 
 	err := w.Start()
 	if err != nil {
 		panic("Failed to start worker: " + err.Error())
 	}
 	logger.Info("Started Worker.", zap.String("worker", TaskListName))
-
 }
 
 func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.Interface {
 	grpcTransport := grpc.NewTransport()
-	// Create a single peer chooser that identifies the host/port and configures
-	// a gRPC dialer with TLS credentials
 	myChooser := peer.NewSingle(
 		yarpchostport.Identify(HostPort),
 		grpcTransport.NewDialer(dialOptions...),
@@ -75,13 +66,12 @@ func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.In
 
 	clientConfig := dispatcher.ClientConfig(CadenceService)
 
-	// Create a compatibility adapter that wraps proto-based YARPC clients
-	// to provide a unified interface for domain, workflow, worker, and visibility APIs
 	return compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
 		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
 		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
 		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
 		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+		Schedule:   apiv1.NewScheduleAPIYARPCClient(clientConfig),
 	})
 }
 
@@ -89,11 +79,9 @@ func BuildLogger() *zap.Logger {
 	config := zap.NewDevelopmentConfig()
 	config.Level.SetLevel(zapcore.InfoLevel)
 
-	var err error
 	logger, err := config.Build()
 	if err != nil {
 		panic("Failed to setup logger: " + err.Error())
 	}
-
 	return logger
 }

@@ -81,12 +81,12 @@ func BuildCadenceClient(dialOptions ...grpc.DialOption) workflowserviceclient.In
 
 	// Create a compatibility adapter that wraps proto-based YARPC clients
 	// to provide a unified interface for domain, workflow, worker, and visibility APIs
-	return compatibility.NewThrift2ProtoAdapter(
-		apiv1.NewDomainAPIYARPCClient(clientConfig),
-		apiv1.NewWorkflowAPIYARPCClient(clientConfig),
-		apiv1.NewWorkerAPIYARPCClient(clientConfig),
-		apiv1.NewVisibilityAPIYARPCClient(clientConfig),
-	)
+	return compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
+		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
+		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
+		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
+		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+	})
 }
 
 func BuildLogger() *zap.Logger {

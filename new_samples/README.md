@@ -7,12 +7,34 @@ This directory contains samples demonstrating various Cadence workflow concepts.
 | Folder | Description |
 |--------|-------------|
 | [activities/](activities/) | Activity patterns: dynamic execution by name, parallel execution with pick-first |
+| [branch/](branch/) | Branching workflow logic with conditional activity execution |
+| [cancelactivity/](cancelactivity/) | Workflow cancellation and activity cleanup patterns |
+| [childworkflow/](childworkflow/) | Child workflow execution from a parent workflow |
+| [choice/](choice/) | Choice-based branching with different activity paths |
 | [client_tls/](client_tls/) | Client-side TLS configuration for secure Cadence connections |
+| [concurrency/](concurrency/) | Concurrent batch processing with configurable parallelism |
+| [consistentquery/](consistentquery/) | Consistent query patterns for reading workflow state |
+| [crossdomain/](crossdomain/) | Cross-domain child workflow execution |
+| [ctxpropagation/](ctxpropagation/) | Context propagation across workflow and activity boundaries |
 | [data/](data/) | Custom DataConverters: gzip compression, AES-256-GCM encryption, and S3 "claim-check" offload |
+| [delaystart/](delaystart/) | Delayed workflow start using timer-based scheduling |
+| [dynamic/](dynamic/) | Dynamic workflow and activity invocation by name |
+| [greetings/](greetings/) | Simple greeting workflow with activity |
 | [hello_world/](hello_world/) | Basic "Hello World" workflow and activity |
+| [localactivity/](localactivity/) | Local activity execution for short-lived tasks |
 | [operations/](operations/) | Workflow operations: cancellation and cleanup patterns |
+| [pickfirst/](pickfirst/) | Pick-first pattern: race multiple activities and take the fastest result |
 | [query/](query/) | Workflow query patterns |
+| [retryactivity/](retryactivity/) | Activity retry with configurable retry policies |
+| [schedule/](schedule/) | Schedule SDK: create, describe, pause, unpause, backfill, update, list, and delete schedules |
+| [sideeffect/](sideeffect/) | Side effect for non-deterministic operations (e.g. UUID generation) |
 | [signal/](signal/) | Workflow signal patterns: single-signal completion, and ordered processing of out-of-order signals with timeouts |
+| [signalcounter/](signalcounter/) | Signal-driven counter workflow |
+| [sleep/](sleep/) | Workflow sleep and timer patterns |
+| [splitmerge/](splitmerge/) | Split-merge pattern: fan-out work into chunks and merge results |
+| [timer/](timer/) | Timer-based workflows with scheduled notifications |
+| [tracing/](tracing/) | OpenTracing integration for workflow and activity tracing |
+| [versioning/](versioning/) | Workflow versioning for safe code updates |
 
 ## Prerequisites
 

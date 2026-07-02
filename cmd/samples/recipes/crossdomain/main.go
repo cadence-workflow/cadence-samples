@@ -82,12 +82,12 @@ func setupClient(domain string, hostport string) client.Client {
 
 	clientConfig := dispatcher.ClientConfig("cadence-frontend")
 
-	svc := compatibility.NewThrift2ProtoAdapter(
-		apiv1.NewDomainAPIYARPCClient(clientConfig),
-		apiv1.NewWorkflowAPIYARPCClient(clientConfig),
-		apiv1.NewWorkerAPIYARPCClient(clientConfig),
-		apiv1.NewVisibilityAPIYARPCClient(clientConfig),
-	)
+	svc := compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
+		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
+		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
+		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
+		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+	})
 
 	return client.NewClient(
 		svc,
@@ -123,12 +123,12 @@ func setupWorker(domain string, tl string, hostport string, wfs []interface{}, a
 
 	clientConfig := dispatcher.ClientConfig("cadence-frontend")
 
-	svc := compatibility.NewThrift2ProtoAdapter(
-		apiv1.NewDomainAPIYARPCClient(clientConfig),
-		apiv1.NewWorkflowAPIYARPCClient(clientConfig),
-		apiv1.NewWorkerAPIYARPCClient(clientConfig),
-		apiv1.NewVisibilityAPIYARPCClient(clientConfig),
-	)
+	svc := compatibility.NewThrift2ProtoAdapter(compatibility.AdapterClients{
+		Domain:     apiv1.NewDomainAPIYARPCClient(clientConfig),
+		Workflow:   apiv1.NewWorkflowAPIYARPCClient(clientConfig),
+		Worker:     apiv1.NewWorkerAPIYARPCClient(clientConfig),
+		Visibility: apiv1.NewVisibilityAPIYARPCClient(clientConfig),
+	})
 
 	worker := worker.New(svc, domain, tl, workerOptions)
 	for i := range wfs {
