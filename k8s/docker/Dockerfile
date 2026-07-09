@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine
+FROM golang:1.25.3-alpine
 
 # Install all necessary dependencies for building and running
 RUN apk add --no-cache git make gcc musl-dev ca-certificates nano curl bash sed
