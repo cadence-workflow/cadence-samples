@@ -14,7 +14,7 @@ require (
 	github.com/uber-go/tally v3.5.8+incompatible
 	github.com/uber/cadence-idl v0.0.0-20260609034356-3ee08a98cf70
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	go.uber.org/cadence v1.4.0-rc.1
+	go.uber.org/cadence v1.4.0-rc.3
 	go.uber.org/yarpc v1.88.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.67.3
