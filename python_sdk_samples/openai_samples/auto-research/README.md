@@ -41,7 +41,8 @@ uv run python openai_samples/auto-research/main.py
 ```
 
 Approved reports are written to `python_sdk_samples/research_reports` by
-default. Set `AUTO_RESEARCH_OUTPUT_DIR` to choose another directory:
+default. Set `AUTO_RESEARCH_OUTPUT_DIR` to choose another directory inside your
+home directory or the current directory:
 
 ```bash
 AUTO_RESEARCH_OUTPUT_DIR=~/Downloads/auto-research \

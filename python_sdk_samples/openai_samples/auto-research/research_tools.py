@@ -49,7 +49,12 @@ async def log_research_progress(message: str) -> str:
 @tools_registry.activity(name="publish_research_report")
 async def publish_research_report(report: str, topic: str) -> str:
     """Write the approved report to the configured local output directory."""
-    output_dir = Path(os.environ.get("AUTO_RESEARCH_OUTPUT_DIR", "research_reports"))
+    output_dir = Path(os.environ.get("AUTO_RESEARCH_OUTPUT_DIR", "research_reports")).expanduser().resolve()
+    allowed_roots = (Path.home().resolve(), Path.cwd().resolve())
+    if not any(output_dir.is_relative_to(root) for root in allowed_roots):
+        raise ValueError(
+            f"AUTO_RESEARCH_OUTPUT_DIR must be inside {allowed_roots[0]} or {allowed_roots[1]}, got {output_dir}"
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")[:60]
