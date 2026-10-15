@@ -49,7 +49,7 @@ func samplePSOWorkflow(ctx workflow.Context, functionName string) (string, error
 		return childWorkflowID, nil
 	})
 	if err != nil {
-		msg := fmt.Sprintf("SetQueryHandler failed: " + err.Error())
+		msg := fmt.Sprintf("SetQueryHandler failed: %v", err)
 		logger.Error(msg)
 		return msg, err
 	}
@@ -62,7 +62,7 @@ func samplePSOWorkflow(ctx workflow.Context, functionName string) (string, error
 
 		swarm, err := NewSwarm(ctx, settings)
 		if err != nil {
-			msg := fmt.Sprintf("Optimization failed. " + err.Error())
+			msg := fmt.Sprintf("Optimization failed. %v", err)
 			logger.Error(msg)
 			return msg, err
 		}
@@ -82,7 +82,7 @@ func samplePSOWorkflow(ctx workflow.Context, functionName string) (string, error
 		var result WorkflowResult
 		err = childWorkflowFuture.Get(ctx, &result) // This blocking until the child workflow has finished
 		if err != nil {
-			msg := fmt.Sprintf("Parent execution received child execution failure. " + err.Error())
+			msg := fmt.Sprintf("Parent execution received child execution failure. %v", err)
 			logger.Error(msg)
 			return msg, err
 		}
@@ -114,7 +114,7 @@ func samplePSOChildWorkflow(ctx workflow.Context, swarm Swarm, startingStep int)
 			return WorkflowResult{"NewContinueAsNewError", false}, workflow.NewContinueAsNewError(ctx, samplePSOChildWorkflow, swarm, result.Step+1)
 		}
 
-		msg := fmt.Sprintf("Error in swarm loop: " + err.Error())
+		msg := fmt.Sprintf("Error in swarm loop: %v", err)
 		logger.Error(msg)
 		return WorkflowResult{msg, false}, errors.New("Error in swarm loop")
 	}
