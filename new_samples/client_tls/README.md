@@ -4,8 +4,13 @@ This sample demonstrates how to connect to a Cadence server using TLS (Transport
 
 ## Prerequisites
 
-1. A Cadence server configured with TLS enabled
-2. Client certificates in the `credentials/` directory:
+1. A Cadence server started with the TLS development config, from the Cadence repo:
+   `./cadence-server --zone tls start` (uses `config/development_tls.yaml`)
+2. The matching development certificates copied into this sample's `credentials/` directory:
+   ```bash
+   mkdir -p credentials
+   cp <path-to-cadence>/config/credentials/{client.crt,client.key,keytest.crt} credentials/
+   ```
    - `credentials/client.crt` - Client certificate
    - `credentials/client.key` - Client private key
    - `credentials/keytest.crt` - Server CA certificate
@@ -53,8 +58,12 @@ The `main.go` file demonstrates:
 
 ## Security Notes
 
-- The sample uses `InsecureSkipVerify: true` for development convenience
-- In production, always verify server certificates by setting `InsecureSkipVerify: false`
+- The client verifies the server certificate chain against `credentials/keytest.crt` and checks
+  the server hostname. Do not disable this with `InsecureSkipVerify`: it also disables the CA check,
+  so the client would accept any server
+- If you use your own certificates, the server certificate's Subject Alternative Name must match
+  the address the client dials (`127.0.0.1` by default). Set `CADENCE_TLS_SERVER_NAME` if the
+  certificate is issued for a different name
 - Store credentials securely and never commit them to version control
 
 ## References
