@@ -1,0 +1,10 @@
+.git
+bin/
+**/__pycache__/
+**/.venv/
+python_sdk_samples/research_reports/
+new_samples/client_tls/credentials/
+test
+test.log
+*.out
+*.cov
