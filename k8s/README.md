@@ -70,13 +70,56 @@ metadata:
   labels:
     app: cadence-samples
 spec:
+  # The root filesystem is read-only, so the prebuilt home directory is copied into a
+  # writable volume. This keeps `make` and `go build` working inside the pod.
+  initContainers:
+  - name: copy-home
+    image: cadence-samples:latest  # Same image as the main container
+    imagePullPolicy: Always
+    command: ["cp", "-a", "/home/cadence/.", "/writable-home/"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      capabilities:
+        drop: ["ALL"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
+    volumeMounts:
+    - name: home
+      mountPath: /writable-home
   containers:
   - name: cadence-samples
     image: cadence-samples:latest  # Change to your registry image
-    imagePullPolicy: IfNotPresent
+    imagePullPolicy: Always
     command: ["/bin/bash"]
     args: ["-c", "sleep infinity"]
     workingDir: /home/cadence
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      capabilities:
+        drop: ["ALL"]
+    livenessProbe:
+      exec:
+        command: ["test", "-x", "/home/cadence/bin/helloworld"]
+      initialDelaySeconds: 5
+      periodSeconds: 30
+    volumeMounts:
+    - name: home
+      mountPath: /home/cadence
+    - name: tmp
+      mountPath: /tmp
     env:
     - name: HOME
       value: "/home/cadence"
@@ -87,16 +130,21 @@ spec:
       limits:
         memory: "1Gi"
         cpu: "1"
+  volumes:
+  - name: home
+    emptyDir: {}
+  - name: tmp
+    emptyDir: {}
   restartPolicy: Always
   securityContext:
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
 ```
 
 **Required Changes**:
 1. **`namespace`**: Change to your Cadence namespace
-2. **`image`**: Change to your registry image path
+2. **`image`**: Change to your registry image path, in both `initContainers` and `containers`
 
 ### Deploy the Pod
 

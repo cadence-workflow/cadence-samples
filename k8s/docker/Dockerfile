@@ -8,8 +8,8 @@ RUN apk upgrade --no-cache && \
 ARG CADENCE_HOST=localhost:7833
 
 # Create non-root user
-RUN addgroup -g 1001 cadence && \
-    adduser -D -u 1001 -G cadence cadence
+RUN addgroup -g 10001 cadence && \
+    adduser -D -u 10001 -G cadence cadence
 
 # Set working directory
 WORKDIR /home/cadence
