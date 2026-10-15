@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"html"
 	"net/http"
+	"net/url"
 	"sort"
 
 	"go.uber.org/cadence/client"
@@ -51,6 +53,7 @@ func main() {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprint(w, "<h1>DUMMY EXPENSE SYSTEM</h1>"+"<a href=\"/list\">HOME</a>"+
 		"<h3>All expense requests:</h3><table border=1><tr><th>Expense ID</th><th>Status</th><th>Action</th>")
 	keys := []string{}
@@ -62,12 +65,13 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		state := allExpense[id]
 		actionLink := ""
 		if state == created {
+			queryID := html.EscapeString(url.QueryEscape(id))
 			actionLink = fmt.Sprintf("<a href=\"/action?type=approve&id=%s\">"+
 				"<button style=\"background-color:#4CAF50;\">APPROVE</button></a>"+
 				"&nbsp;&nbsp;<a href=\"/action?type=reject&id=%s\">"+
-				"<button style=\"background-color:#f44336;\">REJECT</button></a>", id, id)
+				"<button style=\"background-color:#f44336;\">REJECT</button></a>", queryID, queryID)
 		}
-		fmt.Fprintf(w, "<tr><td>%s</td><td>%s</td><td>%s</td></tr>", id, state, actionLink)
+		fmt.Fprintf(w, "<tr><td>%s</td><td>%s</td><td>%s</td></tr>", html.EscapeString(id), state, actionLink)
 	}
 	fmt.Fprint(w, "</table>")
 }
@@ -131,6 +135,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	fmt.Fprint(w, state)
 	fmt.Printf("Checking status for %s: %s\n", id, state)
 	return
