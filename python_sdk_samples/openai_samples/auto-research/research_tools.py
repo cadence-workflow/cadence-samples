@@ -11,6 +11,20 @@ import cadence
 tools_registry = cadence.Registry()
 
 
+def resolve_output_dir() -> Path:
+    output_dir = Path(os.environ.get("AUTO_RESEARCH_OUTPUT_DIR", "research_reports")).expanduser().resolve()
+    allowed_roots = [Path.cwd().resolve()]
+    try:
+        allowed_roots.append(Path.home().resolve())
+    except RuntimeError:
+        pass
+    if not any(output_dir.is_relative_to(root) for root in allowed_roots):
+        raise ValueError(
+            f"AUTO_RESEARCH_OUTPUT_DIR must be inside one of {[str(r) for r in allowed_roots]}, got {output_dir}"
+        )
+    return output_dir
+
+
 @tools_registry.activity(name="search_research_sources")
 async def search_research_sources(query: str) -> str:
     """Return simulated source results scoped to a research question."""
@@ -49,7 +63,7 @@ async def log_research_progress(message: str) -> str:
 @tools_registry.activity(name="publish_research_report")
 async def publish_research_report(report: str, topic: str) -> str:
     """Write the approved report to the configured local output directory."""
-    output_dir = Path(os.environ.get("AUTO_RESEARCH_OUTPUT_DIR", "research_reports"))
+    output_dir = resolve_output_dir()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")[:60]
