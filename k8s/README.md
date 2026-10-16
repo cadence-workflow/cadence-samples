@@ -112,7 +112,7 @@ spec:
         drop: ["ALL"]
     livenessProbe:
       exec:
-        command: ["test", "-x", "/home/cadence/bin/helloworld"]
+        command: ["test", "-x", "/bin/bash"]
       initialDelaySeconds: 5
       periodSeconds: 30
     volumeMounts:
