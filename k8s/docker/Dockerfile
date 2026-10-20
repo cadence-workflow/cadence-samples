@@ -14,8 +14,8 @@ RUN addgroup -g 1001 cadence && \
 # Set working directory
 WORKDIR /home/cadence
 
-# Clone cadence-samples repository
-RUN git clone https://github.com/cadence-workflow/cadence-samples.git .
+# Copy the cadence-samples checkout this image is built from (build context = repo root)
+COPY . .
 
 # Update config file with the provided Cadence host
 RUN sed -i "s/host: \"localhost:7833\"/host: \"${CADENCE_HOST}\"/" config/development.yaml
