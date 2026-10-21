@@ -146,6 +146,7 @@ spec:
 1. **`namespace`**: Change to your Cadence namespace
 2. **`image`**: Change to your registry image path, in both `initContainers` and `containers`
 3. **`imagePullPolicy`**: Leave it as `Always` if you pushed the image to a registry. If you loaded it straight into the cluster (`kind load docker-image`, `minikube image load`), set it to `IfNotPresent` in both containers, or the pod fails with `ErrImagePull`.
+3. **`imagePullPolicy`**: Leave it as `Always` if you pushed the image to a registry. If you loaded it straight into the cluster (`kind load docker-image`, `minikube image load`), set it to `IfNotPresent` in both containers, or the pod fails with `ErrImagePull`.
 
 ### Deploy the Pod
 
