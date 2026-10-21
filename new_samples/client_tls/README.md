@@ -7,24 +7,12 @@ This sample demonstrates how to connect to a Cadence server using TLS (Transport
 1. A Cadence server started with the TLS development config, from the Cadence repo:
    `./cadence-server --zone tls start` (uses `config/development_tls.yaml`)
 2. Development certificates whose `keytest.crt` includes SANs for `localhost` and
-   `127.0.0.1` (cadence-workflow/cadence#8657, or Cadence master once that merges).
-   Older `keytest.crt` files have no SAN; Go rejects them with
-   `x509: certificate relies on legacy Common Name field` (or "not valid for any names"),
-   and `CADENCE_TLS_SERVER_NAME` cannot work around that.
+   `127.0.0.1`, added in cadence-workflow/cadence#8657. Older `keytest.crt` files have no SAN;
+   Go rejects them with `x509: certificate relies on legacy Common Name field`, and
+   `CADENCE_TLS_SERVER_NAME` cannot work around that.
    ```bash
    mkdir -p credentials
    cp <path-to-cadence>/config/credentials/{client.crt,client.key,keytest.crt} credentials/
-   ```
-   Until #8657 is available, keep `keytest` (the private key) and reissue a SAN cert from it,
-   then point the Cadence TLS config and this sample at the new `keytest.crt`:
-   ```bash
-   openssl req -new -x509 -key <path-to-cadence>/config/credentials/keytest \
-     -out credentials/keytest.crt -days 3650 \
-     -subj "/C=US/ST=Some-State/O=Uber/OU=Cadence/CN=localhost" \
-     -addext "subjectAltName=DNS:localhost,DNS:cadence,IP:127.0.0.1,IP:0:0:0:0:0:0:0:1"
-   cp <path-to-cadence>/config/credentials/{client.crt,client.key} credentials/
-   # Also copy the new keytest.crt over the server's config/credentials/keytest.crt
-   # (same key file) before starting ./cadence-server --zone tls start
    ```
    - `credentials/client.crt` - Client certificate
    - `credentials/client.key` - Client private key
