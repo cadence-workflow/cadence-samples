@@ -4,11 +4,19 @@ This sample demonstrates how to connect to a Cadence server using TLS (Transport
 
 ## Prerequisites
 
-1. A Cadence server configured with TLS enabled
-2. Client certificates in the `credentials/` directory:
+1. A Cadence server started with the TLS development config, from the Cadence repo:
+   `./cadence-server --zone tls start` (uses `config/development_tls.yaml`)
+2. Development certificates whose `keytest.crt` includes SANs for `localhost` and
+   `127.0.0.1`, added in cadence-workflow/cadence#8657. Older `keytest.crt` files have no SAN;
+   Go rejects them with `x509: certificate relies on legacy Common Name field`, and
+   `CADENCE_TLS_SERVER_NAME` cannot work around that.
+   ```bash
+   mkdir -p credentials
+   cp <path-to-cadence>/config/credentials/{client.crt,client.key,keytest.crt} credentials/
+   ```
    - `credentials/client.crt` - Client certificate
    - `credentials/client.key` - Client private key
-   - `credentials/keytest.crt` - Server CA certificate
+   - `credentials/keytest.crt` - Server CA / server certificate
 
 ## Running the Sample
 
@@ -53,8 +61,12 @@ The `main.go` file demonstrates:
 
 ## Security Notes
 
-- The sample uses `InsecureSkipVerify: true` for development convenience
-- In production, always verify server certificates by setting `InsecureSkipVerify: false`
+- The client verifies the server certificate chain against `credentials/keytest.crt` and checks
+  the server hostname. Do not disable this with `InsecureSkipVerify`: it also disables the CA check,
+  so the client would accept any server
+- The server certificate must have a SAN that matches the dial address (`127.0.0.1` by default).
+  Set `CADENCE_TLS_SERVER_NAME` only when the cert has a SAN for a different name (for example
+  dialing `127.0.0.1` with a cert issued for `localhost`). It does not help a cert with no SAN.
 - Store credentials securely and never commit them to version control
 
 ## References

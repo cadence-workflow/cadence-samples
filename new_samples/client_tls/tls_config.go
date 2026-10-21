@@ -31,10 +31,12 @@ func BuildTLSDialOption() (grpc.DialOption, error) {
 	}
 
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: true, // For development only - verify certs in production
-		RootCAs:            caCertPool,
-		Certificates:       []tls.Certificate{clientCert},
-		MinVersion:         tls.VersionTLS12,
+		RootCAs:      caCertPool,
+		Certificates: []tls.Certificate{clientCert},
+		MinVersion:   tls.VersionTLS12,
+		// Override when the server certificate's SAN does not match HostPort,
+		// e.g. dialing 127.0.0.1 with a certificate issued for "localhost".
+		ServerName: os.Getenv("CADENCE_TLS_SERVER_NAME"),
 	}
 
 	creds := credentials.NewTLS(tlsConfig)
