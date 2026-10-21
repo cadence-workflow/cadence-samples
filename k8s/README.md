@@ -22,25 +22,25 @@ cadence --address $(hostname -i):7833 \
 
 ## Building the Docker Image
 
-Build the samples image with your Cadence host configuration:
+Build the samples image from the root of your cadence-samples checkout, with your Cadence host configuration:
 
 ```bash
-docker build --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
 ```
 
-**Important**: Replace `cadence-frontend.cadence.svc.cluster.local:7833` with your actual Cadence frontend service address.
+**Important**: Replace `cadence-frontend.cadence.svc.cluster.local:7833` with your actual Cadence frontend service address. The image contains the code from your checkout, so check out the branch you want to run first.
 
 ### Examples for Different Environments
 
 ```bash
 # Local development
-docker build --build-arg CADENCE_HOST="localhost:7833" -t cadence-samples:latest -f Dockerfile.samples .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="localhost:7833" -t cadence-samples:latest .
 
 # Kubernetes cluster (same namespace)
-docker build --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
 
 # Different namespace
-docker build --build-arg CADENCE_HOST="cadence-frontend.my-namespace.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.my-namespace.svc.cluster.local:7833" -t cadence-samples:latest .
 ```
 
 ## Upload to Container Registry
