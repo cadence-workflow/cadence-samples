@@ -22,25 +22,25 @@ cadence --address $(hostname -i):7833 \
 
 ## Building the Docker Image
 
-Build the samples image with your Cadence host configuration:
+Build the samples image from the root of your cadence-samples checkout, with your Cadence host configuration:
 
 ```bash
-docker build --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
 ```
 
-**Important**: Replace `cadence-frontend.cadence.svc.cluster.local:7833` with your actual Cadence frontend service address.
+**Important**: Replace `cadence-frontend.cadence.svc.cluster.local:7833` with your actual Cadence frontend service address. The image contains the code from your checkout, so check out the branch you want to run first.
 
 ### Examples for Different Environments
 
 ```bash
 # Local development
-docker build --build-arg CADENCE_HOST="localhost:7833" -t cadence-samples:latest -f Dockerfile.samples .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="localhost:7833" -t cadence-samples:latest .
 
 # Kubernetes cluster (same namespace)
-docker build --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.cadence.svc.cluster.local:7833" -t cadence-samples:latest .
 
 # Different namespace
-docker build --build-arg CADENCE_HOST="cadence-frontend.my-namespace.svc.cluster.local:7833" -t cadence-samples:latest .
+docker build -f k8s/docker/Dockerfile --build-arg CADENCE_HOST="cadence-frontend.my-namespace.svc.cluster.local:7833" -t cadence-samples:latest .
 ```
 
 ## Upload to Container Registry
@@ -70,13 +70,56 @@ metadata:
   labels:
     app: cadence-samples
 spec:
+  # The root filesystem is read-only, so the prebuilt home directory is copied into a
+  # writable volume. This keeps `make` and `go build` working inside the pod.
+  initContainers:
+  - name: copy-home
+    image: cadence-samples:latest  # Same image as the main container
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
+    command: ["cp", "-a", "/home/cadence/.", "/writable-home/"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      capabilities:
+        drop: ["ALL"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
+    volumeMounts:
+    - name: home
+      mountPath: /writable-home
   containers:
   - name: cadence-samples
     image: cadence-samples:latest  # Change to your registry image
-    imagePullPolicy: IfNotPresent
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
     command: ["/bin/bash"]
     args: ["-c", "sleep infinity"]
     workingDir: /home/cadence
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      capabilities:
+        drop: ["ALL"]
+    livenessProbe:
+      exec:
+        command: ["test", "-x", "/bin/bash"]
+      initialDelaySeconds: 5
+      periodSeconds: 30
+    volumeMounts:
+    - name: home
+      mountPath: /home/cadence
+    - name: tmp
+      mountPath: /tmp
     env:
     - name: HOME
       value: "/home/cadence"
@@ -87,16 +130,23 @@ spec:
       limits:
         memory: "1Gi"
         cpu: "1"
+  volumes:
+  - name: home
+    emptyDir: {}
+  - name: tmp
+    emptyDir: {}
   restartPolicy: Always
   securityContext:
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
 ```
 
 **Required Changes**:
 1. **`namespace`**: Change to your Cadence namespace
-2. **`image`**: Change to your registry image path
+2. **`image`**: Change to your registry image path, in both `initContainers` and `containers`
+3. **`imagePullPolicy`**: Leave it as `Always` if you pushed the image to a registry. If you loaded it straight into the cluster (`kind load docker-image`, `minikube image load`), set it to `IfNotPresent` in both containers, or the pod fails with `ErrImagePull`.
+3. **`imagePullPolicy`**: Leave it as `Always` if you pushed the image to a registry. If you loaded it straight into the cluster (`kind load docker-image`, `minikube image load`), set it to `IfNotPresent` in both containers, or the pod fails with `ErrImagePull`.
 
 ### Deploy the Pod
 

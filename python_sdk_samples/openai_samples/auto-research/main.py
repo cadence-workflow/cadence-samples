@@ -5,7 +5,7 @@ import signal
 import cadence
 from cadence.contrib.openai import PydanticDataConverter, cadence_registry
 
-from research_tools import tools_registry
+from research_tools import resolve_output_dir, tools_registry
 from research_workflow import workflow_registry
 
 
@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
+    resolve_output_dir()
+
     worker = cadence.worker.Worker(
         cadence.Client(
             domain="default",
