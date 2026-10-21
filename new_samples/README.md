@@ -26,6 +26,7 @@ This directory contains samples demonstrating various Cadence workflow concepts.
 | [pickfirst/](pickfirst/) | Pick-first pattern: race multiple activities and take the fastest result |
 | [query/](query/) | Workflow query patterns |
 | [retryactivity/](retryactivity/) | Activity retry with configurable retry policies |
+| [saga/](saga/) | Saga pattern: compensate completed steps in reverse order when a later step fails |
 | [schedule/](schedule/) | Schedule SDK: create, describe, pause, unpause, backfill, update, list, and delete schedules |
 | [sideeffect/](sideeffect/) | Side effect for non-deterministic operations (e.g. UUID generation) |
 | [signal/](signal/) | Workflow signal patterns: single-signal completion, and ordered processing of out-of-order signals with timeouts |
