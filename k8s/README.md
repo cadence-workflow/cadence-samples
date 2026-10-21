@@ -75,7 +75,7 @@ spec:
   initContainers:
   - name: copy-home
     image: cadence-samples:latest  # Same image as the main container
-    imagePullPolicy: Always
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
     command: ["cp", "-a", "/home/cadence/.", "/writable-home/"]
     securityContext:
       allowPrivilegeEscalation: false
@@ -98,7 +98,7 @@ spec:
   containers:
   - name: cadence-samples
     image: cadence-samples:latest  # Change to your registry image
-    imagePullPolicy: Always
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
     command: ["/bin/bash"]
     args: ["-c", "sleep infinity"]
     workingDir: /home/cadence
@@ -145,6 +145,7 @@ spec:
 **Required Changes**:
 1. **`namespace`**: Change to your Cadence namespace
 2. **`image`**: Change to your registry image path, in both `initContainers` and `containers`
+3. **`imagePullPolicy`**: Leave it as `Always` if you pushed the image to a registry. If you loaded it straight into the cluster (`kind load docker-image`, `minikube image load`), set it to `IfNotPresent` in both containers, or the pod fails with `ErrImagePull`.
 
 ### Deploy the Pod
 

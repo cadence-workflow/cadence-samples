@@ -11,7 +11,7 @@ spec:
   initContainers:
   - name: copy-home
     image: cadence-samples:latest  # Same image as the main container
-    imagePullPolicy: Always
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
     command: ["cp", "-a", "/home/cadence/.", "/writable-home/"]
     securityContext:
       allowPrivilegeEscalation: false
@@ -34,7 +34,7 @@ spec:
   containers:
   - name: cadence-samples
     image: cadence-samples:latest  # Replace with your built image
-    imagePullPolicy: Always
+    imagePullPolicy: Always  # Use IfNotPresent for a locally loaded image (kind/minikube)
     command: ["/bin/bash"]
     args: ["-c", "sleep infinity"]
     workingDir: /home/cadence
