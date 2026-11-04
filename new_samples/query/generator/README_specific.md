@@ -63,7 +63,7 @@ func QueryWorkflow(ctx workflow.Context) error {
 
 ## Expense Report Sample (workflow Home page)
 
-This sample shows a custom **Home** page in Cadence Web. The workflow takes an expense report as input, waits for a reviewer, and returns the decision as its result. Its `home` query returns Markdoc that renders the input, the result, review buttons, and a list of other expense reports.
+This sample shows a custom **Home** page in Cadence Web. The workflow takes an expense report, waits for a reviewer, and returns the decision. Its `home` query returns Markdoc that renders the report, review buttons, and a list of other expense reports.
 
 Start Cadence Web with `CADENCE_WORKFLOW_HOME_ENABLED=true`.
 
@@ -87,9 +87,9 @@ Open the workflow in Cadence Web. The Home tab shows the report and these review
 - **Approve amount**: approves the amount in the **Approved amount** field. It starts at half the requested amount.
 - **Reject**: rejects the report.
 
-With no review within 1 hour, the report expires. After a decision, the workflow completes, and the Home page shows the result.
+With no review within 1 hour, the report expires. After a decision, the workflow completes, and the Home page shows the decision.
 
-Below the review actions, the page shows workflow data, a list of other expense reports, and a **Submit another report** button that starts a new workflow with the amount you type.
+Below the review actions, the page shows a list of other expense reports and a **Submit another report** button that starts a new workflow with the amount you type.
 
 ### Key Concept: Home Page Tags
 
@@ -103,9 +103,6 @@ The returned Markdoc uses these tags. Each one gets domain, cluster, workflow ID
 
 | Tag | Shows |
 |-----|-------|
-| `{% input /%}` | The workflow input. Arguments are an array, so `path="[0].employee"` picks a field of the first argument. |
-| `{% result /%}` | The workflow result, or a note while the workflow runs. `path="approvedAmount"` picks one field. |
-| `{% searchAttributes /%}` | The search attributes. `name="CustomKeywordField"` picks one. |
 | `{% workflows query="..." /%}` | A list of workflows that match a visibility query. Needs advanced visibility. |
 | `{% signal /%}` and `{% start /%}` | Buttons that signal this workflow or start a new one. |
 | `{% input-field /%}` | A text or number input. A button sends its value as `$name`, for example `input={"amount":$approvedAmount}`. |

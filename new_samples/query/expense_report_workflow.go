@@ -65,8 +65,8 @@ type expenseHomeFormattedResponse struct {
 }
 
 // ExpenseReportWorkflow waits for a reviewer to approve or reject an expense report.
-// Its Home tab in Cadence Web shows the submitted input, the review actions,
-// the returned result, and a list of other expense reports.
+// Its Home tab in Cadence Web shows the report, the review actions,
+// the decision, and a list of other expense reports.
 func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseDecision, error) {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("ExpenseReportWorkflow started", zap.String("employee", report.Employee))
@@ -174,16 +174,6 @@ Approve or reject within 1 hour, or the report expires.
 
 **{{escapeTags .decision.Reviewer}}** decided at {{.decidedAt}}: *{{escapeTags .decision.Comment}}*
 {{end}}
----
-
-### Report data
-
-Status: {% searchAttributes name="CustomKeywordField" /%}
-
-Employee: {% input path="[0].employee" /%}
-
-Approved amount: {% result path="approvedAmount" /%}
-
 ---
 
 ### Other expense reports
