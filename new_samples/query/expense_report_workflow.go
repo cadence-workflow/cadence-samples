@@ -49,6 +49,7 @@ const (
 	ExpenseStatusPartial  = "partially_approved"
 	ExpenseStatusRejected = "rejected"
 	ExpenseStatusExpired  = "expired"
+	ExpenseStatusCanceled = "canceled"
 
 	// Cadence Web renders this query as the workflow's Home tab
 	cadenceWebHomeQuery = "home"
@@ -143,7 +144,7 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 	})
 	selector.Select(ctx)
 	if timerErr != nil {
-		return decision, timerErr
+		decide(ExpenseStatusCanceled, 0, ExpenseReviewSignal{Reviewer: "System", Comment: "Workflow canceled"})
 	}
 
 	err = workflow.UpsertSearchAttributes(ctx, map[string]interface{}{
@@ -151,6 +152,9 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 	})
 	if err != nil {
 		return decision, err
+	}
+	if timerErr != nil {
+		return decision, timerErr
 	}
 
 	logger.Info("ExpenseReportWorkflow completed", zap.String("status", decision.Status))
@@ -254,6 +258,8 @@ func getExpenseStatusBadge(status string) string {
 		return "🔴 **Rejected**"
 	case ExpenseStatusExpired:
 		return "⚪ **Expired**"
+	case ExpenseStatusCanceled:
+		return "⚫ **Canceled**"
 	default:
 		return status
 	}
