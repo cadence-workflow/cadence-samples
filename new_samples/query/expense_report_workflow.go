@@ -73,6 +73,9 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 
 	requested := 0.0
 	for _, item := range report.Items {
+		if item.Amount < 0 {
+			return ExpenseDecision{}, fmt.Errorf("item %q has a negative amount", item.Description)
+		}
 		requested += item.Amount
 	}
 
