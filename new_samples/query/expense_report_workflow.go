@@ -92,9 +92,10 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 		RequestedAmount: requested,
 	}
 	submittedAt := workflow.Now(ctx)
+	workflowID := workflow.GetInfo(ctx).WorkflowExecution.ID
 
 	err = workflow.SetQueryHandler(ctx, cadenceWebHomeQuery, func() (expenseHomeFormattedResponse, error) {
-		return makeExpenseHome(report, decision, submittedAt)
+		return makeExpenseHome(report, decision, submittedAt, workflowID)
 	})
 	if err != nil {
 		return decision, err
@@ -188,7 +189,11 @@ Approve or reject within 1 hour, or the report expires.
 
 ### Other expense reports
 
-{% workflows query="WorkflowType = 'cadence_samples.ExpenseReportWorkflow'" columns="WorkflowID,CloseStatus,CustomKeywordField,StartTime,CloseTime" /%}
+{% workflows query="WorkflowType = 'cadence_samples.ExpenseReportWorkflow' AND WorkflowID != '{{.workflowID}}'" columns="WorkflowID,CloseStatus,CustomKeywordField,StartTime,CloseTime" /%}
+
+---
+
+### New report
 
 {% input-field name="newAmount" label="Amount for the new receipt ({{.report.Currency}})" type="number" required=true /%}
 
@@ -201,7 +206,7 @@ Approve or reject within 1 hour, or the report expires.
 /%}
 `))
 
-func makeExpenseHome(report ExpenseReport, decision ExpenseDecision, submittedAt time.Time) (expenseHomeFormattedResponse, error) {
+func makeExpenseHome(report ExpenseReport, decision ExpenseDecision, submittedAt time.Time, workflowID string) (expenseHomeFormattedResponse, error) {
 	money := func(amount float64) string {
 		return fmt.Sprintf("%.2f %s", amount, report.Currency)
 	}
@@ -211,6 +216,7 @@ func makeExpenseHome(report ExpenseReport, decision ExpenseDecision, submittedAt
 	err := expenseHomeTemplate.Execute(&markdown, map[string]interface{}{
 		"report":      report,
 		"decision":    decision,
+		"workflowID":  workflowID,
 		"isPending":   decision.Status == ExpenseStatusPending,
 		"statusBadge": getExpenseStatusBadge(decision.Status),
 		"requested":   money(decision.RequestedAmount),

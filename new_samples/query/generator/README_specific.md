@@ -95,7 +95,7 @@ Below the review actions, the page shows a list of other expense reports and a *
 
 ```go
 workflow.SetQueryHandler(ctx, "home", func() (expenseHomeFormattedResponse, error) {
-    return makeExpenseHome(report, decision, submittedAt)
+    return makeExpenseHome(report, decision, submittedAt, workflowID)
 })
 ```
 
