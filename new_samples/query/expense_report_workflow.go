@@ -161,8 +161,8 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 	return decision, nil
 }
 
-// Domain, cluster, workflow ID and run ID are left out of the tags below:
-// Cadence Web fills them in from the workflow page.
+// Cadence Web fills in the domain, cluster, workflow ID and run ID of the action tags below.
+// The workflow ID is only added to the workflows query, to leave out the current report.
 var expenseHomeTemplate = template.Must(template.New("expenseHome").Funcs(template.FuncMap{"escapeTags": escapeTags}).Parse(`**{{escapeTags .report.Employee}}** ({{escapeTags .report.Department}}) submitted this report at {{.submittedAt}}.
 
 | Status | Requested | Approved |
