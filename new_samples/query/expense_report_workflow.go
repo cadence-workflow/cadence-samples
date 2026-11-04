@@ -133,10 +133,17 @@ func ExpenseReportWorkflow(ctx workflow.Context, report ExpenseReport) (ExpenseD
 		ch.Receive(ctx, &signal)
 		decide(ExpenseStatusRejected, 0, signal)
 	})
+	var timerErr error
 	selector.AddFuture(workflow.NewTimer(ctx, expenseReviewTimeout), func(f workflow.Future) {
-		decide(ExpenseStatusExpired, 0, ExpenseReviewSignal{Reviewer: "System", Comment: "No review within 1 hour"})
+		// The timer is also ready when the workflow is canceled.
+		if timerErr = f.Get(ctx, nil); timerErr == nil {
+			decide(ExpenseStatusExpired, 0, ExpenseReviewSignal{Reviewer: "System", Comment: "No review within 1 hour"})
+		}
 	})
 	selector.Select(ctx)
+	if timerErr != nil {
+		return decision, timerErr
+	}
 
 	err = workflow.UpsertSearchAttributes(ctx, map[string]interface{}{
 		"CustomKeywordField": decision.Status,
