@@ -47,6 +47,7 @@ func StartWorker() {
 	w.RegisterWorkflowWithOptions(LunchVoteWorkflow, workflow.RegisterOptions{Name: "cadence_samples.LunchVoteWorkflow"})
 	w.RegisterWorkflowWithOptions(MarkdownQueryWorkflow, workflow.RegisterOptions{Name: "cadence_samples.MarkdownQueryWorkflow"})
 	w.RegisterWorkflowWithOptions(OrderFulfillmentWorkflow, workflow.RegisterOptions{Name: "cadence_samples.OrderFulfillmentWorkflow"})
+	w.RegisterWorkflowWithOptions(ExpenseReportWorkflow, workflow.RegisterOptions{Name: "cadence_samples.ExpenseReportWorkflow"})
 
 	err := w.Start()
 	if err != nil {
