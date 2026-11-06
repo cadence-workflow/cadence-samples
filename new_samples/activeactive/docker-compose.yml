@@ -1,0 +1,46 @@
+# Two Cadence clusters (cluster0 and cluster1) replicating to each other, plus Cadence Web.
+# Each cluster stores its data in its own SQLite database inside its container.
+services:
+  cadence:
+    # cluster0, the primary cluster. Its frontend is reachable on 127.0.0.1:7833.
+    image: ubercadence/server:master-auto-setup
+    ports:
+      - "7833:7833"
+    volumes:
+      - ./dynamicconfig:/etc/cadence/sample-dynamicconfig:ro
+    environment:
+      - "DB=sqlite"
+      - "DYNAMIC_CONFIG_FILE_PATH=/etc/cadence/sample-dynamicconfig/active_active.yaml"
+      - "ENABLE_GLOBAL_DOMAIN=true"
+      # Forward only start, signal, cancel, terminate and reset to the active cluster. Worker polls stay
+      # local, so each worker only runs tasks for regions active in its own cluster.
+      - "CLUSTER_REDIRECT_POLICY=selected-apis-forwarding"
+  cadence-secondary:
+    # cluster1. Its frontend is reachable on 127.0.0.1:7843.
+    image: ubercadence/server:master-auto-setup
+    ports:
+      - "7843:7833"
+    volumes:
+      - ./dynamicconfig:/etc/cadence/sample-dynamicconfig:ro
+    environment:
+      - "DB=sqlite"
+      - "DYNAMIC_CONFIG_FILE_PATH=/etc/cadence/sample-dynamicconfig/active_active.yaml"
+      - "IS_NOT_PRIMARY=true"
+      - "SECONDARY_FRONTEND_SERVICE=cadence-secondary"
+      - "ENABLE_GLOBAL_DOMAIN=true"
+      - "CLUSTER_REDIRECT_POLICY=selected-apis-forwarding"
+  cadence-web:
+    image: ubercadence/web:latest
+    environment:
+      - "CADENCE_GRPC_PEERS=cadence:7833,cadence-secondary:7833"
+      - "CADENCE_GRPC_SERVICES_NAMES=cadence-frontend,cadence-frontend"
+      - "CADENCE_CLUSTERS_NAMES=cluster0,cluster1"
+      # Show the domain's failover history (needs Cadence server >= 1.4.0).
+      - "CADENCE_FAILOVER_HISTORY_ENABLED=true"
+      # Show the raw DescribeDomain response, including each region's active cluster.
+      - "CADENCE_EXTENDED_DOMAIN_INFO_METADATA_ENABLED=true"
+    ports:
+      - "8088:8088"
+    depends_on:
+      - cadence
+      - cadence-secondary

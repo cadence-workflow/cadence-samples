@@ -1,0 +1,12 @@
+# Dynamic config for both clusters in this sample.
+
+# Required for active-active: honor the cluster attribute (ActiveClusterSelectionPolicy) of StartWorkflow requests.
+frontend.enableActiveClusterSelectionPolicyInStartWorkflow:
+- value: true
+# Every domain update, including a failover, is rejected for this long after the previous one (default 1m).
+# Shortened so you can fail over and back quickly.
+frontend.failoverCoolDown:
+- value: 5s
+# Record domain changes, including failovers, in the domain audit log. Cadence Web's Failovers tab reads it.
+system.enableDomainAuditLogging:
+- value: true
