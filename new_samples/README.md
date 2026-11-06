@@ -6,6 +6,7 @@ This directory contains samples demonstrating various Cadence workflow concepts.
 
 | Folder | Description |
 |--------|-------------|
+| [activeactive/](activeactive/) | Active-active domains: three regions failing over independently across two replicating clusters |
 | [activities/](activities/) | Activity patterns: dynamic execution by name, parallel execution with pick-first |
 | [branch/](branch/) | Branching workflow logic with conditional activity execution |
 | [cancelactivity/](cancelactivity/) | Workflow cancellation and activity cleanup patterns |
